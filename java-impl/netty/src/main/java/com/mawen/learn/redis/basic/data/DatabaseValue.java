@@ -8,7 +8,7 @@ public class DatabaseValue {
 
 	private DataType type;
 
-	private String value;
+	private Object value;
 
 	public DataType getType() {
 		return type;
@@ -18,23 +18,23 @@ public class DatabaseValue {
 		this.type = type;
 	}
 
-	public String getValue() {
+	public Object getValue() {
 		return value;
 	}
 
-	public void setValue(String value) {
+	public void setValue(Object value) {
 		this.value = value;
 	}
 
-	public int incrementAndGet() throws NumberFormatException {
-		int i = Integer.parseInt(value);
-		this.value = String.valueOf(++i);
+	public int incrementAndGet(int increment) throws NumberFormatException {
+		int i = Integer.parseInt(value.toString()) + increment;
+		this.value = String.valueOf(i);
 		return i;
 	}
 
-	public int decrementAndGet() throws NumberFormatException {
-		int i = Integer.parseInt(value);
-		this.value = String.valueOf(--i);
+	public int decrementAndGet(int decrement) throws NumberFormatException {
+		int i = Integer.parseInt(value.toString()) - decrement;
+		this.value = String.valueOf(i);
 		return i;
 	}
 }

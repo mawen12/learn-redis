@@ -12,17 +12,13 @@ public interface IResponse {
 
 	IResponse addValue(DatabaseValue value);
 
-	IResponse addBulkStr(String str);
-
-	IResponse addSimpleStr(String str);
-
-	IResponse addInt(int i);
-
-	IResponse addInt(boolean b);
-
-	IResponse addInt(String str);
-
-	IResponse addError(String str);
-
 	IResponse addArray(Collection<DatabaseValue> array);
+
+	IResponse addBulkStr(Object str);
+
+	IResponse addSimpleStr(Object str);
+
+	IResponse addInt(Object str);
+
+	IResponse addError(Object str);
 }

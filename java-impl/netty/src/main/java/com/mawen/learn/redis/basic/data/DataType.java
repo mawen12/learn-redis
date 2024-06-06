@@ -7,8 +7,8 @@ package com.mawen.learn.redis.basic.data;
 public enum DataType {
 
 	STRING,
-
-	INTEGER,
-
-	ARRAY;
+	LIST,
+	SET,
+	ZSET,
+	HASH;
 }

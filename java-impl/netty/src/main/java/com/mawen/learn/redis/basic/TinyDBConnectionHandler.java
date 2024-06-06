@@ -3,6 +3,7 @@ package com.mawen.learn.redis.basic;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.mawen.learn.redis.basic.redis.RedisToken;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
@@ -35,7 +36,7 @@ public class TinyDBConnectionHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		try {
-			tinyDB.receive(ctx, (String) msg);
+			tinyDB.receive(ctx, (RedisToken<?>) msg);
 		}
 		finally {
 			ReferenceCountUtil.release(msg);

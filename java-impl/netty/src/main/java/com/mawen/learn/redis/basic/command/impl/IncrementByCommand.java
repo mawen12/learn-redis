@@ -11,7 +11,7 @@ import com.mawen.learn.redis.basic.data.IDatabase;
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/6
  */
-public class IncrementCommand implements ICommand {
+public class IncrementByCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
@@ -22,7 +22,8 @@ public class IncrementCommand implements ICommand {
 
 			value = db.merge(request.getParam(0), value, (oldValue, newValue) -> {
 				if (oldValue != null) {
-					oldValue.incrementAndGet(1);
+					int increment = Integer.parseInt(request.getParam(1));
+					oldValue.incrementAndGet(increment);
 					return oldValue;
 				}
 				return newValue;

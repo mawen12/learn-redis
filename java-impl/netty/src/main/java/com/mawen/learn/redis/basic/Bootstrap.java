@@ -6,9 +6,11 @@ package com.mawen.learn.redis.basic;
  */
 public class Bootstrap {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		TinyDB db = new TinyDB();
 		db.init();
 		db.start();
+
+		Runtime.getRuntime().addShutdownHook(new Thread(db::stop));
 	}
 }

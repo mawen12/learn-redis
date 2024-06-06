@@ -1,5 +1,6 @@
 package com.mawen.learn.redis.basic;
 
+import com.mawen.learn.redis.basic.redis.RedisToken;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.SocketChannel;
 
@@ -27,5 +28,5 @@ public interface ITinyDB {
 	/**
 	 * Method called when a message is received
 	 */
-	void receive(ChannelHandlerContext ctx, String message);
+	void receive(ChannelHandlerContext ctx, RedisToken<?> message);
 }

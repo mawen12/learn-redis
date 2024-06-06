@@ -1,10 +1,10 @@
 package com.mawen.learn.redis.basic;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.mawen.learn.redis.basic.command.CommandWrapper;
@@ -13,16 +13,21 @@ import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IResponse;
 import com.mawen.learn.redis.basic.command.Request;
 import com.mawen.learn.redis.basic.command.Response;
+import com.mawen.learn.redis.basic.command.impl.DecrementByCommand;
 import com.mawen.learn.redis.basic.command.impl.DecrementCommand;
 import com.mawen.learn.redis.basic.command.impl.DelCommand;
 import com.mawen.learn.redis.basic.command.impl.EchoCommand;
 import com.mawen.learn.redis.basic.command.impl.ExistsCommand;
 import com.mawen.learn.redis.basic.command.impl.GetCommand;
+import com.mawen.learn.redis.basic.command.impl.IncrementByCommand;
 import com.mawen.learn.redis.basic.command.impl.IncrementCommand;
 import com.mawen.learn.redis.basic.command.impl.MultiGetCommand;
 import com.mawen.learn.redis.basic.command.impl.PingCommand;
 import com.mawen.learn.redis.basic.command.impl.SetCommand;
 import com.mawen.learn.redis.basic.data.Database;
+import com.mawen.learn.redis.basic.redis.RedisToken;
+import com.mawen.learn.redis.basic.redis.RedisTokenType;
+import com.mawen.learn.redis.basic.redis.RequestDecoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -33,9 +38,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
-import io.netty.handler.codec.Delimiters;
-import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 
@@ -77,15 +79,22 @@ public class TinyDB implements ITinyDB {
 	}
 
 	public void init() {
+		// connection
 		commands.put("ping", new PingCommand());
-		commands.put("set", new CommandWrapper(new SetCommand(), 2));
-		commands.put("del", new CommandWrapper(new DelCommand(), 1));
-		commands.put("get", new CommandWrapper(new GetCommand(), 1));
-		commands.put("incr", new CommandWrapper(new IncrementCommand(), 1));
-		commands.put("decr", new CommandWrapper(new DecrementCommand(), 1));
 		commands.put("echo", new CommandWrapper(new EchoCommand(), 1));
-		commands.put("exists", new CommandWrapper(new ExistsCommand(), 1));
+
+		// strings
+		commands.put("get", new CommandWrapper(new GetCommand(), 1));
 		commands.put("mget", new CommandWrapper(new MultiGetCommand(), 1));
+		commands.put("set", new CommandWrapper(new SetCommand(), 2));
+		commands.put("incr", new CommandWrapper(new IncrementCommand(), 1));
+		commands.put("incrBy", new CommandWrapper(new IncrementByCommand(), 2));
+		commands.put("decr", new CommandWrapper(new DecrementCommand(), 1));
+		commands.put("decrBy", new CommandWrapper(new DecrementByCommand(), 2));
+
+		// keys
+		commands.put("del", new CommandWrapper(new DelCommand(), 1));
+		commands.put("exists", new CommandWrapper(new ExistsCommand(), 1));
 	}
 
 	public void start() {
@@ -111,7 +120,7 @@ public class TinyDB implements ITinyDB {
 			throw new TinyDBException(e);
 		}
 
-		logger.log(Level.INFO, "adapter started");
+		logger.info(() -> "adapter started: " + host + ":" + port);
 	}
 
 	public void stop() {
@@ -125,16 +134,15 @@ public class TinyDB implements ITinyDB {
 			bossGroup.shutdownGracefully();
 		}
 
-		logger.log(Level.INFO, "adapter stopped");
+		logger.info("adapter stopped");
 	}
 
 	@Override
 	public void channel(SocketChannel channel) {
-		logger.log(Level.INFO, "new channel: {0}", sourceKey(channel));
+		logger.info(() -> "new channel: " + sourceKey(channel));
 
 		channel.pipeline().addLast("stringEncoder", new StringEncoder(CharsetUtil.UTF_8));
-		channel.pipeline().addLast("linDelimiter", new DelimiterBasedFrameDecoder(MAX_FRAME_SIZE, true, Delimiters.lineDelimiter()));
-		channel.pipeline().addLast("stringDecoder", new StringDecoder(CharsetUtil.UTF_8));
+		channel.pipeline().addLast("linDelimiter", new RequestDecoder(MAX_FRAME_SIZE));
 		channel.pipeline().addLast(connectionHandler);
 	}
 
@@ -142,7 +150,7 @@ public class TinyDB implements ITinyDB {
 	public void connected(ChannelHandlerContext ctx) {
 		String sourceKey = sourceKey(ctx.channel());
 
-		logger.log(Level.INFO, "client connected: {0}", sourceKey);
+		logger.info(() -> "client connected: " + sourceKey);
 
 		channels.put(sourceKey, ctx);
 	}
@@ -151,45 +159,50 @@ public class TinyDB implements ITinyDB {
 	public void disconnected(ChannelHandlerContext ctx) {
 		String sourceKey = sourceKey(ctx.channel());
 
-		logger.log(Level.INFO, "client disconnected: {0}", sourceKey);
+		logger.info(() -> "client disconnected: " + sourceKey);
 
 		channels.remove(sourceKey);
 	}
 
 	@Override
-	public void receive(ChannelHandlerContext ctx, String message) {
+	public void receive(ChannelHandlerContext ctx, RedisToken<?> message) {
 		String sourceKey = sourceKey(ctx.channel());
 
-		logger.log(Level.INFO, "message received: {0}", sourceKey);
+		logger.info(() -> "message received: " + sourceKey);
 
 		ctx.writeAndFlush(processCommand(parse(message)));
 	}
 
-	private IRequest parse(String message) {
+	private IRequest parse(RedisToken<?> message) {
 		Request request = new Request();
 
-		String[] split = message.split(" ");
-		request.setCommand(split[0]);
-
-		String[] params = new String[split.length - 1];
-		System.arraycopy(split, 1, params, 0, params.length);
-		request.setParams(Arrays.asList(params));
+		if (message.getType() == RedisTokenType.ARRAY) {
+			RedisToken.ArrayRedisToken arrayRedisToken = (RedisToken.ArrayRedisToken) message;
+			List<String> params = new LinkedList<>();
+			for (RedisToken<?> token : arrayRedisToken.getValue()) {
+				params.add(token.getValue().toString());
+			}
+			request.setCommand(params.get(0));
+			request.setParams(params.subList(1, params.size()));
+		}
 
 		return request;
 	}
 
 	private String processCommand(IRequest request) {
-		String cmd = request.getCommand();
-		logger.log(Level.INFO, "command: {0}", request.getParams());
+		logger.info(() -> "received command: " + request);
 
 		IResponse response = new Response();
-		ICommand command = commands.get(cmd);
+		ICommand command = commands.get(request.getCommand());
 		if (command != null) {
 			command.execute(db, request, response);
 		}
 		else {
-			response.addError("ERR unknown command '" + cmd + "'");
+			response.addError("ERR unknown command '" + request.getCommand() + "'");
 		}
+
+		logger.info(() -> "Response is: " + response);
+
 		return response.toString();
 	}
 
