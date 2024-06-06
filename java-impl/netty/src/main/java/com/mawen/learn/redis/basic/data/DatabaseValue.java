@@ -25,4 +25,16 @@ public class DatabaseValue {
 	public void setValue(String value) {
 		this.value = value;
 	}
+
+	public int incrementAndGet() throws NumberFormatException {
+		int i = Integer.parseInt(value);
+		this.value = String.valueOf(++i);
+		return i;
+	}
+
+	public int decrementAndGet() throws NumberFormatException {
+		int i = Integer.parseInt(value);
+		this.value = String.valueOf(--i);
+		return i;
+	}
 }

@@ -7,13 +7,19 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.mawen.learn.redis.basic.command.CommandWrapper;
 import com.mawen.learn.redis.basic.command.ICommand;
 import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IResponse;
 import com.mawen.learn.redis.basic.command.Request;
 import com.mawen.learn.redis.basic.command.Response;
+import com.mawen.learn.redis.basic.command.impl.DecrementCommand;
+import com.mawen.learn.redis.basic.command.impl.DelCommand;
 import com.mawen.learn.redis.basic.command.impl.EchoCommand;
+import com.mawen.learn.redis.basic.command.impl.ExistsCommand;
 import com.mawen.learn.redis.basic.command.impl.GetCommand;
+import com.mawen.learn.redis.basic.command.impl.IncrementCommand;
+import com.mawen.learn.redis.basic.command.impl.MultiGetCommand;
 import com.mawen.learn.redis.basic.command.impl.PingCommand;
 import com.mawen.learn.redis.basic.command.impl.SetCommand;
 import com.mawen.learn.redis.basic.data.Database;
@@ -72,9 +78,14 @@ public class TinyDB implements ITinyDB {
 
 	public void init() {
 		commands.put("ping", new PingCommand());
-		commands.put("set", new SetCommand());
-		commands.put("get", new GetCommand());
-		commands.put("echo", new EchoCommand());
+		commands.put("set", new CommandWrapper(new SetCommand(), 2));
+		commands.put("del", new CommandWrapper(new DelCommand(), 1));
+		commands.put("get", new CommandWrapper(new GetCommand(), 1));
+		commands.put("incr", new CommandWrapper(new IncrementCommand(), 1));
+		commands.put("decr", new CommandWrapper(new DecrementCommand(), 1));
+		commands.put("echo", new CommandWrapper(new EchoCommand(), 1));
+		commands.put("exists", new CommandWrapper(new ExistsCommand(), 1));
+		commands.put("mget", new CommandWrapper(new MultiGetCommand(), 1));
 	}
 
 	public void start() {
@@ -156,9 +167,14 @@ public class TinyDB implements ITinyDB {
 
 	private IRequest parse(String message) {
 		Request request = new Request();
-		String[] params = message.split(" ");
-		request.setCommand(params[0]);
+
+		String[] split = message.split(" ");
+		request.setCommand(split[0]);
+
+		String[] params = new String[split.length - 1];
+		System.arraycopy(split, 1, params, 0, params.length);
 		request.setParams(Arrays.asList(params));
+
 		return request;
 	}
 

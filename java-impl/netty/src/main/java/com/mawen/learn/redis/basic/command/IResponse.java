@@ -1,5 +1,7 @@
 package com.mawen.learn.redis.basic.command;
 
+import java.util.Collection;
+
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 
 /**
@@ -22,5 +24,5 @@ public interface IResponse {
 
 	IResponse addError(String str);
 
-	IResponse addArray(String[] array);
+	IResponse addArray(Collection<DatabaseValue> array);
 }

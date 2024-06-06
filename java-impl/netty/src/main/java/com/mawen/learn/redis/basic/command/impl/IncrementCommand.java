@@ -11,16 +11,27 @@ import com.mawen.learn.redis.basic.data.IDatabase;
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/6
  */
-public class SetCommand implements ICommand {
+public class IncrementCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue value = new DatabaseValue();
-		value.setType(DataType.STRING);
-		value.setValue(request.getParam(1));
+		try {
+			DatabaseValue value = new DatabaseValue();
+			value.setType(DataType.INTEGER);
+			value.setValue("1");
 
-		db.merge(request.getParam(0), value, (oldValue, newValue) -> newValue);
+			value = db.merge(request.getParam(0), value, (oldValue, newValue) -> {
+				if (oldValue != null) {
+					oldValue.incrementAndGet();
+					return oldValue;
+				}
+				return newValue;
+			});
 
-		response.addSimpleStr(OK);
+			response.addInt(value.getValue());
+		}
+		catch (NumberFormatException e) {
+			response.addError("ERR value is not an integer or out of range");
+		}
 	}
 }
