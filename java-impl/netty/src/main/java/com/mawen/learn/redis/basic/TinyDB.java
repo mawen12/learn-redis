@@ -1,10 +1,12 @@
 package com.mawen.learn.redis.basic;
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.mawen.learn.redis.basic.command.CommandWrapper;
@@ -18,12 +20,17 @@ import com.mawen.learn.redis.basic.command.impl.DecrementCommand;
 import com.mawen.learn.redis.basic.command.impl.DelCommand;
 import com.mawen.learn.redis.basic.command.impl.EchoCommand;
 import com.mawen.learn.redis.basic.command.impl.ExistsCommand;
+import com.mawen.learn.redis.basic.command.impl.FlushDBCommand;
 import com.mawen.learn.redis.basic.command.impl.GetCommand;
+import com.mawen.learn.redis.basic.command.impl.HashGetAllCommand;
+import com.mawen.learn.redis.basic.command.impl.HashGetCommand;
+import com.mawen.learn.redis.basic.command.impl.HashSetCommand;
 import com.mawen.learn.redis.basic.command.impl.IncrementByCommand;
 import com.mawen.learn.redis.basic.command.impl.IncrementCommand;
 import com.mawen.learn.redis.basic.command.impl.MultiGetCommand;
 import com.mawen.learn.redis.basic.command.impl.PingCommand;
 import com.mawen.learn.redis.basic.command.impl.SetCommand;
+import com.mawen.learn.redis.basic.command.impl.TimeCommand;
 import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.redis.RedisToken;
 import com.mawen.learn.redis.basic.redis.RedisTokenType;
@@ -83,6 +90,10 @@ public class TinyDB implements ITinyDB {
 		commands.put("ping", new PingCommand());
 		commands.put("echo", new CommandWrapper(new EchoCommand(), 1));
 
+		// server
+		commands.put("flushdb", new FlushDBCommand());
+		commands.put("time", new TimeCommand());
+
 		// strings
 		commands.put("get", new CommandWrapper(new GetCommand(), 1));
 		commands.put("mget", new CommandWrapper(new MultiGetCommand(), 1));
@@ -95,6 +106,11 @@ public class TinyDB implements ITinyDB {
 		// keys
 		commands.put("del", new CommandWrapper(new DelCommand(), 1));
 		commands.put("exists", new CommandWrapper(new ExistsCommand(), 1));
+
+		// hash
+		commands.put("hset", new CommandWrapper(new HashSetCommand(), 3));
+		commands.put("hget", new CommandWrapper(new HashGetCommand(), 2));
+		commands.put("hgetall", new CommandWrapper(new HashGetAllCommand(), 1));
 	}
 
 	public void start() {
@@ -139,7 +155,7 @@ public class TinyDB implements ITinyDB {
 
 	@Override
 	public void channel(SocketChannel channel) {
-		logger.info(() -> "new channel: " + sourceKey(channel));
+		logger.fine(() -> "new channel: " + sourceKey(channel));
 
 		channel.pipeline().addLast("stringEncoder", new StringEncoder(CharsetUtil.UTF_8));
 		channel.pipeline().addLast("linDelimiter", new RequestDecoder(MAX_FRAME_SIZE));
@@ -150,7 +166,7 @@ public class TinyDB implements ITinyDB {
 	public void connected(ChannelHandlerContext ctx) {
 		String sourceKey = sourceKey(ctx.channel());
 
-		logger.info(() -> "client connected: " + sourceKey);
+		logger.fine(() -> "client connected: " + sourceKey);
 
 		channels.put(sourceKey, ctx);
 	}
@@ -159,7 +175,7 @@ public class TinyDB implements ITinyDB {
 	public void disconnected(ChannelHandlerContext ctx) {
 		String sourceKey = sourceKey(ctx.channel());
 
-		logger.info(() -> "client disconnected: " + sourceKey);
+		logger.fine(() -> "client disconnected: " + sourceKey);
 
 		channels.remove(sourceKey);
 	}
@@ -177,23 +193,36 @@ public class TinyDB implements ITinyDB {
 		Request request = new Request();
 
 		if (message.getType() == RedisTokenType.ARRAY) {
-			RedisToken.ArrayRedisToken arrayRedisToken = (RedisToken.ArrayRedisToken) message;
+			RedisToken.ArrayRedisToken arrayToken = (RedisToken.ArrayRedisToken) message;
 			List<String> params = new LinkedList<>();
-			for (RedisToken<?> token : arrayRedisToken.getValue()) {
+
+			for (RedisToken<?> token : arrayToken.getValue()) {
 				params.add(token.getValue().toString());
 			}
+
 			request.setCommand(params.get(0));
 			request.setParams(params.subList(1, params.size()));
 		}
+		else if (message.getType() == RedisTokenType.UNKNOWN) {
+			RedisToken.UnknownRedisToken unknownToken = (RedisToken.UnknownRedisToken) message;
+			String command = unknownToken.getValue();
+			String[] params = command.split(" ");
 
+			request.setCommand(params[0]);
+			String[] array = new String[params.length - 1];
+			System.arraycopy(params, 1, array, 0, array.length);
+			request.setParams(Arrays.asList(array));
+
+			logger.log(Level.SEVERE, "Received Unknown command");
+		}
 		return request;
 	}
 
 	private String processCommand(IRequest request) {
-		logger.info(() -> "received command: " + request);
+		logger.fine(() -> "received command: " + request);
 
 		IResponse response = new Response();
-		ICommand command = commands.get(request.getCommand());
+		ICommand command = commands.get(request.getCommand().toLowerCase());
 		if (command != null) {
 			command.execute(db, request, response);
 		}

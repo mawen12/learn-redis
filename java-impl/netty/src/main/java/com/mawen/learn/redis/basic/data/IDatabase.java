@@ -7,4 +7,6 @@ import java.util.Map;
  * @since 2024/6/6
  */
 public interface IDatabase extends Map<String, DatabaseValue> {
+
+	boolean isType(String key, DataType type);
 }

@@ -1,24 +1,27 @@
 package com.mawen.learn.redis.basic.command.impl;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.mawen.learn.redis.basic.command.ICommand;
 import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.data.DataType;
-import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/6
  */
-public class SetCommand implements ICommand {
+public class TimeCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue value = new DatabaseValue(DataType.STRING, request.getParam(1));
+		List<String> result = new LinkedList<>();
 
-		db.merge(request.getParam(0), value, (oldValue, newValue) -> newValue);
+		long currentTimeMillis = System.currentTimeMillis();
+		result.add(String.valueOf(currentTimeMillis / 1000));
+		result.add(String.valueOf(currentTimeMillis % 1000));
 
-		response.addSimpleStr(OK);
+		response.addArray(result);
 	}
 }

@@ -21,6 +21,6 @@ public class MultiGetCommand implements ICommand {
 		for (String key : request.getParams()) {
 			result.add(db.get(key));
 		}
-		response.addArray(result);
+		response.addArrayValue(result);
 	}
 }

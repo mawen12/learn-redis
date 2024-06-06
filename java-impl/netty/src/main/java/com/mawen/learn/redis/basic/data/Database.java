@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
 /**
@@ -13,7 +14,7 @@ import java.util.function.BiFunction;
  */
 public class Database implements IDatabase {
 
-	private final Map<String, DatabaseValue> cache = Collections.synchronizedMap(new HashMap<>());
+	private final Map<String, DatabaseValue> cache = new ConcurrentHashMap<>();
 
 	@Override
 	public int size() {
@@ -83,5 +84,10 @@ public class Database implements IDatabase {
 	@Override
 	public DatabaseValue merge(String key, DatabaseValue value, BiFunction<? super DatabaseValue, ? super DatabaseValue, ? extends DatabaseValue> remappingFunction) {
 		return cache.merge(key, value, remappingFunction);
+	}
+
+	@Override
+	public boolean isType(String key, DataType type) {
+		return cache.getOrDefault(key, new DatabaseValue(type)).getType() == type;
 	}
 }

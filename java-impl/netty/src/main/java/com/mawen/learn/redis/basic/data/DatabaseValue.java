@@ -10,6 +10,15 @@ public class DatabaseValue {
 
 	private Object value;
 
+	public DatabaseValue(DataType type) {
+		this(type, null);
+	}
+
+	public DatabaseValue(DataType type, Object value) {
+		this.type = type;
+		this.value = value;
+	}
+
 	public DataType getType() {
 		return type;
 	}
@@ -18,11 +27,11 @@ public class DatabaseValue {
 		this.type = type;
 	}
 
-	public Object getValue() {
-		return value;
+	public <T> T getValue() {
+		return (T) value;
 	}
 
-	public void setValue(Object value) {
+	public <T> void setValue(T value) {
 		this.value = value;
 	}
 

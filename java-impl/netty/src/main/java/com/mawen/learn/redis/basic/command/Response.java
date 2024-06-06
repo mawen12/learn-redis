@@ -39,9 +39,9 @@ public class Response implements IResponse {
 	}
 
 	@Override
-	public IResponse addBulkStr(Object str) {
+	public IResponse addBulkStr(String str) {
 		if (str != null) {
-			sb.append(BULK_STRING).append(str.toString().length()).append(DELIMITER).append(str);
+			sb.append(BULK_STRING).append(str.length()).append(DELIMITER).append(str);
 		}
 		else {
 			sb.append(BULK_STRING).append(-1);
@@ -51,29 +51,55 @@ public class Response implements IResponse {
 	}
 
 	@Override
-	public IResponse addSimpleStr(Object str) {
+	public IResponse addSimpleStr(String str) {
 		sb.append(SIMPLE_STRING).append(str).append(DELIMITER);
 		return this;
 	}
 
 	@Override
-	public IResponse addInt(Object str) {
+	public IResponse addInt(String str) {
 		sb.append(INTEGER).append(str).append(DELIMITER);
 		return this;
 	}
 
 	@Override
-	public IResponse addError(Object str) {
+	public IResponse addInt(int value) {
+		sb.append(INTEGER).append(value).append(DELIMITER);
+		return this;
+	}
+
+	@Override
+	public IResponse addInt(boolean value) {
+		sb.append(INTEGER).append(value ? "1" : "0").append(DELIMITER);
+		return this;
+	}
+
+	@Override
+	public IResponse addError(String str) {
 		sb.append(ERROR).append(str).append(DELIMITER);
 		return this;
 	}
 
 	@Override
-	public IResponse addArray(Collection<DatabaseValue> array) {
+	public IResponse addArrayValue(Collection<DatabaseValue> array) {
 		if (array != null) {
 			sb.append(ARRAY).append(array.size()).append(DELIMITER);
 			for (DatabaseValue value : array) {
 				addValue(value);
+			}
+		}
+		else {
+			sb.append(ARRAY).append(0).append(DELIMITER);
+		}
+		return this;
+	}
+
+	@Override
+	public IResponse addArray(Collection<String> array) {
+		if (array != null) {
+			sb.append(ARRAY).append(array.size()).append(DELIMITER);
+			for (String value : array) {
+				addBulkStr(value);
 			}
 		}
 		else {
