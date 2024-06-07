@@ -89,29 +89,29 @@ public class TinyDB implements ITinyDB {
 	public void init() {
 		// connection
 		commands.put("ping", new PingCommand());
-		commands.put("echo", new CommandWrapper(new EchoCommand(), 1));
+		commands.put("echo", new CommandWrapper(new EchoCommand()));
 
 		// server
 		commands.put("flushdb", new FlushDBCommand());
 		commands.put("time", new TimeCommand());
 
 		// strings
-		commands.put("get", new CommandWrapper(new GetCommand(), 1));
-		commands.put("mget", new CommandWrapper(new MultiGetCommand(), 1));
-		commands.put("set", new CommandWrapper(new SetCommand(), 2));
-		commands.put("incr", new CommandWrapper(new IncrementCommand(), 1));
-		commands.put("incrBy", new CommandWrapper(new IncrementByCommand(), 2));
-		commands.put("decr", new CommandWrapper(new DecrementCommand(), 1));
-		commands.put("decrBy", new CommandWrapper(new DecrementByCommand(), 2));
+		commands.put("get", new CommandWrapper(new GetCommand()));
+		commands.put("mget", new CommandWrapper(new MultiGetCommand()));
+		commands.put("set", new CommandWrapper(new SetCommand()));
+		commands.put("incr", new CommandWrapper(new IncrementCommand()));
+		commands.put("incrBy", new CommandWrapper(new IncrementByCommand()));
+		commands.put("decr", new CommandWrapper(new DecrementCommand()));
+		commands.put("decrBy", new CommandWrapper(new DecrementByCommand()));
 
 		// keys
-		commands.put("del", new CommandWrapper(new DeleteCommand(), 1));
-		commands.put("exists", new CommandWrapper(new ExistsCommand(), 1));
+		commands.put("del", new CommandWrapper(new DeleteCommand()));
+		commands.put("exists", new CommandWrapper(new ExistsCommand()));
 
 		// hash
-		commands.put("hset", new CommandWrapper(new HashSetCommand(), 3));
-		commands.put("hget", new CommandWrapper(new HashGetCommand(), 2));
-		commands.put("hgetall", new CommandWrapper(new HashGetAllCommand(), 1));
+		commands.put("hset", new CommandWrapper(new HashSetCommand()));
+		commands.put("hget", new CommandWrapper(new HashGetCommand()));
+		commands.put("hgetall", new CommandWrapper(new HashGetAllCommand()));
 	}
 
 	public void start() {
@@ -120,22 +120,17 @@ public class TinyDB implements ITinyDB {
 		acceptHandler = new TinyDBInitializerHandler(this);
 		connectionHandler = new TinyDBConnectionHandler(this);
 
-		try {
-			ServerBootstrap bootstrap = new ServerBootstrap();
-			bootstrap.group(bossGroup, workerGroup)
-					.channel(NioServerSocketChannel.class)
-					.childHandler(acceptHandler)
-					.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-					.option(ChannelOption.SO_RCVBUF, BUFFER_SIZE)
-					.option(ChannelOption.SO_SNDBUF, BUFFER_SIZE)
-					.childOption(ChannelOption.SO_KEEPALIVE, true)
-					.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+		ServerBootstrap bootstrap = new ServerBootstrap();
+		bootstrap.group(bossGroup, workerGroup)
+				.channel(NioServerSocketChannel.class)
+				.childHandler(acceptHandler)
+				.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+				.option(ChannelOption.SO_RCVBUF, BUFFER_SIZE)
+				.option(ChannelOption.SO_SNDBUF, BUFFER_SIZE)
+				.childOption(ChannelOption.SO_KEEPALIVE, true)
+				.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
-			future = bootstrap.bind(host, port);
-		}
-		catch (RuntimeException e) {
-			throw new TinyDBException(e);
-		}
+		future = bootstrap.bind(host, port);
 
 		logger.info(() -> "adapter started: " + host + ":" + port);
 	}
@@ -150,6 +145,8 @@ public class TinyDB implements ITinyDB {
 			workerGroup.shutdownGracefully();
 			bossGroup.shutdownGracefully();
 		}
+
+		channels.clear();
 
 		logger.info("adapter stopped");
 	}
