@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,7 +18,7 @@ import com.mawen.learn.redis.basic.command.Request;
 import com.mawen.learn.redis.basic.command.Response;
 import com.mawen.learn.redis.basic.command.impl.DecrementByCommand;
 import com.mawen.learn.redis.basic.command.impl.DecrementCommand;
-import com.mawen.learn.redis.basic.command.impl.DelCommand;
+import com.mawen.learn.redis.basic.command.impl.DeleteCommand;
 import com.mawen.learn.redis.basic.command.impl.EchoCommand;
 import com.mawen.learn.redis.basic.command.impl.ExistsCommand;
 import com.mawen.learn.redis.basic.command.impl.FlushDBCommand;
@@ -74,7 +75,7 @@ public class TinyDB implements ITinyDB {
 
 	private final Map<String, ChannelHandlerContext> channels = new HashMap<>();
 	private final Map<String, ICommand> commands = new HashMap<>();
-	private final Database db = new Database();
+	private final Database db = new Database(new ConcurrentHashMap<>());
 
 	public TinyDB(String host, int port) {
 		this.port = port;
@@ -104,7 +105,7 @@ public class TinyDB implements ITinyDB {
 		commands.put("decrBy", new CommandWrapper(new DecrementByCommand(), 2));
 
 		// keys
-		commands.put("del", new CommandWrapper(new DelCommand(), 1));
+		commands.put("del", new CommandWrapper(new DeleteCommand(), 1));
 		commands.put("exists", new CommandWrapper(new ExistsCommand(), 1));
 
 		// hash

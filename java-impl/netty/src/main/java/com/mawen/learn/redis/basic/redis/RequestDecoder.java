@@ -69,7 +69,17 @@ public class RequestDecoder extends LineBasedFrameDecoder {
 	private String readLine(ChannelHandlerContext ctx, ByteBuf buffer) throws Exception {
 		ByteBuf readLine = (ByteBuf) super.decode(ctx, buffer);
 
-		return readLine != null ? readLine.toString(StandardCharsets.UTF_8) : null;
+		if (readLine != null) {
+			try {
+				return readLine.toString(StandardCharsets.UTF_8);
+			}
+			finally {
+				readLine.release();
+			}
+		}
+		else {
+			return null;
+		}
 	}
 
 	private RedisToken.ArrayRedisToken parseArray(ChannelHandlerContext ctx, ByteBuf buffer, int size) throws Exception {

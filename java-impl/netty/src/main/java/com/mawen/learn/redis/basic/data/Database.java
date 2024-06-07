@@ -14,7 +14,11 @@ import java.util.function.BiFunction;
  */
 public class Database implements IDatabase {
 
-	private final Map<String, DatabaseValue> cache = new ConcurrentHashMap<>();
+	private final Map<String, DatabaseValue> cache;
+
+	public Database(Map<String, DatabaseValue> cache) {
+		this.cache = cache;
+	}
 
 	@Override
 	public int size() {

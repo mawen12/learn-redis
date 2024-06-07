@@ -1,20 +1,24 @@
 package com.mawen.learn.redis.basic.data;
 
+import java.io.Serializable;
+
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/6
  */
-public class DatabaseValue {
+public class DatabaseValue implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private DataType type;
 
-	private Object value;
+	private Serializable value;
 
 	public DatabaseValue(DataType type) {
 		this(type, null);
 	}
 
-	public DatabaseValue(DataType type, Object value) {
+	public DatabaseValue(DataType type, Serializable value) {
 		this.type = type;
 		this.value = value;
 	}
@@ -27,11 +31,11 @@ public class DatabaseValue {
 		this.type = type;
 	}
 
-	public <T> T getValue() {
+	public <T extends Serializable> T getValue() {
 		return (T) value;
 	}
 
-	public <T> void setValue(T value) {
+	public <T extends Serializable> void setValue(T value) {
 		this.value = value;
 	}
 
