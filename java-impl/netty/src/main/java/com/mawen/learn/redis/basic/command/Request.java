@@ -1,5 +1,6 @@
 package com.mawen.learn.redis.basic.command;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -8,12 +9,14 @@ import java.util.List;
  */
 public class Request implements IRequest {
 
-	private String command;
+	private final String command;
 
-	private List<String> params;
+	private final List<String> params;
 
-	public void setCommand(String command) {
+	public Request(String command, List<String> params) {
+		super();
 		this.command = command;
+		this.params = params;
 	}
 
 	@Override
@@ -21,13 +24,9 @@ public class Request implements IRequest {
 		return command;
 	}
 
-	public void setParams(List<String> params) {
-		this.params = params;
-	}
-
 	@Override
 	public List<String> getParams() {
-		return params;
+		return Collections.unmodifiableList(params);
 	}
 
 	@Override

@@ -122,7 +122,7 @@ public class Database implements IDatabase {
 			cache.clear();
 		}
 		finally {
-			lock.unlockRead(stamp);
+			lock.unlockWrite(stamp);
 		}
 	}
 

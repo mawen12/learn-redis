@@ -2,41 +2,29 @@ package com.mawen.learn.redis.basic.command.impl;
 
 import java.util.Arrays;
 
-import com.mawen.learn.redis.basic.command.IRequest;
-import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.data.DataType;
-import com.mawen.learn.redis.basic.data.DatabaseValue;
-import com.mawen.learn.redis.basic.data.IDatabase;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DeleteCommandTest {
 
-	@Mock
-	private IDatabase db;
-
-	@Mock
-	private IRequest request;
-
-	@Mock
-	private IResponse response;
+	@Rule
+	public final CommandRule rule = new CommandRule(this);
 
 	@Test
 	public void testExecute() throws Exception {
-		when(request.getParams()).thenReturn(Arrays.asList("test"));
-		when(db.remove("test")).thenReturn(new DatabaseValue(DataType.STRING));
+		rule.getDatabase().put("test", string("value"));
 
-		DeleteCommand command = new DeleteCommand();
+		when(rule.getRequest().getParams()).thenReturn(Arrays.asList("test"));
 
-		command.execute(db, request, response);
+		rule.withParams("test").execute(new DeleteCommand());
 
-		verify(db).remove("test");
+		assertThat(rule.getDatabase().containsKey("test"), is(false));
 
-		verify(response).addInt(1);
+		verify(rule.getResponse()).addInt(1);
 	}
 }

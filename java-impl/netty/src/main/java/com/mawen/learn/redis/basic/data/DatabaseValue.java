@@ -1,6 +1,8 @@
 package com.mawen.learn.redis.basic.data;
 
 import java.util.AbstractMap;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
@@ -14,9 +16,7 @@ import java.util.stream.Stream;
  */
 public class DatabaseValue {
 
-	private static final long serialVersionUID = 1L;
-
-	private DataType type;
+	private final DataType type;
 
 	private Object value;
 
@@ -33,16 +33,8 @@ public class DatabaseValue {
 		return type;
 	}
 
-	public void setType(DataType type) {
-		this.type = type;
-	}
-
 	public <T> T getValue() {
 		return (T) value;
-	}
-
-	public <T> void setValue(T value) {
-		this.value = value;
 	}
 
 	public int incrementAndGet(int increment) throws NumberFormatException {
@@ -55,6 +47,10 @@ public class DatabaseValue {
 		int i = Integer.parseInt(value.toString()) - decrement;
 		this.value = String.valueOf(i);
 		return i;
+	}
+
+	public void append(String string) {
+		this.value = this.value + string;
 	}
 
 	@Override
@@ -96,20 +92,44 @@ public class DatabaseValue {
 		return new DatabaseValue(DataType.STRING, value);
 	}
 
+	public static DatabaseValue list(Collection<String> values) {
+		return new DatabaseValue(DataType.LIST,
+				values.stream().collect(Collectors.toCollection(() -> Collections.unmodifiableList(new LinkedList<>()))));
+	}
+
 	public static DatabaseValue list(String... values) {
-		return new DatabaseValue(DataType.LIST, Stream.of(values).collect(Collectors.toCollection(LinkedList::new)));
+		return new DatabaseValue(DataType.LIST,
+				Stream.of(values).collect(Collectors.toCollection(() -> Collections.unmodifiableList(new LinkedList<>()))));
+	}
+
+	public static DatabaseValue set(Collection<String> values) {
+		return new DatabaseValue(DataType.SET,
+				values.stream().collect(Collectors.toCollection(() -> Collections.unmodifiableSet(new LinkedHashSet<>()))));
 	}
 
 	public static DatabaseValue set(String... values) {
-		return new DatabaseValue(DataType.SET, Stream.of(values).collect(Collectors.toCollection(LinkedHashSet::new)));
+		return new DatabaseValue(DataType.SET,
+				Stream.of(values).collect(Collectors.toCollection(() -> Collections.unmodifiableSet(new LinkedHashSet<>()))));
+	}
+
+	public static DatabaseValue zset(Collection<String> values) {
+		return new DatabaseValue(DataType.ZSET,
+				values.stream().collect(Collectors.toCollection(() -> Collections.unmodifiableSet(new TreeSet<>()))));
 	}
 
 	public static DatabaseValue zset(String... values) {
-		return new DatabaseValue(DataType.ZSET, Stream.of(values).collect(Collectors.toCollection(TreeSet::new)));
+		return new DatabaseValue(DataType.ZSET,
+				Stream.of(values).collect(Collectors.toCollection(() -> Collections.unmodifiableSet(new TreeSet<>()))));
+	}
+
+	public static DatabaseValue hash(Collection<Map.Entry<String, String>> values) {
+		return new DatabaseValue(DataType.HASH,
+				values.stream().collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
 	}
 
 	public static DatabaseValue hash(Map.Entry<String, String>... values) {
-		return new DatabaseValue(DataType.HASH, Stream.of(values).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+		return new DatabaseValue(DataType.HASH,
+				Stream.of(values).collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
 	}
 
 	public static Map.Entry<String, String> entry(String key, String value) {

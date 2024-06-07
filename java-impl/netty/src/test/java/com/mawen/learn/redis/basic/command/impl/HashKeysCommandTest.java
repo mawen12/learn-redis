@@ -12,7 +12,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class KeysCommandTest {
+public class HashKeysCommandTest {
 
 	@Rule
 	public final CommandRule rule = new CommandRule(this);
@@ -22,20 +22,17 @@ public class KeysCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.getDatabase().put("abc", string("1"));
-		rule.getDatabase().put("acd", string("2"));
-		rule.getDatabase().put("c", string("3"));
+		rule.getDatabase().put("key", hash(entry("a", "1"), entry("b", "2")));
 
-		rule.withParams("a??").execute(new KeysCommand());
+		rule.withParams("key", "a").execute(new HashKeysCommand());
 
 		verify(rule.getResponse()).addArray(captor.capture());
 
-		Collection<String> value = captor.getValue();
+		Collection<String> keys = captor.getValue();
 
-		assertThat(value.size(), is(2));
-		assertThat(value.contains("abc"), is(true));
-		assertThat(value.contains("acd"), is(true));
-		assertThat(value.contains("c"), is(false));
+		assertThat(keys.size(), is(2));
+		assertThat(keys.contains("a"), is(true));
+		assertThat(keys.contains("b"), is(true));
 	}
 
 }

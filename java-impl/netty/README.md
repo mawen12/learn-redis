@@ -30,6 +30,11 @@ Implemented commands
 - TYPE
 - RENAME
 - KEYS
+- HEXISTS
+- HDEL
+- HKEYS
+- HLEN
+- APPEND
 
 Design
 ------

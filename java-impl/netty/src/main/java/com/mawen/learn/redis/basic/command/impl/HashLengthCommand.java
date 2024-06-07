@@ -1,5 +1,7 @@
 package com.mawen.learn.redis.basic.command.impl;
 
+import java.util.Map;
+
 import com.mawen.learn.redis.basic.command.ICommand;
 import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IResponse;
@@ -13,28 +15,18 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
- * @since 2024/6/6
+ * @since 2024/6/7
  */
-@ParamLength(2)
-@ParamType(DataType.STRING)
-public class DecrementByCommand implements ICommand {
+@ParamLength(1)
+@ParamType(DataType.HASH)
+public class HashLengthCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		try {
-			DatabaseValue value = db.merge(request.getParam(0), string("-" + request.getParam(1)), (oldValue, newValue) -> {
-				if (oldValue != null) {
-					int decrement = Integer.parseInt(request.getParam(1));
-					oldValue.decrementAndGet(decrement);
-					return oldValue;
-				}
-				return newValue;
-			});
+		DatabaseValue value = db.getOrDefault(request.getParam(0), hash());
 
-			response.addInt(value.getValue());
-		}
-		catch (NumberFormatException e) {
-			response.addError("ERR value is not an integer or out of range");
-		}
+		Map<String, String> map = value.getValue();
+
+		response.addInt(map.size());
 	}
 }

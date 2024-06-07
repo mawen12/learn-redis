@@ -1,53 +1,39 @@
 package com.mawen.learn.redis.basic.command.impl;
 
-import com.mawen.learn.redis.basic.command.IRequest;
-import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.data.IDatabase;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.mawen.learn.redis.basic.command.ICommand.*;
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class RenameCommandTest {
 
-	@Mock
-	private IDatabase db;
-
-	@Mock
-	private IRequest request;
-
-	@Mock
-	private IResponse response;
+	@Rule
+	public final CommandRule rule = new CommandRule(this);
 
 	@Test
 	public void testExecute() {
-		when(request.getParam(0)).thenReturn("a");
-		when(request.getParam(1)).thenReturn("b");
-		when(db.rename("a", "b")).thenReturn(true);
+		rule.getDatabase().put("a", string("1"));
 
-		RenameCommand command = new RenameCommand();
+		rule.withParams("a", "b").execute(new RenameCommand());
 
-		command.execute(db, request, response);
+		assertThat(rule.getDatabase().get("a"), is(nullValue()));
+		assertThat(rule.getDatabase().get("b"), is(string("1")));
 
-		verify(response).addSimpleStr(RESULT_OK);
+		verify(rule.getResponse()).addSimpleStr(RESULT_OK);
 	}
 
 	@Test
 	public void testExecuteError() {
-		when(request.getParam(0)).thenReturn("a");
-		when(request.getParam(1)).thenReturn("b");
-		when(db.rename("a", "b")).thenReturn(false);
+		rule.withParams("a", "b").execute(new RenameCommand());
 
-		RenameCommand command = new RenameCommand();
+		assertThat(rule.getDatabase().get("a"), is(nullValue()));
+		assertThat(rule.getDatabase().get("b"), is(nullValue()));
 
-		command.execute(db, request, response);
-
-		verify(response).addError("ERR no such key");
+		verify(rule.getResponse()).addError("ERR no such key");
 	}
 
 }

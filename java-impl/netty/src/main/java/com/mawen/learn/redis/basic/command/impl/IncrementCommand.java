@@ -16,7 +16,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
  * @since 2024/6/6
  */
 @ParamLength(1)
-@ParamType(DataType.HASH)
+@ParamType(DataType.STRING)
 public class IncrementCommand implements ICommand {
 
 	@Override

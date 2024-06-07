@@ -1,35 +1,24 @@
 package com.mawen.learn.redis.basic.command.impl;
 
-import com.mawen.learn.redis.basic.command.IRequest;
-import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.data.IDatabase;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class FlushDBCommandTest {
 
-	@Mock
-	private IDatabase db;
-
-	@Mock
-	private IRequest request;
-
-	@Mock
-	private IResponse response;
+	@Rule
+	public final CommandRule rule = new CommandRule(this);
 
 	@Test
 	public void testExecute() {
-		FlushDBCommand command = new FlushDBCommand();
 
-		command.execute(db, request, response);
+		rule.execute(new FlushDBCommand());
 
-		verify(db).clear();
+		assertThat(rule.getDatabase().isEmpty(), is(true));
 
-		verify(response).addSimpleStr("OK");
+		verify(rule.getResponse()).addSimpleStr("OK");
 	}
 }

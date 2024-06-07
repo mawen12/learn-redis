@@ -22,17 +22,14 @@ public class IncrementByCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
-			DatabaseValue value = db.merge(
-					request.getParam(0),
-					string("1"),
-					(oldValue, newValue) -> {
-						if (oldValue != null) {
-							int increment = Integer.parseInt(request.getParam(1));
-							oldValue.incrementAndGet(increment);
-							return oldValue;
-						}
-						return newValue;
-					});
+			DatabaseValue value = db.merge(request.getParam(0), string(request.getParam(1)), (oldValue, newValue) -> {
+				if (oldValue != null) {
+					int increment = Integer.parseInt(request.getParam(1));
+					oldValue.incrementAndGet(increment);
+					return oldValue;
+				}
+				return newValue;
+			});
 
 			response.addInt(value.getValue());
 		}
