@@ -6,9 +6,20 @@ package com.mawen.learn.redis.basic.data;
  */
 public enum DataType {
 
-	STRING,
-	LIST,
-	SET,
-	ZSET,
-	HASH;
+	STRING("string"),
+	LIST("list"),
+	SET("set"),
+	ZSET("zset"),
+	HASH("hash"),
+	NONE("none");
+
+	private final String text;
+
+	DataType(String text) {
+		this.text = text;
+	}
+
+	public String getText() {
+		return text;
+	}
 }

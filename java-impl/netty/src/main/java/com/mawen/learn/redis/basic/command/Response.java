@@ -1,6 +1,9 @@
 package com.mawen.learn.redis.basic.command;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 
@@ -28,6 +31,14 @@ public class Response implements IResponse {
 				case STRING:
 					addBulkStr(value.getValue());
 					break;
+				case HASH:
+					Map<String, String> map = value.getValue();
+					List<String> list = new LinkedList<>();
+					map.forEach((k, v) -> {
+						list.add(k);
+						list.add(v);
+					});
+					addArray(list);
 				default:
 					break;
 			}

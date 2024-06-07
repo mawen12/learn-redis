@@ -1,9 +1,5 @@
 package com.mawen.learn.redis.basic.command.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.mawen.learn.redis.basic.command.ICommand;
 import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IResponse;
@@ -25,13 +21,7 @@ public class HashGetAllCommand implements ICommand {
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		DatabaseValue value = db.get(request.getParam(0));
 		if (value != null) {
-			List<String> result = new ArrayList<>();
-			Map<String, String> map = value.getValue();
-			for (Map.Entry<String, String> entry : map.entrySet()) {
-				result.add(entry.getKey());
-				result.add(entry.getValue());
-			}
-			response.addArray(result);
+			response.addValue(value);
 		}
 		else {
 			response.addArray(null);

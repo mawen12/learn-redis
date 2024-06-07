@@ -3,11 +3,11 @@ package com.mawen.learn.redis.basic.command;
 import java.util.Arrays;
 import java.util.List;
 
-import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -21,8 +21,13 @@ public class ResponseTest {
 	}
 
 	@Test
-	public void testAddValue() {
-		assertThat(response.addValue(value("test")).toString(), is("$4\r\ntest\r\n"));
+	public void testAddValueString() {
+		assertThat(response.addValue(string("test")).toString(), is("$4\r\ntest\r\n"));
+	}
+
+	@Test
+	public void testAddValueHash() {
+		assertThat(response.addValue(hash(entry("key", "value"))).toString(), is("*2\r\n$3\r\nkey\r\n$5\r\nvalue\r\n"));
 	}
 
 	@Test
@@ -67,7 +72,7 @@ public class ResponseTest {
 
 	@Test
 	public void testAddArrayValue() {
-		List<DatabaseValue> array = Arrays.asList(value("1"), value("2"), value("3"));
+		List<DatabaseValue> array = Arrays.asList(string("1"), string("2"), string("3"));
 
 		assertThat(response.addArrayValue(array).toString(), is("*3\r\n$1\r\n1\r\n$1\r\n2\r\n$1\r\n3\r\n"));
 	}
@@ -80,9 +85,5 @@ public class ResponseTest {
 	@Test
 	public void testAddArrayNull() {
 		assertThat(response.addArray(null).toString(), is("*0\r\n"));
-	}
-
-	private DatabaseValue value(String value) {
-		return new DatabaseValue(DataType.STRING, value);
 	}
 }

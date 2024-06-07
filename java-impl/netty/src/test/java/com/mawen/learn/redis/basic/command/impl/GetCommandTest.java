@@ -12,6 +12,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -33,7 +34,7 @@ public class GetCommandTest {
 
 	@Test
 	public void testExecute() {
-		when(db.get("key")).thenReturn(new DatabaseValue(DataType.STRING, "OK"));
+		when(db.get("key")).thenReturn(string("OK"));
 		when(request.getParam(0)).thenReturn("key");
 
 		GetCommand command = new GetCommand();

@@ -10,13 +10,11 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.mawen.learn.redis.basic.command.ICommand.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CommandWrapperTest {
-
-	private static final String RESULT_OK = "OK";
-
 	@Spy
 	private final SomeCommand command = new SomeCommand();
 

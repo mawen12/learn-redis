@@ -1,10 +1,12 @@
 package com.mawen.learn.redis.basic.command.impl;
 
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,13 +15,12 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class HashGetAllCommandTest {
+public class KeysCommandTest {
 
 	@Mock
 	private IDatabase db;
@@ -31,26 +32,25 @@ public class HashGetAllCommandTest {
 	private IResponse response;
 
 	@Captor
-	private ArgumentCaptor<DatabaseValue> captor;
+	private ArgumentCaptor<Collection<String>> captor;
 
 	@Test
 	public void testExecute() {
-		when(request.getParam(0)).thenReturn("a");
-		when(db.get("a")).thenReturn(hash(entry("key1", "value1"), entry("key2", "value2"), entry("key3", "value3")));
+		when(request.getParam(0)).thenReturn("a??");
+		when(db.keySet()).thenReturn(new HashSet<>(Arrays.asList("abc", "acd", "c")));
 
-		HashGetAllCommand command = new HashGetAllCommand();
+		KeysCommand command = new KeysCommand();
 
 		command.execute(db, request, response);
 
-		verify(response).addValue(captor.capture());
+		verify(response).addArray(captor.capture());
 
-		DatabaseValue value = captor.getValue();
+		Collection<String> value = captor.getValue();
 
-		Map<String, String> map = value.getValue();
-
-		assertThat(map.get("key1"), is("value1"));
-		assertThat(map.get("key2"), is("value2"));
-		assertThat(map.get("key3"), is("value3"));
+		assertThat(value.size(), is(2));
+		assertThat(value.contains("abc"), is(true));
+		assertThat(value.contains("acd"), is(true));
+		assertThat(value.contains("c"), is(false));
 	}
 
 }

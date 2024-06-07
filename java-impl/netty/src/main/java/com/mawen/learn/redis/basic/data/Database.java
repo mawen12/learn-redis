@@ -66,13 +66,20 @@ public class Database implements IDatabase {
 
 	@Override
 	public DatabaseValue get(Object key) {
-		long stamp = lock.readLock();
-		try {
-			return cache.get(key);
+		long optimistic = lock.tryOptimisticRead();
+		DatabaseValue value = cache.get(key);
+
+		if (!lock.validate(optimistic)) {
+			long stamp = lock.readLock();
+			try {
+				value = cache.get(key);
+			}
+			finally {
+				lock.unlockRead(stamp);
+			}
 		}
-		finally {
-			lock.unlockRead(stamp);
-		}
+
+		return value;
 	}
 
 	@Override
@@ -164,6 +171,22 @@ public class Database implements IDatabase {
 		}
 		finally {
 			lock.unlockRead(stamp);
+		}
+	}
+
+	@Override
+	public boolean rename(String from, String to) {
+		long stamp = lock.writeLock();
+		try {
+			DatabaseValue value = cache.remove(from);
+			if (value != null) {
+				cache.put(to, value);
+				return true;
+			}
+			return false;
+		}
+		finally {
+			lock.unlockWrite(stamp);
 		}
 	}
 }

@@ -8,8 +8,8 @@ import com.mawen.learn.redis.basic.data.IDatabase;
  */
 public interface ICommand {
 
-	String OK = "OK";
-	String ERROR = "ERR";
+	String RESULT_OK = "OK";
+	String RESULT_ERROR = "ERR";
 
 	void execute(IDatabase db, IRequest request, IResponse response);
 }

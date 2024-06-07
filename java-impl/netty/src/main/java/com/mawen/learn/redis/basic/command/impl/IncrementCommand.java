@@ -9,6 +9,8 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/6
@@ -20,9 +22,7 @@ public class IncrementCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
-			DatabaseValue value = new DatabaseValue(DataType.STRING, "1");
-
-			value = db.merge(request.getParam(0), value, (oldValue, newValue) -> {
+			DatabaseValue value = db.merge(request.getParam(0), string("1"), (oldValue, newValue) -> {
 				if (oldValue != null) {
 					oldValue.incrementAndGet(1);
 					return oldValue;

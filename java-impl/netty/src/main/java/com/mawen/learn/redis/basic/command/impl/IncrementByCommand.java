@@ -9,6 +9,8 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/6
@@ -22,7 +24,7 @@ public class IncrementByCommand implements ICommand {
 		try {
 			DatabaseValue value = db.merge(
 					request.getParam(0),
-					new DatabaseValue(DataType.STRING, "1"),
+					string("1"),
 					(oldValue, newValue) -> {
 						if (oldValue != null) {
 							int increment = Integer.parseInt(request.getParam(1));

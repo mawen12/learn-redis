@@ -6,7 +6,6 @@ import java.util.Iterator;
 
 import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import org.junit.Test;
@@ -16,6 +15,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -38,8 +38,8 @@ public class MultiGetCommandTest {
 	@Test
 	public void testExecute() {
 		when(request.getParams()).thenReturn(Arrays.asList("a", "b", "c"));
-		when(db.get("a")).thenReturn(value("1"));
-		when(db.get("c")).thenReturn(value("2"));
+		when(db.get("a")).thenReturn(string("1"));
+		when(db.get("c")).thenReturn(string("2"));
 
 		MultiGetCommand command = new MultiGetCommand();
 
@@ -58,10 +58,6 @@ public class MultiGetCommandTest {
 		assertThat(b, is(nullValue()));
 		assertThat(c.getValue(), is("2"));
 
-	}
-
-	private DatabaseValue value(String value) {
-		return new DatabaseValue(DataType.STRING, value);
 	}
 
 }

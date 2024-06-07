@@ -23,15 +23,21 @@ import com.mawen.learn.redis.basic.command.impl.EchoCommand;
 import com.mawen.learn.redis.basic.command.impl.ExistsCommand;
 import com.mawen.learn.redis.basic.command.impl.FlushDBCommand;
 import com.mawen.learn.redis.basic.command.impl.GetCommand;
+import com.mawen.learn.redis.basic.command.impl.GetSetCommand;
 import com.mawen.learn.redis.basic.command.impl.HashGetAllCommand;
 import com.mawen.learn.redis.basic.command.impl.HashGetCommand;
 import com.mawen.learn.redis.basic.command.impl.HashSetCommand;
 import com.mawen.learn.redis.basic.command.impl.IncrementByCommand;
 import com.mawen.learn.redis.basic.command.impl.IncrementCommand;
+import com.mawen.learn.redis.basic.command.impl.KeysCommand;
 import com.mawen.learn.redis.basic.command.impl.MultiGetCommand;
+import com.mawen.learn.redis.basic.command.impl.MultiSetCommand;
 import com.mawen.learn.redis.basic.command.impl.PingCommand;
+import com.mawen.learn.redis.basic.command.impl.RenameCommand;
 import com.mawen.learn.redis.basic.command.impl.SetCommand;
+import com.mawen.learn.redis.basic.command.impl.StringLengthCommand;
 import com.mawen.learn.redis.basic.command.impl.TimeCommand;
+import com.mawen.learn.redis.basic.command.impl.TypeCommand;
 import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.redis.RedisToken;
 import com.mawen.learn.redis.basic.redis.RedisTokenType;
@@ -61,8 +67,8 @@ public class TinyDB implements ITinyDB {
 
 	private static final int BUFFER_SIZE = 1024 * 1024;
 	private static final int MAX_FRAME_SIZE = BUFFER_SIZE * 100;
-	private static final int DEFAULT_PORT = 7081;
-	private static final String DEFAULT_HOST = "localhost";
+	public static final int DEFAULT_PORT = 7081;
+	public static final String DEFAULT_HOST = "localhost";
 
 	private final int port;
 	private final String host;
@@ -99,14 +105,21 @@ public class TinyDB implements ITinyDB {
 		commands.put("get", new CommandWrapper(new GetCommand()));
 		commands.put("mget", new CommandWrapper(new MultiGetCommand()));
 		commands.put("set", new CommandWrapper(new SetCommand()));
+		commands.put("mset", new CommandWrapper(new MultiSetCommand()));
+		commands.put("getset", new CommandWrapper(new GetSetCommand()));
 		commands.put("incr", new CommandWrapper(new IncrementCommand()));
 		commands.put("incrBy", new CommandWrapper(new IncrementByCommand()));
 		commands.put("decr", new CommandWrapper(new DecrementCommand()));
 		commands.put("decrBy", new CommandWrapper(new DecrementByCommand()));
+		commands.put("strlen", new CommandWrapper(new StringLengthCommand()));
 
 		// keys
 		commands.put("del", new CommandWrapper(new DeleteCommand()));
 		commands.put("exists", new CommandWrapper(new ExistsCommand()));
+		commands.put("type", new CommandWrapper(new TypeCommand()));
+		commands.put("rename", new CommandWrapper(new RenameCommand()));
+		commands.put("keys", new CommandWrapper(new KeysCommand()));
+
 
 		// hash
 		commands.put("hset", new CommandWrapper(new HashSetCommand()));

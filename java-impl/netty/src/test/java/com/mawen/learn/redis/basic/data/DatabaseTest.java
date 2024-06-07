@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -13,7 +14,7 @@ public class DatabaseTest {
 
 	@Test
 	public void testDatabase() {
-		DatabaseValue value = new DatabaseValue(DataType.STRING, "value");
+		DatabaseValue value = string("value");
 
 		database.put("a", value);
 

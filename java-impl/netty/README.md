@@ -11,8 +11,10 @@ Implemented commands
 - SET
 - GET
 - DEL
+- GETSET
 - EXISTS
 - MGET
+- MSET
 - INCR
 - DECR
 - INCRBY
@@ -24,3 +26,34 @@ Implemented commands
 - ECHO
 - TIME
 - FLUSHDB
+- STRLEN
+- TYPE
+- RENAME
+- KEYS
+
+Design
+------
+
+TinyDB is implemented using asynchronous IO with netty, and at this moment with no persistence,
+only work like an on-memory cache.
+
+Performance
+-----------
+
+Performance is quite good, not as good as REDIS, but it's good enough for Java.
+
+This is TinyDB
+
+```shell
+redis-benchmark -t set,get -h localhost -p 7081 -n 100000 -q
+
+```
+
+And this is REDIS
+
+```shell
+redis-benchmark -t set,get -h localhost -p 6379 -n 100000 -q
+
+SET: 149476.83 requests per second, p50=0.167 msec                    
+GET: 159235.66 requests per second, p50=0.159 msec
+```

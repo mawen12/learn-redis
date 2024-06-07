@@ -1,5 +1,7 @@
 package com.mawen.learn.redis.basic.command.impl;
 
+import java.util.Arrays;
+
 import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IResponse;
 import com.mawen.learn.redis.basic.data.IDatabase;
@@ -12,7 +14,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class HashSetCommandTest {
+public class MultiSetCommandTest {
 
 	@Mock
 	private IDatabase db;
@@ -25,16 +27,18 @@ public class HashSetCommandTest {
 
 	@Test
 	public void testExecute() {
-		when(request.getParam(0)).thenReturn("a");
-		when(request.getParam(1)).thenReturn("key");
-		when(request.getParam(2)).thenReturn("value");
+		when(request.getParams()).thenReturn(Arrays.asList("a", "1", "b", "2", "c", "3"));
 
-		when(db.merge(eq("a"), any(), any())).thenReturn(hash(entry("key", "value")));
-
-		HashSetCommand command = new HashSetCommand();
+		MultiSetCommand command = new MultiSetCommand();
 
 		command.execute(db, request, response);
 
-		verify(response).addInt(false);
+		verify(db).merge(eq("a"), eq(string("1")), any());
+		verify(db).merge(eq("b"), eq(string("2")), any());
+		verify(db).merge(eq("c"), eq(string("3")), any());
+		verifyNoMoreInteractions(db);
+
+		verify(response).addSimpleStr("OK");
 	}
+
 }

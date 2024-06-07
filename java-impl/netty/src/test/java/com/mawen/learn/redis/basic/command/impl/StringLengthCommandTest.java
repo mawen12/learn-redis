@@ -12,7 +12,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class HashSetCommandTest {
+public class StringLengthCommandTest {
 
 	@Mock
 	private IDatabase db;
@@ -26,15 +26,12 @@ public class HashSetCommandTest {
 	@Test
 	public void testExecute() {
 		when(request.getParam(0)).thenReturn("a");
-		when(request.getParam(1)).thenReturn("key");
-		when(request.getParam(2)).thenReturn("value");
+		when(db.getOrDefault(eq("a"), any())).thenReturn(string("test"));
 
-		when(db.merge(eq("a"), any(), any())).thenReturn(hash(entry("key", "value")));
-
-		HashSetCommand command = new HashSetCommand();
+		StringLengthCommand command = new StringLengthCommand();
 
 		command.execute(db, request, response);
 
-		verify(response).addInt(false);
+		verify(response).addInt(4);
 	}
 }

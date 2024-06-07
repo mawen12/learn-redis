@@ -8,5 +8,7 @@ import java.util.Map;
  */
 public interface IDatabase extends Map<String, DatabaseValue> {
 
+	boolean rename(String from, String to);
+
 	boolean isType(String key, DataType type);
 }
