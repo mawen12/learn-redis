@@ -35,6 +35,16 @@ Implemented commands
 - HKEYS
 - HLEN
 - APPEND
+- HVALS
+- LPUSH
+- LPOP
+- RPUSH
+- RPOP
+- LLEN
+- SADD
+- SMEMBERS
+- SCARD
+- SISMEMBER
 
 Design
 ------

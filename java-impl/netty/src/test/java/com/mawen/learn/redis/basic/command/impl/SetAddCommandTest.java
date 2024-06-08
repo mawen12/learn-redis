@@ -7,19 +7,18 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-@CommandUnderTest(FlushDBCommand.class)
-public class FlushDBCommandTest {
+@CommandUnderTest(SetAddCommand.class)
+public class SetAddCommandTest {
 
 	@Rule
 	public final CommandRule rule = new CommandRule(this);
 
 	@Test
-	public void testExecute() {
-
-		rule.withData("a", string("test")).execute();
-
-		assertThat(rule.getDatabase().isEmpty(), is(true));
-
-		rule.verify().addSimpleStr("OK");
+	public void testExecute() throws Exception {
+		rule.withParams("key", "value")
+				.execute()
+				.assertThat("key",is(set("value")))
+				.verify().addInt(1);
 	}
+
 }

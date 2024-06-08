@@ -3,8 +3,7 @@ package com.mawen.learn.redis.basic.command.impl;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
-
+@CommandUnderTest(DecrementByCommand.class)
 public class DecrementByCommandTest {
 
 	@Rule
@@ -12,13 +11,17 @@ public class DecrementByCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withParams("a", "10").execute(new DecrementByCommand());
+		rule.withParams("a", "10")
+				.execute()
+				.verify().addInt("-10");
 
-		verify(rule.getResponse()).addInt("-10");
+		rule.withParams("a", "10")
+				.execute()
+				.verify().addInt("-20");
 
-		rule.execute(new DecrementByCommand());
-
-		verify(rule.getResponse()).addInt("-20");
+		rule.withParams("a", "5")
+				.execute()
+				.verify().addInt("-25");
 	}
 
 }

@@ -94,32 +94,32 @@ public class DatabaseValue {
 
 	public static DatabaseValue list(Collection<String> values) {
 		return new DatabaseValue(DataType.LIST,
-				values.stream().collect(Collectors.toCollection(() -> Collections.unmodifiableList(new LinkedList<>()))));
+				values.stream().collect(Collectors.toCollection(() -> Collections.synchronizedList(new LinkedList<>()))));
 	}
 
 	public static DatabaseValue list(String... values) {
 		return new DatabaseValue(DataType.LIST,
-				Stream.of(values).collect(Collectors.toCollection(() -> Collections.unmodifiableList(new LinkedList<>()))));
+				Stream.of(values).collect(Collectors.toCollection(() -> Collections.synchronizedList(new LinkedList<>()))));
 	}
 
 	public static DatabaseValue set(Collection<String> values) {
 		return new DatabaseValue(DataType.SET,
-				values.stream().collect(Collectors.toCollection(() -> Collections.unmodifiableSet(new LinkedHashSet<>()))));
+				values.stream().collect(Collectors.toCollection(() -> Collections.synchronizedSet(new LinkedHashSet<>()))));
 	}
 
 	public static DatabaseValue set(String... values) {
 		return new DatabaseValue(DataType.SET,
-				Stream.of(values).collect(Collectors.toCollection(() -> Collections.unmodifiableSet(new LinkedHashSet<>()))));
+				Stream.of(values).collect(Collectors.toCollection(() -> Collections.synchronizedSet(new LinkedHashSet<>()))));
 	}
 
 	public static DatabaseValue zset(Collection<String> values) {
 		return new DatabaseValue(DataType.ZSET,
-				values.stream().collect(Collectors.toCollection(() -> Collections.unmodifiableSet(new TreeSet<>()))));
+				values.stream().collect(Collectors.toCollection(() -> Collections.synchronizedSet(new TreeSet<>()))));
 	}
 
 	public static DatabaseValue zset(String... values) {
 		return new DatabaseValue(DataType.ZSET,
-				Stream.of(values).collect(Collectors.toCollection(() -> Collections.unmodifiableSet(new TreeSet<>()))));
+				Stream.of(values).collect(Collectors.toCollection(() -> Collections.synchronizedSet(new TreeSet<>()))));
 	}
 
 	public static DatabaseValue hash(Collection<Map.Entry<String, String>> values) {

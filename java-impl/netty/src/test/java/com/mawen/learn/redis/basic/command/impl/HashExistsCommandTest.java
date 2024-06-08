@@ -4,8 +4,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static org.mockito.Mockito.*;
 
+@CommandUnderTest(HashExistsCommand.class)
 public class HashExistsCommandTest {
 
 	@Rule
@@ -13,10 +13,9 @@ public class HashExistsCommandTest {
 
 	@Test
 	public void testExecute() throws Exception {
-		rule.getDatabase().put("key", hash(entry("a", "1")));
-
-		rule.withParams("key", "a").execute(new HashExistsCommand());
-
-		verify(rule.getResponse()).addInt(true);
+		rule.withData("key",hash(entry("a","1")))
+				.withParams("key", "a")
+				.execute()
+				.verify().addInt(true);
 	}
 }

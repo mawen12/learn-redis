@@ -4,21 +4,19 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static org.mockito.Mockito.*;
 
+@CommandUnderTest(HashLengthCommand.class)
 public class HashLengthCommandTest {
 
 	@Rule
 	public final CommandRule rule = new CommandRule(this);
 
-
 	@Test
 	public void testExecute() {
-		rule.getDatabase().put("key", hash(entry("a", "1"), entry("b", "2")));
-
-		rule.withParams("key", "a").execute(new HashLengthCommand());
-
-		verify(rule.getResponse()).addInt(2);
+		rule.withData("key", hash(entry("a", "1"), entry("b", "2")))
+				.withParams("key", "a")
+				.execute()
+				.verify().addInt(2);
 	}
 
 }

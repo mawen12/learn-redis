@@ -3,8 +3,7 @@ package com.mawen.learn.redis.basic.command.impl;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
-
+@CommandUnderTest(EchoCommand.class)
 public class EchoCommandTest {
 
 	@Rule
@@ -13,8 +12,8 @@ public class EchoCommandTest {
 	@Test
 	public void testExecute() {
 
-		rule.withParams("test").execute(new EchoCommand());
-
-		verify(rule.getResponse()).addBulkStr("test");
+		rule.withParams("test")
+				.execute()
+				.verify().addBulkStr("test");
 	}
 }

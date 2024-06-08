@@ -32,14 +32,24 @@ import com.mawen.learn.redis.basic.command.impl.HashGetCommand;
 import com.mawen.learn.redis.basic.command.impl.HashKeysCommand;
 import com.mawen.learn.redis.basic.command.impl.HashLengthCommand;
 import com.mawen.learn.redis.basic.command.impl.HashSetCommand;
+import com.mawen.learn.redis.basic.command.impl.HashValuesCommand;
 import com.mawen.learn.redis.basic.command.impl.IncrementByCommand;
 import com.mawen.learn.redis.basic.command.impl.IncrementCommand;
 import com.mawen.learn.redis.basic.command.impl.KeysCommand;
+import com.mawen.learn.redis.basic.command.impl.LeftPopCommand;
+import com.mawen.learn.redis.basic.command.impl.LeftPushCommand;
+import com.mawen.learn.redis.basic.command.impl.ListLengthCommand;
 import com.mawen.learn.redis.basic.command.impl.MultiGetCommand;
 import com.mawen.learn.redis.basic.command.impl.MultiSetCommand;
 import com.mawen.learn.redis.basic.command.impl.PingCommand;
 import com.mawen.learn.redis.basic.command.impl.RenameCommand;
+import com.mawen.learn.redis.basic.command.impl.RightPopCommand;
+import com.mawen.learn.redis.basic.command.impl.RightPushCommand;
+import com.mawen.learn.redis.basic.command.impl.SetAddCommand;
+import com.mawen.learn.redis.basic.command.impl.SetCardinalityCommand;
 import com.mawen.learn.redis.basic.command.impl.SetCommand;
+import com.mawen.learn.redis.basic.command.impl.SetIsMemberCommand;
+import com.mawen.learn.redis.basic.command.impl.SetMembersCommand;
 import com.mawen.learn.redis.basic.command.impl.StringLengthCommand;
 import com.mawen.learn.redis.basic.command.impl.TimeCommand;
 import com.mawen.learn.redis.basic.command.impl.TypeCommand;
@@ -135,6 +145,22 @@ public class TinyDB implements ITinyDB {
 		commands.put("hdel", new CommandWrapper(new HashDeleteCommand()));
 		commands.put("hkeys", new CommandWrapper(new HashKeysCommand()));
 		commands.put("hlen", new CommandWrapper(new HashLengthCommand()));
+		commands.put("hvals", new CommandWrapper(new HashValuesCommand()));
+
+
+		// list
+		commands.put("lpush", new CommandWrapper(new LeftPushCommand()));
+		commands.put("lpop", new CommandWrapper(new LeftPopCommand()));
+		commands.put("rpush", new CommandWrapper(new RightPushCommand()));
+		commands.put("rpop", new CommandWrapper(new RightPopCommand()));
+		commands.put("llen", new CommandWrapper(new ListLengthCommand()));
+
+
+		// set
+		commands.put("sadd", new CommandWrapper(new SetAddCommand()));
+		commands.put("smembers", new CommandWrapper(new SetMembersCommand()));
+		commands.put("scard", new CommandWrapper(new SetCardinalityCommand()));
+		commands.put("sismember", new CommandWrapper(new SetIsMemberCommand()));
 	}
 
 	public void start() {

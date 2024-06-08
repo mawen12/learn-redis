@@ -4,8 +4,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static org.mockito.Mockito.*;
 
+@CommandUnderTest(HashGetCommand.class)
 public class HashGetCommandTest {
 
 	@Rule
@@ -13,10 +13,9 @@ public class HashGetCommandTest {
 
 	@Test
 	public void testExecute() throws Exception {
-		rule.getDatabase().put("a", hash(entry("key", "value")));
-
-		rule.withParams("a", "key").execute(new HashGetCommand());
-
-		verify(rule.getResponse()).addBulkStr("value");
+		rule.withData("a",hash(entry("key", "value")))
+				.withParams("a", "key")
+				.execute()
+				.verify().addBulkStr("value");
 	}
 }

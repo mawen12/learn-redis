@@ -4,8 +4,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static org.mockito.Mockito.*;
 
+@CommandUnderTest(StringLengthCommand.class)
 public class StringLengthCommandTest {
 
 	@Rule
@@ -13,10 +13,9 @@ public class StringLengthCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.getDatabase().put("a", string("test"));
-
-		rule.withParams("a").execute(new StringLengthCommand());
-
-		verify(rule.getResponse()).addInt(4);
+		rule.withData("a",string("test"))
+				.withParams("a")
+				.execute()
+				.verify().addInt(4);
 	}
 }

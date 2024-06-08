@@ -4,8 +4,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static org.mockito.Mockito.*;
 
+@CommandUnderTest(ExistsCommand.class)
 public class ExistsCommandTest {
 
 	@Rule
@@ -13,11 +13,10 @@ public class ExistsCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.getDatabase().put("test", string("value"));
-
-		rule.withParams("test").execute(new ExistsCommand());
-
-		verify(rule.getResponse()).addInt(true);
+		rule.withData("test",string("value"))
+				.withParams("test")
+				.execute()
+				.verify().addInt(true);
 	}
 
 }

@@ -1,6 +1,5 @@
 package com.mawen.learn.redis.basic.command.impl;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -13,8 +12,8 @@ import org.mockito.Captor;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
+@CommandUnderTest(MultiGetCommand.class)
 public class MultiGetCommandTest {
 
 	@Rule
@@ -25,12 +24,11 @@ public class MultiGetCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.getDatabase().put("a", string("1"));
-		rule.getDatabase().put("c", string("2"));
-
-		rule.withParams("a", "b", "c").execute(new MultiGetCommand());
-
-		verify(rule.getResponse()).addArrayValue(captor.capture());
+		rule.withData("a",string("1"))
+				.withData("c",string("2"))
+				.withParams("a", "b", "c")
+				.execute()
+				.verify().addArrayValue(captor.capture());
 
 		Collection<DatabaseValue> result = captor.getValue();
 

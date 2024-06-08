@@ -10,8 +10,8 @@ import org.mockito.Captor;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
+@CommandUnderTest(HashKeysCommand.class)
 public class HashKeysCommandTest {
 
 	@Rule
@@ -22,11 +22,10 @@ public class HashKeysCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.getDatabase().put("key", hash(entry("a", "1"), entry("b", "2")));
-
-		rule.withParams("key", "a").execute(new HashKeysCommand());
-
-		verify(rule.getResponse()).addArray(captor.capture());
+		rule.withData("key",hash(entry("a","1"), entry("b","1")))
+				.withParams("key", "a")
+				.execute()
+				.verify().addArray(captor.capture());
 
 		Collection<String> keys = captor.getValue();
 

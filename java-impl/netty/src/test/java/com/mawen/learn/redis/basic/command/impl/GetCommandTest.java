@@ -10,8 +10,8 @@ import org.mockito.Captor;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
+@CommandUnderTest(GetCommand.class)
 public class GetCommandTest {
 
 	@Rule
@@ -22,11 +22,10 @@ public class GetCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.getDatabase().put("key", string("value"));
-
-		rule.withParams("key").execute(new GetCommand());
-
-		verify(rule.getResponse()).addValue(captor.capture());
+		rule.withData("key",string("value"))
+				.withParams("key")
+				.execute()
+				.verify().addValue(captor.capture());
 
 		DatabaseValue value = captor.getValue();
 

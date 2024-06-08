@@ -8,8 +8,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import static org.mockito.Mockito.*;
-
+@CommandUnderTest(TimeCommand.class)
 public class TimeCommandTest {
 
 	@Rule
@@ -20,10 +19,8 @@ public class TimeCommandTest {
 
 	@Test
 	public void testExecute() {
-
-		rule.execute(new TimeCommand());
-
-		verify(rule.getResponse()).addArray(captor.capture());
+		rule.execute()
+				.verify().addArray(captor.capture());
 
 		Collection<String> value = captor.getValue();
 

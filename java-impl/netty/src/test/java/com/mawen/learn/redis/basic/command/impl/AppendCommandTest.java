@@ -4,8 +4,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static org.mockito.Mockito.*;
 
+@CommandUnderTest(AppendCommand.class)
 public class AppendCommandTest {
 
 	@Rule
@@ -13,19 +13,17 @@ public class AppendCommandTest {
 
 	@Test
 	public void testExecute() throws Exception {
-		rule.getDatabase().put("test", string("Hola"));
-
-		rule.withParams("test", " mundo").execute(new AppendCommand());
-
-		verify(rule.getResponse()).addInt(10);
+		rule.withData("test", string("Hola"))
+				.withParams("test", " mundo")
+				.execute()
+				.verify().addInt(10);
 	}
 
 	@Test
 	public void testExecuteNoExists() {
-
-		rule.withParams("test", " mundo").execute(new AppendCommand());
-
-		verify(rule.getResponse()).addInt(6);
+		rule.withParams("test", " mundo")
+				.execute()
+				.verify().addInt(6);
 	}
 
 }

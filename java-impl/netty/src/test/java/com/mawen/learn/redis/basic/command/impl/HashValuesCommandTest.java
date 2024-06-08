@@ -11,8 +11,8 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-@CommandUnderTest(KeysCommand.class)
-public class KeysCommandTest {
+@CommandUnderTest(HashValuesCommand.class)
+public class HashValuesCommandTest {
 
 	@Rule
 	public final CommandRule rule = new CommandRule(this);
@@ -22,19 +22,17 @@ public class KeysCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("abc", string("1"))
-				.withData("acd", string("2"))
-				.withData("c", string("3"))
-				.withParams("a??")
+		rule.withData("test", hash(entry("key1", "value1"), entry("key2", "value2"), entry("key3", "value3")))
+				.withParams("test")
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> value = captor.getValue();
+		Collection<String> values = captor.getValue();
 
-		assertThat(value.size(), is(2));
-		assertThat(value.contains("abc"), is(true));
-		assertThat(value.contains("acd"), is(true));
-		assertThat(value.contains("c"), is(false));
+		assertThat(values.size(), is(3));
+		assertThat(values.contains("value1"), is(true));
+		assertThat(values.contains("value2"), is(true));
+		assertThat(values.contains("value3"), is(true));
 	}
 
 }
