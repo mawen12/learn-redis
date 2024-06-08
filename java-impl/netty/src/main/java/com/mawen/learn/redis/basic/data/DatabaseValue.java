@@ -3,12 +3,20 @@ package com.mawen.learn.redis.basic.data;
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Collections.*;
+import static java.util.Comparator.*;
+import static java.util.Map.*;
+import static java.util.stream.Collectors.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -50,7 +58,7 @@ public class DatabaseValue {
 	}
 
 	public void append(String string) {
-		this.value = this.value + string;
+		this.value +=  string;
 	}
 
 	@Override
@@ -94,45 +102,79 @@ public class DatabaseValue {
 
 	public static DatabaseValue list(Collection<String> values) {
 		return new DatabaseValue(DataType.LIST,
-				values.stream().collect(Collectors.toCollection(() -> Collections.synchronizedList(new LinkedList<>()))));
+				values.stream().collect(toCollection(() -> synchronizedList(new LinkedList<>()))));
 	}
 
 	public static DatabaseValue list(String... values) {
 		return new DatabaseValue(DataType.LIST,
-				Stream.of(values).collect(Collectors.toCollection(() -> Collections.synchronizedList(new LinkedList<>()))));
+				Stream.of(values).collect(toCollection(() -> synchronizedList(new LinkedList<>()))));
 	}
 
 	public static DatabaseValue set(Collection<String> values) {
 		return new DatabaseValue(DataType.SET,
-				values.stream().collect(Collectors.toCollection(() -> Collections.synchronizedSet(new LinkedHashSet<>()))));
+				values.stream().collect(toCollection(() -> synchronizedSet(new LinkedHashSet<>()))));
 	}
 
 	public static DatabaseValue set(String... values) {
 		return new DatabaseValue(DataType.SET,
-				Stream.of(values).collect(Collectors.toCollection(() -> Collections.synchronizedSet(new LinkedHashSet<>()))));
+				Stream.of(values).collect(toCollection(() -> synchronizedSet(new LinkedHashSet<>()))));
 	}
 
-	public static DatabaseValue zset(Collection<String> values) {
+	public static DatabaseValue zset(Collection<Entry<Float, String>> values) {
 		return new DatabaseValue(DataType.ZSET,
-				values.stream().collect(Collectors.toCollection(() -> Collections.synchronizedSet(new TreeSet<>()))));
+				values.stream().collect(toCollection(() -> synchronizedSet(new TreeSet<>((Entry.comparingByKey()))))));
 	}
 
-	public static DatabaseValue zset(String... values) {
+	public static DatabaseValue zset(Entry<Float, String>... values) {
 		return new DatabaseValue(DataType.ZSET,
-				Stream.of(values).collect(Collectors.toCollection(() -> Collections.synchronizedSet(new TreeSet<>()))));
+				Stream.of(values).collect(toCollection(() -> synchronizedSet(new TreeSet<>(Entry.comparingByKey())))));
 	}
 
 	public static DatabaseValue hash(Collection<Map.Entry<String, String>> values) {
 		return new DatabaseValue(DataType.HASH,
-				values.stream().collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
+				values.stream().collect(toConcurrentMap(Entry::getKey, Entry::getValue)));
 	}
 
 	public static DatabaseValue hash(Map.Entry<String, String>... values) {
 		return new DatabaseValue(DataType.HASH,
-				Stream.of(values).collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue)));
+				Stream.of(values).collect(toConcurrentMap(Entry::getKey, Entry::getValue)));
 	}
 
 	public static Map.Entry<String, String> entry(String key, String value) {
 		return new AbstractMap.SimpleEntry<>(key, value);
+	}
+
+	public static Entry<Float, String> score(Float score, String value) {
+		return new AbstractMap.SimpleEntry<>(score, value);
+	}
+
+	@Override
+	public String toString() {
+		return "DatabaseValue [type=" + type + ", value=" + value + "]";
+	}
+
+	public DatabaseValue copy() {
+		DatabaseValue value = null;
+		switch (type) {
+			case STRING:
+				value = string(this.<String>getValue());
+				break;
+			case HASH:
+				value = hash(this.<Map<String, String>>getValue().entrySet());
+				break;
+			case LIST:
+				value = list(this.<List<String>>getValue());
+				break;
+			case SET:
+				value = set(this.<Set<String>>getValue());
+				break;
+			case ZSET:
+				value = zset(this.<Set<Entry<Float, String>>>getValue());
+				break;
+			default:
+				value = new DatabaseValue(DataType.NONE);
+				break;
+		}
+		return value;
 	}
 }

@@ -45,6 +45,7 @@ Implemented commands
 - SMEMBERS
 - SCARD
 - SISMEMBER
+- ZADD
 
 Design
 ------

@@ -10,7 +10,6 @@ public class Bootstrap {
 		System.out.println("usage: Bootstrap <host> <port>");
 
 		TinyDB db = new TinyDB(parseHost(args), parsePort(args));
-		db.init();
 		db.start();
 
 		Runtime.getRuntime().addShutdownHook(new Thread(db::stop));

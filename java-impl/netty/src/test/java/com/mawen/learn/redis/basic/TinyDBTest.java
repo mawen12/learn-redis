@@ -10,12 +10,9 @@ import static org.junit.Assert.*;
 
 public class TinyDBTest {
 
-	private TinyDB db = new TinyDB();
+	private final TinyDB db = new TinyDB();
 
-	private Thread server = new Thread(() -> {
-		db.init();
-		db.start();
-	});
+	private final Thread server = new Thread(db::start);
 
 	@Before
 	public void setUp() throws Exception {

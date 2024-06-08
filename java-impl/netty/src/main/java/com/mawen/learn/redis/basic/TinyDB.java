@@ -10,49 +10,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.mawen.learn.redis.basic.command.CommandWrapper;
+import com.mawen.learn.redis.basic.command.CommandSuite;
 import com.mawen.learn.redis.basic.command.ICommand;
 import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IResponse;
 import com.mawen.learn.redis.basic.command.Request;
 import com.mawen.learn.redis.basic.command.Response;
-import com.mawen.learn.redis.basic.command.impl.AppendCommand;
-import com.mawen.learn.redis.basic.command.impl.DecrementByCommand;
-import com.mawen.learn.redis.basic.command.impl.DecrementCommand;
-import com.mawen.learn.redis.basic.command.impl.DeleteCommand;
-import com.mawen.learn.redis.basic.command.impl.EchoCommand;
-import com.mawen.learn.redis.basic.command.impl.ExistsCommand;
-import com.mawen.learn.redis.basic.command.impl.FlushDBCommand;
-import com.mawen.learn.redis.basic.command.impl.GetCommand;
-import com.mawen.learn.redis.basic.command.impl.GetSetCommand;
-import com.mawen.learn.redis.basic.command.impl.HashDeleteCommand;
-import com.mawen.learn.redis.basic.command.impl.HashExistsCommand;
-import com.mawen.learn.redis.basic.command.impl.HashGetAllCommand;
-import com.mawen.learn.redis.basic.command.impl.HashGetCommand;
-import com.mawen.learn.redis.basic.command.impl.HashKeysCommand;
-import com.mawen.learn.redis.basic.command.impl.HashLengthCommand;
-import com.mawen.learn.redis.basic.command.impl.HashSetCommand;
-import com.mawen.learn.redis.basic.command.impl.HashValuesCommand;
-import com.mawen.learn.redis.basic.command.impl.IncrementByCommand;
-import com.mawen.learn.redis.basic.command.impl.IncrementCommand;
-import com.mawen.learn.redis.basic.command.impl.KeysCommand;
-import com.mawen.learn.redis.basic.command.impl.LeftPopCommand;
-import com.mawen.learn.redis.basic.command.impl.LeftPushCommand;
-import com.mawen.learn.redis.basic.command.impl.ListLengthCommand;
-import com.mawen.learn.redis.basic.command.impl.MultiGetCommand;
-import com.mawen.learn.redis.basic.command.impl.MultiSetCommand;
-import com.mawen.learn.redis.basic.command.impl.PingCommand;
-import com.mawen.learn.redis.basic.command.impl.RenameCommand;
-import com.mawen.learn.redis.basic.command.impl.RightPopCommand;
-import com.mawen.learn.redis.basic.command.impl.RightPushCommand;
-import com.mawen.learn.redis.basic.command.impl.SetAddCommand;
-import com.mawen.learn.redis.basic.command.impl.SetCardinalityCommand;
-import com.mawen.learn.redis.basic.command.impl.SetCommand;
-import com.mawen.learn.redis.basic.command.impl.SetIsMemberCommand;
-import com.mawen.learn.redis.basic.command.impl.SetMembersCommand;
-import com.mawen.learn.redis.basic.command.impl.StringLengthCommand;
-import com.mawen.learn.redis.basic.command.impl.TimeCommand;
-import com.mawen.learn.redis.basic.command.impl.TypeCommand;
 import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.redis.RedisToken;
 import com.mawen.learn.redis.basic.redis.RedisTokenType;
@@ -95,7 +58,7 @@ public class TinyDB implements ITinyDB {
 	private ChannelFuture future;
 
 	private final Map<String, ChannelHandlerContext> channels = new HashMap<>();
-	private final Map<String, ICommand> commands = new HashMap<>();
+	private final CommandSuite commands = new CommandSuite();
 	private final Database db = new Database(new ConcurrentHashMap<>());
 
 	public TinyDB(String host, int port) {
@@ -105,62 +68,6 @@ public class TinyDB implements ITinyDB {
 
 	public TinyDB() {
 		this(DEFAULT_HOST, DEFAULT_PORT);
-	}
-
-	public void init() {
-		// connection
-		commands.put("ping", new PingCommand());
-		commands.put("echo", new CommandWrapper(new EchoCommand()));
-
-		// server
-		commands.put("flushdb", new FlushDBCommand());
-		commands.put("time", new TimeCommand());
-
-		// strings
-		commands.put("get", new CommandWrapper(new GetCommand()));
-		commands.put("mget", new CommandWrapper(new MultiGetCommand()));
-		commands.put("set", new CommandWrapper(new SetCommand()));
-		commands.put("mset", new CommandWrapper(new MultiSetCommand()));
-		commands.put("getset", new CommandWrapper(new GetSetCommand()));
-		commands.put("incr", new CommandWrapper(new IncrementCommand()));
-		commands.put("incrBy", new CommandWrapper(new IncrementByCommand()));
-		commands.put("decr", new CommandWrapper(new DecrementCommand()));
-		commands.put("decrBy", new CommandWrapper(new DecrementByCommand()));
-		commands.put("strlen", new CommandWrapper(new StringLengthCommand()));
-		commands.put("append", new CommandWrapper(new AppendCommand()));
-
-		// keys
-		commands.put("del", new CommandWrapper(new DeleteCommand()));
-		commands.put("exists", new CommandWrapper(new ExistsCommand()));
-		commands.put("type", new CommandWrapper(new TypeCommand()));
-		commands.put("rename", new CommandWrapper(new RenameCommand()));
-		commands.put("keys", new CommandWrapper(new KeysCommand()));
-
-
-		// hash
-		commands.put("hset", new CommandWrapper(new HashSetCommand()));
-		commands.put("hget", new CommandWrapper(new HashGetCommand()));
-		commands.put("hgetall", new CommandWrapper(new HashGetAllCommand()));
-		commands.put("hexists", new CommandWrapper(new HashExistsCommand()));
-		commands.put("hdel", new CommandWrapper(new HashDeleteCommand()));
-		commands.put("hkeys", new CommandWrapper(new HashKeysCommand()));
-		commands.put("hlen", new CommandWrapper(new HashLengthCommand()));
-		commands.put("hvals", new CommandWrapper(new HashValuesCommand()));
-
-
-		// list
-		commands.put("lpush", new CommandWrapper(new LeftPushCommand()));
-		commands.put("lpop", new CommandWrapper(new LeftPopCommand()));
-		commands.put("rpush", new CommandWrapper(new RightPushCommand()));
-		commands.put("rpop", new CommandWrapper(new RightPopCommand()));
-		commands.put("llen", new CommandWrapper(new ListLengthCommand()));
-
-
-		// set
-		commands.put("sadd", new CommandWrapper(new SetAddCommand()));
-		commands.put("smembers", new CommandWrapper(new SetMembersCommand()));
-		commands.put("scard", new CommandWrapper(new SetCardinalityCommand()));
-		commands.put("sismember", new CommandWrapper(new SetIsMemberCommand()));
 	}
 
 	public void start() {
@@ -274,7 +181,7 @@ public class TinyDB implements ITinyDB {
 		logger.fine(() -> "received command: " + request);
 
 		IResponse response = new Response();
-		ICommand command = commands.get(request.getCommand().toLowerCase());
+		ICommand command = commands.getCommand(request.getCommand());
 		if (command != null) {
 			command.execute(db, request, response);
 		}
