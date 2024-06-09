@@ -2,8 +2,8 @@ package com.mawen.learn.redis.basic.command.hash;
 
 import java.util.Map;
 
-import com.mawen.learn.redis.basic.command.impl.CommandRule;
-import com.mawen.learn.redis.basic.command.impl.CommandUnderTest;
+import com.mawen.learn.redis.basic.command.CommandRule;
+import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import org.junit.Rule;
 import org.junit.Test;

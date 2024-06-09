@@ -1,8 +1,7 @@
-package com.mawen.learn.redis.basic.command.set;
+package com.mawen.learn.redis.basic.command.zset;
 
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.mawen.learn.redis.basic.command.ICommand;
 import com.mawen.learn.redis.basic.command.IRequest;
@@ -14,28 +13,24 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
-import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/8
  */
-@Command("sadd")
-@ParamLength(2)
-@ParamType(DataType.SET)
-public class SetAddCommand implements ICommand {
+@Command("zcard")
+@ParamLength(1)
+@ParamType(DataType.ZSET)
+public class SortedSetCardinalityCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		Set<String> values = request.getParams().stream().skip(1).collect(Collectors.toSet());
-
-		DatabaseValue value = db.merge(request.getParam(0), set(values), (oldValue, newValue) -> {
-			Set<String> merge = new HashSet<>();
-			merge.addAll(oldValue.getValue());
-			merge.addAll(newValue.getValue());
-			return set(merge);
-		});
-
-		response.addInt(value.<Set<String>>getValue().size());
+		DatabaseValue value = db.get(request.getParam(0));
+		if (value != null) {
+			Set<Map.Entry<Float,String>> set = value.getValue();
+			response.addInt(set.size());
+		}
+		else {
+			response.addInt(0);
+		}
 	}
 }

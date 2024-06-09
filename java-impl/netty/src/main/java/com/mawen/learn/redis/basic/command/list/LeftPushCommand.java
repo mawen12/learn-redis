@@ -1,5 +1,6 @@
 package com.mawen.learn.redis.basic.command.list;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,10 +30,10 @@ public class LeftPushCommand implements ICommand {
 		List<String> values = request.getParams().stream().skip(1).collect(Collectors.toList());
 
 		DatabaseValue result = db.merge(request.getParam(0), list(values), (oldValue, newValue) -> {
-			List<String> oldList = oldValue.getValue();
-			List<String> newList = newValue.getValue();
-			oldList.addAll(0, newList);
-			return oldValue;
+			List<String> merge = new LinkedList<>();
+			merge.addAll(newValue.getValue());
+			merge.addAll(oldValue.getValue());
+			return list(merge);
 		});
 
 		response.addInt(result.<List<String>>getValue().size());

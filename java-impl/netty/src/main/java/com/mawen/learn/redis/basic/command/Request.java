@@ -2,6 +2,7 @@ package com.mawen.learn.redis.basic.command;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -31,7 +32,15 @@ public class Request implements IRequest {
 
 	@Override
 	public String getParam(int i) {
-		return params.get(i);
+		if (i < params.size()) {
+			return params.get(i);
+		}
+		return null;
+	}
+
+	@Override
+	public Optional<String> getOptionalParam(int i) {
+		return Optional.ofNullable(getParam(i));
 	}
 
 	@Override

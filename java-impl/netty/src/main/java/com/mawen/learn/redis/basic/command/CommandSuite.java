@@ -31,6 +31,7 @@ import com.mawen.learn.redis.basic.command.set.SetAddCommand;
 import com.mawen.learn.redis.basic.command.set.SetCardinalityCommand;
 import com.mawen.learn.redis.basic.command.set.SetIsMemberCommand;
 import com.mawen.learn.redis.basic.command.set.SetMembersCommand;
+import com.mawen.learn.redis.basic.command.set.SetRemoveCommand;
 import com.mawen.learn.redis.basic.command.string.DecrementByCommand;
 import com.mawen.learn.redis.basic.command.string.DecrementCommand;
 import com.mawen.learn.redis.basic.command.string.GetCommand;
@@ -40,6 +41,12 @@ import com.mawen.learn.redis.basic.command.string.IncrementCommand;
 import com.mawen.learn.redis.basic.command.string.MultiSetCommand;
 import com.mawen.learn.redis.basic.command.string.SetCommand;
 import com.mawen.learn.redis.basic.command.string.StringLengthCommand;
+import com.mawen.learn.redis.basic.command.zset.SortedSetAddCommand;
+import com.mawen.learn.redis.basic.command.zset.SortedSetCardinalityCommand;
+import com.mawen.learn.redis.basic.command.zset.SortedSetRangeByScoreCommand;
+import com.mawen.learn.redis.basic.command.zset.SortedSetRangeCommand;
+import com.mawen.learn.redis.basic.command.zset.SortedSetRemoveCommand;
+import com.mawen.learn.redis.basic.command.zset.SortedSetReverseRangeCommand;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -100,6 +107,16 @@ public class CommandSuite {
 		addCommand(SetMembersCommand.class);
 		addCommand(SetCardinalityCommand.class);
 		addCommand(SetIsMemberCommand.class);
+		addCommand(SetRemoveCommand.class);
+
+		// sorted set
+		addCommand(SortedSetAddCommand.class);
+		addCommand(SortedSetCardinalityCommand.class);
+		addCommand(SortedSetRemoveCommand.class);
+		addCommand(SortedSetRangeCommand.class);
+		addCommand(SortedSetRangeByScoreCommand.class);
+		addCommand(SortedSetReverseRangeCommand.class);
+
 	}
 
 	private void addCommand(Class<? extends ICommand> clazz) {

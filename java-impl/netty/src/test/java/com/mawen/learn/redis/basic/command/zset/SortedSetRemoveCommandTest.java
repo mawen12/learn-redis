@@ -8,27 +8,23 @@ import org.junit.Test;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 
-@CommandUnderTest(SortedSetAddCommand.class)
-public class SortedSetAddCommandTest {
+@CommandUnderTest(SortedSetRemoveCommand.class)
+public class SortedSetRemoveCommandTest {
 
 	@Rule
 	public final CommandRule rule = new CommandRule(this);
 
 	@Test
 	public void testExecute() {
-		rule.withParams("key", "1", "one")
+		rule.withData("key", zset(score(1.0F, "a"), score(2.0F, "b"), score(3.0F,"c")))
+				.withParams("key", "a")
 				.execute()
-				.assertThat("key", is(zset(score(1.0F, "one"))))
+				.assertThat("key", is(zset(score(2.0F, "b"), score(3.0F, "c"))))
 				.verify().addInt(1);
 
-		rule.withParams("key", "2", "two")
+		rule.withParams("key", "a")
 				.execute()
-				.assertThat("key", is(zset(score(1.0F, "one"), score(2.0F, "two"))))
-				.verify().addInt(1);
-
-		rule.withParams("key", "1", "one")
-				.execute()
-				.assertThat("key", is(zset(score(1.0F, "one"), score(2.0F, "two"))))
+				.assertThat("key", is(zset(score(2.0F, "b"), score(3.0F, "c"))))
 				.verify().addInt(0);
 	}
 

@@ -1,12 +1,9 @@
-package com.mawen.learn.redis.basic.command.impl;
+package com.mawen.learn.redis.basic.command;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Optional;
 
-import com.mawen.learn.redis.basic.command.CommandWrapper;
-import com.mawen.learn.redis.basic.command.ICommand;
-import com.mawen.learn.redis.basic.command.IRequest;
-import com.mawen.learn.redis.basic.command.IResponse;
 import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
@@ -17,6 +14,8 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.mockito.Mockito.*;
 
@@ -87,6 +86,16 @@ public class CommandRule implements TestRule {
 				when(request.getParam(i++)).thenReturn(param);
 			}
 			when(request.getLength()).thenReturn(params.length);
+			when(request.getOptionalParam(anyInt())).thenAnswer(new Answer<Optional<String>>() {
+				@Override
+				public Optional<String> answer(InvocationOnMock invocation) throws Throwable {
+					Integer i = (Integer) invocation.getArguments()[0];
+					if (i < params.length) {
+						return Optional.of(params[i]);
+					}
+					return Optional.empty();
+				}
+			});
 		}
 		return this;
 	}

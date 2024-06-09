@@ -1,11 +1,9 @@
-package com.mawen.learn.redis.basic.command.impl;
+package com.mawen.learn.redis.basic.command;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import com.mawen.learn.redis.basic.command.ICommand;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>

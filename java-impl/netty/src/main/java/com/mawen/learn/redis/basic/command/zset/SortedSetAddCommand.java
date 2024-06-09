@@ -1,9 +1,7 @@
 package com.mawen.learn.redis.basic.command.zset;
 
-import java.util.HashSet;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.mawen.learn.redis.basic.command.ICommand;
 import com.mawen.learn.redis.basic.command.IRequest;
@@ -14,6 +12,7 @@ import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.data.SortedSet;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static java.lang.Float.*;
@@ -31,13 +30,14 @@ public class SortedSetAddCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
-			DatabaseValue initial = db.getOrDefault(request.getParam(0), zset()).copy();
+			DatabaseValue initial = db.getOrDefault(request.getParam(0), zset());
 			DatabaseValue result = db.merge(request.getParam(0), parseInput(request), (oldValue, newValue) -> {
-				Set<Map.Entry<Float, String>> oldSet = oldValue.getValue();
-				Set<Map.Entry<Float, String>> newSet = newValue.getValue();
-				oldSet.addAll(newSet);
-				return oldValue;
+				Set<Entry<Float, String>> merge = new SortedSet();
+				merge.addAll(oldValue.getValue());
+				merge.addAll(newValue.getValue());
+				return zset(merge);
 			});
+
 			response.addInt(changed(initial.getValue(), result.getValue()));
 		}
 		catch (NumberFormatException e) {
@@ -46,7 +46,7 @@ public class SortedSetAddCommand implements ICommand {
 	}
 
 	private DatabaseValue parseInput(IRequest request) {
-		Set<Map.Entry<Float, String>> set = new HashSet<>();
+		Set<Entry<Float, String>> set = new SortedSet();
 		String score = null;
 		for (String string : request.getParams().stream().skip(1).collect(toList())) {
 			if (score != null) {
@@ -61,7 +61,7 @@ public class SortedSetAddCommand implements ICommand {
 		return zset(set);
 	}
 
-	private int changed(Set<Map.Entry<Float, String>> input, Set<Map.Entry<Float, String>> result) {
+	private int changed(Set<Entry<Float, String>> input, Set<Entry<Float, String>> result) {
 		return result.size() - input.size();
 	}
 }

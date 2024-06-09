@@ -1,5 +1,6 @@
 package com.mawen.learn.redis.basic.command.hash;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.mawen.learn.redis.basic.command.ICommand;
@@ -25,16 +26,17 @@ public class HashSetCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue resultValue = db.merge(request.getParam(0), hash(entry(request.getParam(1), request.getParam(2))), (oldValue, newValue) -> {
-			Map<Object, Object> oldMap = oldValue.getValue();
-			Map<Object, Object> newMap = newValue.getValue();
-			oldMap.putAll(newMap);
-			return oldValue;
+		DatabaseValue value = hash(entry(request.getParam(1), request.getParam(2)));
+
+		DatabaseValue resultValue = db.merge(request.getParam(0), value, (oldValue, newValue) -> {
+			Map<String, String> merge = new HashMap<>();
+			merge.putAll(oldValue.getValue());
+			merge.putAll(newValue.getValue());
+			return hash(merge.entrySet());
 		});
 
 		Map<String, String> resultMap = resultValue.getValue();
 
 		response.addInt(resultMap.get(request.getParam(1)) == null);
-
 	}
 }

@@ -6,19 +6,26 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static org.hamcrest.CoreMatchers.*;
 
-@CommandUnderTest(SetMembersCommand.class)
-public class SetMembersCommandTest {
+@CommandUnderTest(SetRemoveCommand.class)
+public class SetRemoveCommandTest {
 
 	@Rule
 	public final CommandRule rule = new CommandRule(this);
 
 	@Test
-	public void testExecute() {
+	public void testExecute() throws Exception {
 		rule.withData("key", set("a", "b", "c"))
-				.withParams("key")
+				.withParams("key", "a")
 				.execute()
-				.verify().addValue(set("a", "b", "c"));
+				.assertThat("key", is(set("b", "c")))
+				.verify().addInt(1);
+
+		rule.withParams("key", "a")
+				.execute()
+				.assertThat("key", is(set("b", "c")))
+				.verify().addInt(0);
 	}
 
 }

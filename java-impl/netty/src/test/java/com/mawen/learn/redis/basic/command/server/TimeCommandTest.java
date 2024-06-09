@@ -3,8 +3,8 @@ package com.mawen.learn.redis.basic.command.server;
 import java.util.Collection;
 import java.util.Iterator;
 
-import com.mawen.learn.redis.basic.command.impl.CommandRule;
-import com.mawen.learn.redis.basic.command.impl.CommandUnderTest;
+import com.mawen.learn.redis.basic.command.CommandRule;
+import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

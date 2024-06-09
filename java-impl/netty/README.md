@@ -46,6 +46,12 @@ Implemented commands
 - SCARD
 - SISMEMBER
 - ZADD
+- ZCARD
+- SREM
+- ZREM
+- ZRANGE
+- ZRANGEBYSCORE
+- ZREVRANGE
 
 Design
 ------

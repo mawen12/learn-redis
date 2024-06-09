@@ -1,6 +1,7 @@
-package com.mawen.learn.redis.basic.command.hash;
+package com.mawen.learn.redis.basic.command.zset;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
@@ -13,8 +14,8 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-@CommandUnderTest(HashValuesCommand.class)
-public class HashValuesCommandTest {
+@CommandUnderTest(SortedSetReverseRangeCommand.class)
+public class SortedSetReverseRangeCommandTest {
 
 	@Rule
 	public final CommandRule rule = new CommandRule(this);
@@ -24,17 +25,20 @@ public class HashValuesCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("test", hash(entry("key1", "value1"), entry("key2", "value2"), entry("key3", "value3")))
-				.withParams("test")
+		rule.withData("key", zset(score(1, "a"), score(2, "b"), score(3, "c")))
+				.withParams("key", "-1", "0")
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> values = captor.getValue();
+		Collection<String> array = captor.getValue();
 
-		assertThat(values.size(), is(3));
-		assertThat(values.contains("value1"), is(true));
-		assertThat(values.contains("value2"), is(true));
-		assertThat(values.contains("value3"), is(true));
+		assertThat(array.size(), is(3));
+
+		Iterator<String> iter = array.iterator();
+
+		assertThat(iter.next(), is("c"));
+		assertThat(iter.next(), is("b"));
+		assertThat(iter.next(), is("a"));
 	}
 
 }

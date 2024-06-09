@@ -1,4 +1,4 @@
-package com.mawen.learn.redis.basic.command.key;
+package com.mawen.learn.redis.basic.command.zset;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
@@ -7,25 +7,22 @@ import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
-@CommandUnderTest(TypeCommand.class)
-public class TypeCommandTest {
+@CommandUnderTest(SortedSetCardinalityCommand.class)
+public class SortedSetCardinalityCommandTest {
 
 	@Rule
 	public final CommandRule rule = new CommandRule(this);
 
 	@Test
 	public void testExecute() {
-		rule.withData("a",string("test"))
-				.withParams("a")
+		rule.withData("key", zset(score(1.0F,"a"), score(2.0F,"b"), score(3.0F,"c")))
+				.withParams("key")
 				.execute()
-				.verify().addSimpleStr("string");
-	}
+				.verify().addInt(3);
 
-	@Test
-	public void testExecuteNotExists() {
-		rule.withParams("a")
+		rule.withParams("notExists")
 				.execute()
-				.verify().addSimpleStr("none");
+				.verify().addInt(0);
 	}
 
 }
