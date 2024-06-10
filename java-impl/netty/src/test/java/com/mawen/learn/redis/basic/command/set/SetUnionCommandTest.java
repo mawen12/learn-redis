@@ -1,0 +1,60 @@
+package com.mawen.learn.redis.basic.command.set;
+
+import java.util.Collection;
+
+import com.mawen.learn.redis.basic.command.CommandRule;
+import com.mawen.learn.redis.basic.command.CommandUnderTest;
+import com.mawen.learn.redis.basic.command.annotation.Command;
+import com.mawen.learn.redis.basic.data.DatabaseValue;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
+@CommandUnderTest(SetUnionCommand.class)
+public class SetUnionCommandTest {
+
+	@Rule
+	public final CommandRule rule = new CommandRule(this);
+
+	@Captor
+	private ArgumentCaptor<Collection<String>> captor;
+
+	@Test
+	public void testExecute() {
+		rule.withData("a", DatabaseValue.set("1", "2", "3"))
+				.withData("b", DatabaseValue.set("3", "4"))
+				.withParams("a", "b")
+				.execute()
+				.verify().addArray(captor.capture());
+
+		Collection<String> result = captor.getValue();
+
+		assertThat(result.size(),is(4));
+
+		assertThat(result.contains("1"),is(true));
+		assertThat(result.contains("2"),is(true));
+		assertThat(result.contains("3"),is(true));
+		assertThat(result.contains("4"),is(true));
+	}
+
+	@Test
+	public void testExecuteNotExists() {
+		rule.withData("a",DatabaseValue.set("1", "2", "3"))
+				.withParams("a", "b")
+				.execute()
+				.verify().addArray(captor.capture());
+
+		Collection<String> result = captor.getValue();
+
+		assertThat(result.size(),is(3));
+
+		assertThat(result.contains("1"),is(true));
+		assertThat(result.contains("2"),is(true));
+		assertThat(result.contains("3"),is(true));
+		assertThat(result.contains("4"),is(false));
+	}
+}

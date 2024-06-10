@@ -1,6 +1,7 @@
 package com.mawen.learn.redis.basic.command;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,18 +21,29 @@ import com.mawen.learn.redis.basic.command.key.RenameCommand;
 import com.mawen.learn.redis.basic.command.key.TypeCommand;
 import com.mawen.learn.redis.basic.command.list.LeftPopCommand;
 import com.mawen.learn.redis.basic.command.list.LeftPushCommand;
+import com.mawen.learn.redis.basic.command.list.ListIndexCommand;
 import com.mawen.learn.redis.basic.command.list.ListLengthCommand;
+import com.mawen.learn.redis.basic.command.list.ListRangeCommand;
+import com.mawen.learn.redis.basic.command.list.ListSetCommand;
 import com.mawen.learn.redis.basic.command.list.RightPopCommand;
 import com.mawen.learn.redis.basic.command.list.RightPushCommand;
+import com.mawen.learn.redis.basic.command.pubsub.PublishCommand;
+import com.mawen.learn.redis.basic.command.pubsub.SubscribeCommand;
+import com.mawen.learn.redis.basic.command.pubsub.UnsubscribeCommand;
 import com.mawen.learn.redis.basic.command.server.EchoCommand;
 import com.mawen.learn.redis.basic.command.server.FlushDBCommand;
 import com.mawen.learn.redis.basic.command.server.PingCommand;
 import com.mawen.learn.redis.basic.command.server.TimeCommand;
 import com.mawen.learn.redis.basic.command.set.SetAddCommand;
 import com.mawen.learn.redis.basic.command.set.SetCardinalityCommand;
+import com.mawen.learn.redis.basic.command.set.SetDifferenceCommand;
+import com.mawen.learn.redis.basic.command.set.SetIntersectionCommand;
 import com.mawen.learn.redis.basic.command.set.SetIsMemberCommand;
 import com.mawen.learn.redis.basic.command.set.SetMembersCommand;
+import com.mawen.learn.redis.basic.command.set.SetPopCommand;
+import com.mawen.learn.redis.basic.command.set.SetRandomMemberCommand;
 import com.mawen.learn.redis.basic.command.set.SetRemoveCommand;
+import com.mawen.learn.redis.basic.command.set.SetUnionCommand;
 import com.mawen.learn.redis.basic.command.string.DecrementByCommand;
 import com.mawen.learn.redis.basic.command.string.DecrementCommand;
 import com.mawen.learn.redis.basic.command.string.GetCommand;
@@ -101,6 +113,9 @@ public class CommandSuite {
 		addCommand(RightPushCommand.class);
 		addCommand(RightPopCommand.class);
 		addCommand(ListLengthCommand.class);
+		addCommand(ListRangeCommand.class);
+		addCommand(ListIndexCommand.class);
+		addCommand(ListSetCommand.class);
 
 		// set
 		addCommand(SetAddCommand.class);
@@ -108,6 +123,11 @@ public class CommandSuite {
 		addCommand(SetCardinalityCommand.class);
 		addCommand(SetIsMemberCommand.class);
 		addCommand(SetRemoveCommand.class);
+		addCommand(SetUnionCommand.class);
+		addCommand(SetIntersectionCommand.class);
+		addCommand(SetDifferenceCommand.class);
+		addCommand(SetPopCommand.class);
+		addCommand(SetRandomMemberCommand.class);
 
 		// sorted set
 		addCommand(SortedSetAddCommand.class);
@@ -117,6 +137,10 @@ public class CommandSuite {
 		addCommand(SortedSetRangeByScoreCommand.class);
 		addCommand(SortedSetReverseRangeCommand.class);
 
+		// pub & sub
+		addCommand(PublishCommand.class);
+		addCommand(SubscribeCommand.class);
+		addCommand(UnsubscribeCommand.class);
 	}
 
 	private void addCommand(Class<? extends ICommand> clazz) {

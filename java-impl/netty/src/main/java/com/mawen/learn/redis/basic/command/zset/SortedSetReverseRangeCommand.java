@@ -44,16 +44,14 @@ public class SortedSetReverseRangeCommand implements ICommand {
 				to += set.size();
 			}
 
-			Map.Entry<?, ?>[] array = set.toArray(new Map.Entry<?, ?>[] {});
-
 			List<String> result = Collections.emptyList();
 			if (from <= to) {
 				Optional<String> withScores = request.getOptionalParam(3);
 				if (withScores.isPresent() && withScores.get().equals(PARAM_WITHSCORES)) {
-					result = Stream.of(array).skip(from).limit((to - from) + 1).flatMap(o -> Stream.of(String.valueOf(o.getValue()), String.valueOf(o.getKey()))).collect(Collectors.toList());
+					result = set.stream().skip(from).limit((to - from) + 1).flatMap(o -> Stream.of(o.getValue(), String.valueOf(o.getKey()))).collect(Collectors.toList());
 				}
 				else {
-					result = Stream.of(array).skip(from).limit((to - from) + 1).map(o -> String.valueOf(o.getValue())).collect(Collectors.toList());
+					result = set.stream().skip(from).limit((to - from) + 1).map(Map.Entry::getValue).collect(Collectors.toList());
 				}
 			}
 

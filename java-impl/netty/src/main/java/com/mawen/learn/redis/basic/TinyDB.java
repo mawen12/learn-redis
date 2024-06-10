@@ -2,6 +2,7 @@ package com.mawen.learn.redis.basic;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,8 +15,11 @@ import com.mawen.learn.redis.basic.command.CommandSuite;
 import com.mawen.learn.redis.basic.command.ICommand;
 import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IResponse;
+import com.mawen.learn.redis.basic.command.IServerContext;
+import com.mawen.learn.redis.basic.command.ISession;
 import com.mawen.learn.redis.basic.command.Request;
 import com.mawen.learn.redis.basic.command.Response;
+import com.mawen.learn.redis.basic.command.Session;
 import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.redis.RedisToken;
 import com.mawen.learn.redis.basic.redis.RedisTokenType;
@@ -33,13 +37,15 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 
+import static java.util.Collections.*;
+
 /**
  * Java Redis Implementation
  *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/6
  */
-public class TinyDB implements ITinyDB {
+public class TinyDB implements ITinyDB, IServerContext {
 
 	private static final Logger logger = Logger.getLogger(TinyDB.class.getName());
 
@@ -57,7 +63,7 @@ public class TinyDB implements ITinyDB {
 	private TinyDBConnectionHandler connectionHandler;
 	private ChannelFuture future;
 
-	private final Map<String, ChannelHandlerContext> channels = new HashMap<>();
+	private final Map<String, ISession> clients = new HashMap<>();
 	private final CommandSuite commands = new CommandSuite();
 	private final Database db = new Database(new ConcurrentHashMap<>());
 
@@ -102,7 +108,7 @@ public class TinyDB implements ITinyDB {
 			bossGroup.shutdownGracefully();
 		}
 
-		channels.clear();
+		clients.clear();
 
 		logger.info("adapter stopped");
 	}
@@ -122,7 +128,7 @@ public class TinyDB implements ITinyDB {
 
 		logger.fine(() -> "client connected: " + sourceKey);
 
-		channels.put(sourceKey, ctx);
+		clients.put(sourceKey, new Session(sourceKey, ctx));
 	}
 
 	@Override
@@ -131,7 +137,12 @@ public class TinyDB implements ITinyDB {
 
 		logger.fine(() -> "client disconnected: " + sourceKey);
 
-		channels.remove(sourceKey);
+		cleanSession(clients.remove(sourceKey));
+	}
+
+	private void cleanSession(ISession session) {
+		ICommand command = commands.getCommand("unsubscribe");
+		command.execute(db, new Request(this, session, "unsubscribe", emptyList()), new Response());
 	}
 
 	@Override
@@ -140,22 +151,30 @@ public class TinyDB implements ITinyDB {
 
 		logger.info(() -> "message received: " + sourceKey);
 
-		ctx.writeAndFlush(processCommand(parse(message)));
+		ctx.writeAndFlush(processCommand(parse(sourceKey, message)));
 	}
 
-	private IRequest parse(RedisToken<?> message) {
+	@Override
+	public void publish(String sourceKey, String message) {
+		ISession session = clients.get(sourceKey);
+		if (session != null) {
+			session.getContext().writeAndFlush(message);
+		}
+	}
+
+	private IRequest parse(String sourceKey, RedisToken<?> message) {
 		IRequest request = null;
 
 		if (message.getType() == RedisTokenType.ARRAY) {
-			request = parseArray(message);
+			request = parseArray(sourceKey, message);
 		}
 		else if (message.getType() == RedisTokenType.UNKNOWN) {
-			request = parseLine((message));
+			request = parseLine(sourceKey, message);
 		}
 		return request;
 	}
 
-	private Request parseLine(RedisToken<?> message) {
+	private Request parseLine(String sourceKey, RedisToken<?> message) {
 		logger.log(Level.SEVERE, "Received Unknown command");
 
 		RedisToken.UnknownRedisToken unknownToken = (RedisToken.UnknownRedisToken) message;
@@ -163,10 +182,10 @@ public class TinyDB implements ITinyDB {
 		String[] params = command.split(" ");
 		String[] array = new String[params.length - 1];
 		System.arraycopy(params, 1, array, 0, array.length);
-		return new Request(params[0], Arrays.asList(array));
+		return new Request(this, clients.get(sourceKey), params[0], Arrays.asList(array));
 	}
 
-	private Request parseArray(RedisToken<?> message) {
+	private Request parseArray(String sourceKey, RedisToken<?> message) {
 		RedisToken.ArrayRedisToken arrayToken = (RedisToken.ArrayRedisToken) message;
 		List<String> params = new LinkedList<>();
 
@@ -174,7 +193,7 @@ public class TinyDB implements ITinyDB {
 			params.add(token.getValue().toString());
 		}
 
-		return new Request(params.get(0), params.subList(1, params.size()));
+		return new Request(this, clients.get(sourceKey), params.get(0), params.subList(1, params.size()));
 	}
 
 	private String processCommand(IRequest request) {

@@ -18,4 +18,8 @@ public interface IRequest {
 	Optional<String> getOptionalParam(int i);
 
 	int getLength();
+
+	ISession getSession();
+
+	IServerContext getServerContext();
 }

@@ -14,8 +14,14 @@ public class Request implements IRequest {
 
 	private final List<String> params;
 
-	public Request(String command, List<String> params) {
+	private ISession session;
+
+	private IServerContext server;
+
+	public Request(IServerContext server, ISession session, String command, List<String> params) {
 		super();
+		this.server = server;
+		this.session = session;
 		this.command = command;
 		this.params = params;
 	}
@@ -46,6 +52,16 @@ public class Request implements IRequest {
 	@Override
 	public int getLength() {
 		return params.size();
+	}
+
+	@Override
+	public ISession getSession() {
+		return session;
+	}
+
+	@Override
+	public IServerContext getServerContext() {
+		return server;
 	}
 
 	@Override

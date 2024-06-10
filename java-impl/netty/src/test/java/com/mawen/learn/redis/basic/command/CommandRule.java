@@ -31,6 +31,10 @@ public class CommandRule implements TestRule {
 
 	private IDatabase database;
 
+	private IServerContext server;
+
+	private ISession session;
+
 	private final Object target;
 
 	private ICommand command;
@@ -57,8 +61,15 @@ public class CommandRule implements TestRule {
 		return new Statement() {
 			@Override
 			public void evaluate() throws Throwable {
+				server = mock(IServerContext.class);
 				request = mock(IRequest.class);
 				response = mock(IResponse.class);
+				session = mock(ISession.class);
+
+				when(request.getServerContext()).thenReturn(server);
+				when(request.getSession()).thenReturn(session);
+				when(session.getId()).thenReturn("localhost:12345");
+
 				database = new Database(new HashMap<>());
 
 				MockitoAnnotations.initMocks(target);
@@ -112,5 +123,18 @@ public class CommandRule implements TestRule {
 
 	public IResponse verify() {
 		return Mockito.verify(response);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T verify(Class<T> type) {
+		if (type.equals(IServerContext.class)) {
+			return (T) Mockito.verify(server);
+		}
+		else if (type.equals(ISession.class)) {
+			return (T) Mockito.verify(session);
+		}
+		else {
+			return (T) verify();
+		}
 	}
 }

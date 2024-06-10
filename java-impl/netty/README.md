@@ -8,50 +8,69 @@ one-to-one replacement for REDIS.
 Implemented commands
 --------------------
 
-- SET
-- GET
-- DEL
-- GETSET
-- EXISTS
-- MGET
-- MSET
-- INCR
-- DECR
-- INCRBY
-- DECRBY
-- HGET
-- HSET
-- HGETALL
-- PING
-- ECHO
-- TIME
-- FLUSHDB
-- STRLEN
-- TYPE
-- RENAME
-- KEYS
-- HEXISTS
-- HDEL
-- HKEYS
-- HLEN
-- APPEND
-- HVALS
-- LPUSH
-- LPOP
-- RPUSH
-- RPOP
-- LLEN
-- SADD
-- SMEMBERS
-- SCARD
-- SISMEMBER
-- ZADD
-- ZCARD
-- SREM
-- ZREM
-- ZRANGE
-- ZRANGEBYSCORE
-- ZREVRANGE
+- Server
+  - FLUSHDB
+- Connection
+  - ECHO
+  - PING
+  - TIME
+- Key
+  - DEL
+  - EXISTS
+  - KEYS
+  - RENAME
+  - TYPE
+- String
+  - APPEND
+  - DECRBY
+  - DECR
+  - GET
+  - GETSET
+  - INCRBY
+  - INCR
+  - MGET
+  - MSET
+  - SET
+  - STRLEN
+- Hash
+  - HDEL
+  - HEXISTS
+  - HGETALL
+  - HGET
+  - HKEYS
+  - HSET
+  - HVALS
+- List
+  - LPOP
+  - LPUSH
+  - LINDEX
+  - LLEN
+  - LRANGE
+  - LSET
+  - RPOP
+  - RPUSH
+- Set
+  - SADD
+  - SCARD
+  - SDIFF
+  - SINTER
+  - SISMEMBER
+  - SMEMBERS
+  - SPOP
+  - SRANDOMMEMBER
+  - SREM
+  - SUNION
+- Sorted Set
+  - ZADD
+  - ZCARD
+  - ZRANGEBYSCORE
+  - ZRANGE
+  - ZREM
+  - ZREVRANGE
+- Pub/Sub
+  - SUBSCRIBE
+  - UNSUBSCRIBE
+  - PUBLISH
 
 Design
 ------
