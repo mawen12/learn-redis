@@ -96,11 +96,11 @@ public class DatabaseValue {
 		return new DatabaseValue(DataType.SET, unmodifiableSet(Arrays.stream(values).collect(toSet())));
 	}
 
-	public static DatabaseValue zset(Collection<Entry<Float, String>> values) {
+	public static DatabaseValue zset(Collection<Entry<Double, String>> values) {
 		return new DatabaseValue(DataType.ZSET, unmodifiableNavigableSet(values.stream().collect(toSortedSet())));
 	}
 
-	public static DatabaseValue zset(Entry<Float, String>... values) {
+	public static DatabaseValue zset(Entry<Double, String>... values) {
 		return new DatabaseValue(DataType.ZSET, unmodifiableNavigableSet(Stream.of(values).collect(toSortedSet())));
 	}
 
@@ -116,7 +116,7 @@ public class DatabaseValue {
 		return new AbstractMap.SimpleEntry<>(key, value);
 	}
 
-	public static Entry<Float, String> score(float score, String value) {
+	public static Entry<Double, String> score(double score, String value) {
 		return new AbstractMap.SimpleEntry<>(score, value);
 	}
 
@@ -133,7 +133,7 @@ public class DatabaseValue {
 		return toCollection(LinkedHashSet::new);
 	}
 
-	private static Collector<Entry<Float, String>, ?, NavigableSet<Entry<Float, String>>> toSortedSet() {
+	private static Collector<Entry<Double, String>, ?, NavigableSet<Entry<Double, String>>> toSortedSet() {
 		return toCollection(SortedSet::new);
 	}
 

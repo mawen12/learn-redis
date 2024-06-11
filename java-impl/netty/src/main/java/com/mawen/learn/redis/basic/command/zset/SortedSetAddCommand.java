@@ -15,6 +15,7 @@ import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.data.SortedSet;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static java.lang.Double.*;
 import static java.lang.Float.*;
 import static java.util.stream.Collectors.*;
 
@@ -32,7 +33,7 @@ public class SortedSetAddCommand implements ICommand {
 		try {
 			DatabaseValue initial = db.getOrDefault(request.getParam(0), zset());
 			DatabaseValue result = db.merge(request.getParam(0), parseInput(request), (oldValue, newValue) -> {
-				Set<Entry<Float, String>> merge = new SortedSet();
+				Set<Entry<Double, String>> merge = new SortedSet();
 				merge.addAll(oldValue.getValue());
 				merge.addAll(newValue.getValue());
 				return zset(merge);
@@ -46,11 +47,11 @@ public class SortedSetAddCommand implements ICommand {
 	}
 
 	private DatabaseValue parseInput(IRequest request) {
-		Set<Entry<Float, String>> set = new SortedSet();
+		Set<Entry<Double, String>> set = new SortedSet();
 		String score = null;
 		for (String string : request.getParams().stream().skip(1).collect(toList())) {
 			if (score != null) {
-				set.add(score(parseFloat(score), string));
+				set.add(score(parseDouble(score), string));
 				score = null;
 			}
 			else {
