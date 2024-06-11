@@ -14,7 +14,7 @@ public interface IResponse {
 
 	IResponse addArrayValue(Collection<DatabaseValue> array);
 
-	IResponse addArray(Collection<String> array);
+	IResponse addArray(Collection<?> array);
 
 	IResponse addBulkStr(String str);
 
@@ -27,4 +27,8 @@ public interface IResponse {
 	IResponse addInt(boolean value);
 
 	IResponse addError(String str);
+
+	void exit();
+
+	boolean isExit();
 }

@@ -79,7 +79,8 @@ public class ResponseTest {
 
 	@Test
 	public void testAddArray() {
-		assertThat(response.addArray(Arrays.asList("1", "2", "3")).toString(), is("*3\r\n$1\r\n1\r\n$1\r\n2\r\n$1\r\n3\r\n"));
+		assertThat(response.addArray(Arrays.asList("1", "2", "3", 1, 2, 3)).toString(),
+				is("*6\r\n$1\r\n1\r\n$1\r\n2\r\n$1\r\n3\r\n:1\r\n:2\r\n:3\r\n"));
 	}
 
 	@Test

@@ -36,15 +36,15 @@ public class UnsubscribeCommandTest {
 
 		rule.verify().addArray(captor.capture());
 
-		Collection<String> response = captor.getValue();
+		Collection<?> response = captor.getValue();
 
 		assertThat(response.size(), is(3));
 
-		Iterator<String> iter = response.iterator();
+		Iterator<?> iter = response.iterator();
 
 		assertThat(iter.next(), is("unsubscribe"));
 		assertThat(iter.next(), is("test"));
-		assertThat(iter.next(), is("0"));
+		assertThat(iter.next(), is(0));
 	}
 
 }

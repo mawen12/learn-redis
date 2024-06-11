@@ -65,12 +65,12 @@ public class CommandRule implements TestRule {
 				request = mock(IRequest.class);
 				response = mock(IResponse.class);
 				session = mock(ISession.class);
+				database = new Database(new HashMap<>());
 
 				when(request.getServerContext()).thenReturn(server);
 				when(request.getSession()).thenReturn(session);
 				when(session.getId()).thenReturn("localhost:12345");
-
-				database = new Database(new HashMap<>());
+				when(server.getDatabase()).thenReturn(database);
 
 				MockitoAnnotations.initMocks(target);
 

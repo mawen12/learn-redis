@@ -2,12 +2,10 @@ package com.mawen.learn.redis.basic;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,6 +19,7 @@ import com.mawen.learn.redis.basic.command.Request;
 import com.mawen.learn.redis.basic.command.Response;
 import com.mawen.learn.redis.basic.command.Session;
 import com.mawen.learn.redis.basic.data.Database;
+import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.redis.RedisToken;
 import com.mawen.learn.redis.basic.redis.RedisTokenType;
 import com.mawen.learn.redis.basic.redis.RequestDecoder;
@@ -53,6 +52,8 @@ public class TinyDB implements ITinyDB, IServerContext {
 	private static final int MAX_FRAME_SIZE = BUFFER_SIZE * 100;
 	public static final int DEFAULT_PORT = 7081;
 	public static final String DEFAULT_HOST = "localhost";
+	// Default database number
+	private static final int DEFAULT_DATABASES = 10;
 
 	private final int port;
 	private final String host;
@@ -63,17 +64,25 @@ public class TinyDB implements ITinyDB, IServerContext {
 	private TinyDBConnectionHandler connectionHandler;
 	private ChannelFuture future;
 
-	private final Map<String, ISession> clients = new HashMap<>();
 	private final CommandSuite commands = new CommandSuite();
-	private final Database db = new Database(new ConcurrentHashMap<>());
-
-	public TinyDB(String host, int port) {
-		this.port = port;
-		this.host = host;
-	}
+	private final List<IDatabase> databases = new LinkedList<>();
+	private final IDatabase admin = new Database(new HashMap<>());
+	private final Map<String, ISession> clients = new HashMap<>();
 
 	public TinyDB() {
 		this(DEFAULT_HOST, DEFAULT_PORT);
+	}
+
+	public TinyDB(String host, int port) {
+		this(host, port, DEFAULT_DATABASES);
+	}
+
+	public TinyDB(String host, int port, int databases) {
+		this.port = port;
+		this.host = host;
+		for (int i = 0; i < databases; i++) {
+			this.databases.add(new Database(new HashMap<>()));
+		}
 	}
 
 	public void start() {
@@ -113,6 +122,9 @@ public class TinyDB implements ITinyDB, IServerContext {
 		logger.info("adapter stopped");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void channel(SocketChannel channel) {
 		logger.fine(() -> "new channel: " + sourceKey(channel));
@@ -122,6 +134,9 @@ public class TinyDB implements ITinyDB, IServerContext {
 		channel.pipeline().addLast(connectionHandler);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void connected(ChannelHandlerContext ctx) {
 		String sourceKey = sourceKey(ctx.channel());
@@ -131,27 +146,45 @@ public class TinyDB implements ITinyDB, IServerContext {
 		clients.put(sourceKey, new Session(sourceKey, ctx));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void disconnected(ChannelHandlerContext ctx) {
 		String sourceKey = sourceKey(ctx.channel());
 
 		logger.fine(() -> "client disconnected: " + sourceKey);
 
-		cleanSession(clients.remove(sourceKey));
+		ISession session = clients.remove(sourceKey);
+		if (session != null) {
+			cleanSession(session);
+		}
 	}
 
 	private void cleanSession(ISession session) {
-		ICommand command = commands.getCommand("unsubscribe");
-		command.execute(db, new Request(this, session, "unsubscribe", emptyList()), new Response());
+		try {
+			ICommand command = commands.getCommand("unsubscribe");
+			IDatabase db = databases.get(session.getCurrentDB());
+			command.execute(db, new Request(this, session, "unsubscribe", emptyList()), new Response());
+		}
+		finally {
+			session.destroy();
+		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void receive(ChannelHandlerContext ctx, RedisToken<?> message) {
 		String sourceKey = sourceKey(ctx.channel());
 
-		logger.info(() -> "message received: " + sourceKey);
+		logger.finest(() -> "message received: " + sourceKey);
 
-		ctx.writeAndFlush(processCommand(parse(sourceKey, message)));
+		IRequest request = parseMessage(sourceKey, message);
+		if (request != null) {
+			processCommand(request);
+		}
 	}
 
 	@Override
@@ -162,7 +195,22 @@ public class TinyDB implements ITinyDB, IServerContext {
 		}
 	}
 
-	private IRequest parse(String sourceKey, RedisToken<?> message) {
+	@Override
+	public IDatabase getDatabase() {
+		return admin;
+	}
+
+	@Override
+	public int getPort() {
+		return port;
+	}
+
+	@Override
+	public int getClients() {
+		return clients.size();
+	}
+
+	private IRequest parseMessage(String sourceKey, RedisToken<?> message) {
 		IRequest request = null;
 
 		if (message.getType() == RedisTokenType.ARRAY) {
@@ -196,21 +244,26 @@ public class TinyDB implements ITinyDB, IServerContext {
 		return new Request(this, clients.get(sourceKey), params.get(0), params.subList(1, params.size()));
 	}
 
-	private String processCommand(IRequest request) {
+	private void processCommand(IRequest request) {
 		logger.fine(() -> "received command: " + request);
 
-		IResponse response = new Response();
+		ISession session = request.getSession();
+		IDatabase db = databases.get(session.getCurrentDB());
 		ICommand command = commands.getCommand(request.getCommand());
 		if (command != null) {
-			command.execute(db, request, response);
+			session.enqueue(() -> {
+				Response response = new Response();
+				command.execute(db, request, response);
+				session.getContext().writeAndFlush(response.toString());
+
+				if (response.isExit()) {
+					session.getContext().close();
+				}
+			});
 		}
 		else {
-			response.addError("ERR unknown command '" + request.getCommand() + "'");
+			session.getContext().writeAndFlush("-ERR unknown command '" + request.getCommand() + "'");
 		}
-
-		logger.info(() -> "Response is: " + response);
-
-		return response.toString();
 	}
 
 	private String sourceKey(Channel channel) {

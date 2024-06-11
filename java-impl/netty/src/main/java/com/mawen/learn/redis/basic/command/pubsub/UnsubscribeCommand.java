@@ -11,6 +11,7 @@ import com.mawen.learn.redis.basic.command.IResponse;
 import com.mawen.learn.redis.basic.command.Response;
 import com.mawen.learn.redis.basic.command.annotation.Command;
 import com.mawen.learn.redis.basic.command.annotation.ParamLength;
+import com.mawen.learn.redis.basic.command.annotation.PubSubAllowed;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
@@ -24,15 +25,17 @@ import static java.util.Arrays.*;
  */
 @Command("unsubscribe")
 @ParamLength(1)
+@PubSubAllowed
 public class UnsubscribeCommand implements ICommand {
 
 	private static final String SUBSCRIPTIONS_PREFIX = "subscriptions:";
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
+		IDatabase admin = request.getServerContext().getDatabase();
 		int i = request.getLength();
 		for (String channel : request.getParams()) {
-			db.merge(SUBSCRIPTIONS_PREFIX + channel, set(request.getSession().getId()),(oldValue, newValue) -> {
+			admin.merge(SUBSCRIPTIONS_PREFIX + channel, set(request.getSession().getId()),(oldValue, newValue) -> {
 				Set<String> merge = new HashSet<>();
 				merge.addAll(oldValue.getValue());
 				merge.remove(request.getSession().getId());
@@ -40,7 +43,7 @@ public class UnsubscribeCommand implements ICommand {
 			});
 
 			request.getSession().removeSubscription(channel);
-			response.addArray(asList("unsubscribe", channel, valueOf(--i)));
+			response.addArray(asList("unsubscribe", channel, --i));
 		}
 	}
 

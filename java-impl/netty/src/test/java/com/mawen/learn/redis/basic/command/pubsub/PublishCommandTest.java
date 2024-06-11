@@ -19,7 +19,7 @@ public class PublishCommandTest {
 	@Test
 	public void testExecute() {
 		rule.withData("subscriptions:test", DatabaseValue.set("localhost:12345"))
-				.withParams("test", "Hello world!")
+				.withParams("test", "Hello World!")
 				.execute();
 
 		rule.verify(IServerContext.class).publish("localhost:12345", "*3\r\n$7\r\nmessage\r\n$4\r\ntest\r\n$12\r\nHello World!\r\n");

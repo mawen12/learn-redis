@@ -3,7 +3,10 @@ package com.mawen.learn.redis.basic.command;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import com.mawen.learn.redis.basic.data.IDatabase;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -19,6 +22,8 @@ public class Session implements ISession{
 	private int db;
 
 	private final Set<String> subscriptions = new HashSet<>();
+
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	public Session(String id, ChannelHandlerContext ctx) {
 		super();
@@ -59,5 +64,15 @@ public class Session implements ISession{
 	@Override
 	public void setCurrentDB(int db) {
 		this.db = db;
+	}
+
+	@Override
+	public void enqueue(Runnable task) {
+		executor.submit(task);
+	}
+
+	@Override
+	public void destroy() {
+		executor.shutdown();
 	}
 }

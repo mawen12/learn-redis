@@ -9,6 +9,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
 /**
+ * Netty channel handler
+ *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/6
  */
@@ -23,7 +25,7 @@ public class TinyDBConnectionHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	/**
-	 * Method called when channel is active
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -31,7 +33,7 @@ public class TinyDBConnectionHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	/**
-	 * Method called when channel can be read
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -44,7 +46,7 @@ public class TinyDBConnectionHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	/**
-	 * Method called when channel is inactive
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -54,7 +56,7 @@ public class TinyDBConnectionHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	/**
-	 * Method called when exception is catch
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {

@@ -10,6 +10,7 @@ Implemented commands
 
 - Server
   - FLUSHDB
+  - SELECT
 - Connection
   - ECHO
   - PING
@@ -98,3 +99,16 @@ redis-benchmark -t set,get -h localhost -p 6379 -n 100000 -q
 SET: 149476.83 requests per second, p50=0.167 msec                    
 GET: 159235.66 requests per second, p50=0.159 msec
 ```
+
+TODO
+----
+
+- ~~Pipelining.~~ **Done!**
+- Key expiration.
+- Transaction (MULTI & EXEC).
+- Persistence to disk.
+- Publish/Subscribe._(Partially implemented)_
+- Master - Slave Replication.
+- Scripting with Javascript/Lua.
+- Partitioning?
+- Clustering?

@@ -21,7 +21,7 @@ public class Response implements IResponse {
 
 	public static final String DELIMITER = "\r\n";
 
-
+	private boolean exit;
 	private final StringBuilder sb = new StringBuilder();
 
 	@Override
@@ -39,6 +39,7 @@ public class Response implements IResponse {
 						list.add(v);
 					});
 					addArray(list);
+					break;
 				case LIST:
 				case SET:
 				case ZSET:
@@ -111,17 +112,33 @@ public class Response implements IResponse {
 	}
 
 	@Override
-	public IResponse addArray(Collection<String> array) {
+	public IResponse addArray(Collection<?> array) {
 		if (array != null) {
 			sb.append(ARRAY).append(array.size()).append(DELIMITER);
-			for (String value : array) {
-				addBulkStr(value);
+			for (Object value : array) {
+				String string = String.valueOf(value);
+				if (value instanceof Integer) {
+					addInt(Integer.parseInt(string));
+				}
+				else {
+					addBulkStr(string);
+				}
 			}
 		}
 		else {
 			sb.append(ARRAY).append(0).append(DELIMITER);
 		}
 		return this;
+	}
+
+	@Override
+	public void exit() {
+		this.exit = true;
+	}
+
+	@Override
+	public boolean isExit() {
+		return exit;
 	}
 
 	@Override

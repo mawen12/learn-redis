@@ -2,6 +2,7 @@ package com.mawen.learn.redis.basic.command;
 
 import java.util.Set;
 
+import com.mawen.learn.redis.basic.data.IDatabase;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -23,4 +24,8 @@ public interface ISession {
 	int getCurrentDB();
 
 	void setCurrentDB(int db);
+
+	void enqueue(Runnable task);
+
+	void destroy();
 }

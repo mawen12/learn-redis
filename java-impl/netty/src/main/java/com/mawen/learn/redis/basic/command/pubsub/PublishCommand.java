@@ -27,7 +27,8 @@ public class PublishCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue value = db.getOrDefault(SUBSCRIPTIONS_PREFIX + request.getParam(0), DatabaseValue.set());
+		IDatabase admin = request.getServerContext().getDatabase();
+		DatabaseValue value = admin.getOrDefault(SUBSCRIPTIONS_PREFIX + request.getParam(0), DatabaseValue.set());
 
 		Set<String> subscribers = value.getValue();
 		for (String subscriber : subscribers) {

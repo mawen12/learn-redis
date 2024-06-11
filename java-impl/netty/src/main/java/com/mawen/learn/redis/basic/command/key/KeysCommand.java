@@ -37,17 +37,7 @@ public class KeysCommand implements ICommand {
 	 */
 	private String convertGlobToRegEX(String line) {
 		int strLen = line.length();
-		StringBuilder sb = new StringBuilder();
-		// Remove beginning and ending * globs because they're useless
-		if (line.startsWith("*")) {
-			line = line.substring(1);
-			strLen--;
-		}
-		if (line.endsWith("*")) {
-			line = line.substring(0, strLen - 1);
-			strLen--;
-		}
-
+		StringBuilder sb = new StringBuilder(strLen);
 		boolean escaping = false;
 		int inCurlies = 0;
 		for (char currentChar : line.toCharArray()) {

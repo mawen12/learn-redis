@@ -1,9 +1,12 @@
 package com.mawen.learn.redis.basic.command;
 
+import java.util.Collections;
+
 import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -15,6 +18,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CommandWrapperTest {
+
 	@Spy
 	private final SomeCommand command = new SomeCommand();
 
@@ -26,6 +30,15 @@ public class CommandWrapperTest {
 
 	@Mock
 	private IResponse response;
+
+	@Mock
+	private ISession session;
+
+	@Before
+	public void setUp() {
+		when(request.getSession()).thenReturn(session);
+		when(session.getSubscriptions()).thenReturn(Collections.emptySet());
+	}
 
 	@Test
 	public void testExecute() {
@@ -87,7 +100,7 @@ public class CommandWrapperTest {
 	}
 
 
-	private class SomeCommand implements ICommand {
+	private static class SomeCommand implements ICommand {
 
 		@Override
 		public void execute(IDatabase db, IRequest request, IResponse response) {
@@ -96,7 +109,7 @@ public class CommandWrapperTest {
 	}
 
 	@ParamLength(2)
-	private class LengthCommand implements ICommand {
+	private static class LengthCommand implements ICommand {
 		@Override
 		public void execute(IDatabase db, IRequest request, IResponse response) {
 			response.addSimpleStr(RESULT_OK);
@@ -104,7 +117,7 @@ public class CommandWrapperTest {
 	}
 
 	@ParamType(DataType.STRING)
-	private class TypeCommand implements ICommand {
+	private static class TypeCommand implements ICommand {
 		@Override
 		public void execute(IDatabase db, IRequest request, IResponse response) {
 			response.addSimpleStr(RESULT_OK);

@@ -32,7 +32,10 @@ import com.mawen.learn.redis.basic.command.pubsub.SubscribeCommand;
 import com.mawen.learn.redis.basic.command.pubsub.UnsubscribeCommand;
 import com.mawen.learn.redis.basic.command.server.EchoCommand;
 import com.mawen.learn.redis.basic.command.server.FlushDBCommand;
+import com.mawen.learn.redis.basic.command.server.InfoCommand;
 import com.mawen.learn.redis.basic.command.server.PingCommand;
+import com.mawen.learn.redis.basic.command.server.QuitCommand;
+import com.mawen.learn.redis.basic.command.server.SelectCommand;
 import com.mawen.learn.redis.basic.command.server.TimeCommand;
 import com.mawen.learn.redis.basic.command.set.SetAddCommand;
 import com.mawen.learn.redis.basic.command.set.SetCardinalityCommand;
@@ -78,6 +81,9 @@ public class CommandSuite {
 		// server
 		addCommand(FlushDBCommand.class);
 		addCommand(TimeCommand.class);
+		addCommand(SelectCommand.class);
+		addCommand(InfoCommand.class);
+		addCommand(QuitCommand.class);
 
 		// strings
 		addCommand(GetCommand.class);
@@ -166,6 +172,6 @@ public class CommandSuite {
 	}
 
 	public ICommand getCommand(String name) {
-		return commands.get(name);
+		return commands.get(name.toLowerCase());
 	}
 }
