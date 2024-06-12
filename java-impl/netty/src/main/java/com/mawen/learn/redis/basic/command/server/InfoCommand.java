@@ -15,8 +15,9 @@ import com.mawen.learn.redis.basic.command.IServerContext;
 import com.mawen.learn.redis.basic.command.annotation.Command;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static java.lang.String.*;
-import static java.util.Arrays.*;
+import static java.util.Arrays.asList;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -52,7 +53,7 @@ public class InfoCommand implements ICommand {
 				sections.put(section, section(section, request.getServerContext()));
 			}
 		}
-		response.addBulkStr(makeString(sections));
+		response.addBulkStr(safeString(makeString(sections)));
 	}
 
 	private String makeString(Map<String, Map<String, String>> sections) {

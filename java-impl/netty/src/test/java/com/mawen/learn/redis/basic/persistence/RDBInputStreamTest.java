@@ -2,6 +2,7 @@ package com.mawen.learn.redis.basic.persistence;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import com.mawen.learn.redis.basic.data.DatabaseValue;
@@ -38,8 +39,8 @@ public class RDBInputStreamTest {
 		assertDB(databases.get(4), hash(entry("1", "test")));
 	}
 
-	private ByteArrayInputStream array(String string) {
-		return new ByteArrayInputStream(HexUtil.toByteArray(string));
+	private InputStream array(String string) {
+		return new ByteBufferInputStream(HexUtil.toByteArray(string));
 	}
 
 	private void assertDB(IDatabase db, DatabaseValue value) {

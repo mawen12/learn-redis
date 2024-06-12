@@ -5,6 +5,8 @@ import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
+
 @CommandUnderTest(EchoCommand.class)
 public class EchoCommandTest {
 
@@ -16,6 +18,6 @@ public class EchoCommandTest {
 
 		rule.withParams("test")
 				.execute()
-				.verify().addBulkStr("test");
+				.verify().addBulkStr(safeString("test"));
 	}
 }

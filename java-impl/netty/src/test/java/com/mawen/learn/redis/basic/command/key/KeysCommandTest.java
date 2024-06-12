@@ -10,6 +10,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -34,9 +35,9 @@ public class KeysCommandTest {
 		Collection<String> value = captor.getValue();
 
 		assertThat(value.size(), is(3));
-		assertThat(value.contains("abc"), is(true));
-		assertThat(value.contains("acd"), is(true));
-		assertThat(value.contains("c"), is(true));
+		assertThat(value.contains(safeString("abc")), is(true));
+		assertThat(value.contains(safeString("acd")), is(true));
+		assertThat(value.contains(safeString("c")), is(true));
 	}
 
 	@Test
@@ -51,9 +52,9 @@ public class KeysCommandTest {
 		Collection<String> value = captor.getValue();
 
 		assertThat(value.size(), is(2));
-		assertThat(value.contains("abc"), is(true));
-		assertThat(value.contains("acd"), is(true));
-		assertThat(value.contains("c"), is(false));
+		assertThat(value.contains(safeString("abc")), is(true));
+		assertThat(value.contains(safeString("acd")), is(true));
+		assertThat(value.contains(safeString("c")), is(false));
 	}
 
 	@Test
@@ -68,8 +69,8 @@ public class KeysCommandTest {
 		Collection<String> value = captor.getValue();
 
 		assertThat(value.size(), is(2));
-		assertThat(value.contains("abc"), is(true));
-		assertThat(value.contains("acd"), is(true));
-		assertThat(value.contains("c"), is(false));
+		assertThat(value.contains(safeString("abc")), is(true));
+		assertThat(value.contains(safeString("acd")), is(true));
+		assertThat(value.contains(safeString("c")), is(false));
 	}
 }

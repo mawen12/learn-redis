@@ -6,6 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 
 @CommandUnderTest(HashGetCommand.class)
 public class HashGetCommandTest {
@@ -18,6 +19,6 @@ public class HashGetCommandTest {
 		rule.withData("a",hash(entry("key", "value")))
 				.withParams("a", "key")
 				.execute()
-				.verify().addBulkStr("value");
+				.verify().addBulkStr(safeString("value"));
 	}
 }

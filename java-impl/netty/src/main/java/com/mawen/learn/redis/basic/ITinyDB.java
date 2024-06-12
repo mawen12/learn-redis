@@ -12,6 +12,9 @@ import io.netty.channel.socket.SocketChannel;
  */
 public interface ITinyDB {
 
+	int DEFAULT_PORT = 7081;
+	String DEFAULT_HOST = "localhost";
+
 	/**
 	 * When a new channel is created, and the server has to prepare the pipeline
 	 */
@@ -30,5 +33,5 @@ public interface ITinyDB {
 	/**
 	 * When a message is received
 	 */
-	void receive(ChannelHandlerContext ctx, RedisToken<?> message);
+	void receive(ChannelHandlerContext ctx, RedisToken message);
 }

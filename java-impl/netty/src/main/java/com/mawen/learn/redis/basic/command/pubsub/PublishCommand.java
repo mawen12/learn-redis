@@ -2,8 +2,6 @@ package com.mawen.learn.redis.basic.command.pubsub;
 
 import java.util.Set;
 
-import javax.jws.Oneway;
-
 import com.mawen.learn.redis.basic.command.ICommand;
 import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IResponse;
@@ -13,7 +11,7 @@ import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
-import static java.util.Arrays.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -27,7 +25,7 @@ public class PublishCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		IDatabase admin = request.getServerContext().getDatabase();
+		IDatabase admin = request.getServerContext().getAdminDatabase();
 		DatabaseValue value = admin.getOrDefault(SUBSCRIPTIONS_PREFIX + request.getParam(0), DatabaseValue.set());
 
 		Set<String> subscribers = value.getValue();
@@ -40,7 +38,7 @@ public class PublishCommand implements ICommand {
 
 	private String message(IRequest request) {
 		Response stream = new Response();
-		stream.addArray(asList("message", request.getParam(0), request.getParam(1)));
+		stream.addArray(safeAsList("message", request.getParam(0), request.getParam(1)));
 		return stream.toString();
 	}
 }

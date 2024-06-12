@@ -1,22 +1,17 @@
 package com.mawen.learn.redis.basic.command.pubsub;
 
-import java.lang.annotation.Annotation;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.mawen.learn.redis.basic.command.ICommand;
 import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.command.Response;
 import com.mawen.learn.redis.basic.command.annotation.Command;
 import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.command.annotation.PubSubAllowed;
-import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static java.lang.String.*;
 import static java.util.Arrays.*;
 
 /**
@@ -32,7 +27,7 @@ public class UnsubscribeCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		IDatabase admin = request.getServerContext().getDatabase();
+		IDatabase admin = request.getServerContext().getAdminDatabase();
 		int i = request.getLength();
 		for (String channel : request.getParams()) {
 			admin.merge(SUBSCRIPTIONS_PREFIX + channel, set(request.getSession().getId()),(oldValue, newValue) -> {

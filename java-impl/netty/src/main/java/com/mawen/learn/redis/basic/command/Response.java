@@ -1,11 +1,18 @@
 package com.mawen.learn.redis.basic.command;
 
+import java.io.IOError;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import com.mawen.learn.redis.basic.data.DatabaseValue;
+import com.mawen.learn.redis.basic.redis.SafeString;
+
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -13,16 +20,17 @@ import com.mawen.learn.redis.basic.data.DatabaseValue;
  */
 public class Response implements IResponse {
 
-	private static final String ARRAY = "*";
-	private static final String ERROR = "-";
-	private static final String INTEGER = ":";
-	private static final String SIMPLE_STRING = "+";
-	private static final String BULK_STRING = "$";
+	private static final byte ARRAY = '*';
+	private static final byte ERROR = '-';
+	private static final byte INTEGER = ':';
+	private static final byte SIMPLE_STRING = '+';
+	private static final byte BULK_STRING = '$';
 
-	public static final String DELIMITER = "\r\n";
+	public static final byte[] DELIMITER = new byte[]{'\r', '\n'};
 
 	private boolean exit;
-	private final StringBuilder sb = new StringBuilder();
+
+	private final ByteArrayBuilder builder = new ByteArrayBuilder();
 
 	@Override
 	public IResponse addValue(DatabaseValue value) {
@@ -33,10 +41,10 @@ public class Response implements IResponse {
 					break;
 				case HASH:
 					Map<String, String> map = value.getValue();
-					List<String> list = new LinkedList<>();
+					List<Object> list = new LinkedList<>();
 					map.forEach((k, v) -> {
-						list.add(k);
-						list.add(v);
+						list.add(safeString(k));
+						list.add(safeString(v));
 					});
 					addArray(list);
 					break;
@@ -56,57 +64,57 @@ public class Response implements IResponse {
 	}
 
 	@Override
-	public IResponse addBulkStr(String str) {
+	public IResponse addBulkStr(SafeString str) {
 		if (str != null) {
-			sb.append(BULK_STRING).append(str.length()).append(DELIMITER).append(str);
+			builder.append(BULK_STRING).append(str.length()).append(DELIMITER).append(str);
 		}
 		else {
-			sb.append(BULK_STRING).append(-1);
+			builder.append(BULK_STRING).append(-1);
 		}
-		sb.append(DELIMITER);
+		builder.append(DELIMITER);
 		return this;
 	}
 
 	@Override
 	public IResponse addSimpleStr(String str) {
-		sb.append(SIMPLE_STRING).append(str).append(DELIMITER);
+		builder.append(SIMPLE_STRING).append(str).append(DELIMITER);
 		return this;
 	}
 
 	@Override
-	public IResponse addInt(String str) {
-		sb.append(INTEGER).append(str).append(DELIMITER);
+	public IResponse addInt(SafeString str) {
+		builder.append(INTEGER).append(str).append(DELIMITER);
 		return this;
 	}
 
 	@Override
 	public IResponse addInt(int value) {
-		sb.append(INTEGER).append(value).append(DELIMITER);
+		builder.append(INTEGER).append(value).append(DELIMITER);
 		return this;
 	}
 
 	@Override
 	public IResponse addInt(boolean value) {
-		sb.append(INTEGER).append(value ? "1" : "0").append(DELIMITER);
+		builder.append(INTEGER).append(value ? "1" : "0").append(DELIMITER);
 		return this;
 	}
 
 	@Override
 	public IResponse addError(String str) {
-		sb.append(ERROR).append(str).append(DELIMITER);
+		builder.append(ERROR).append(str).append(DELIMITER);
 		return this;
 	}
 
 	@Override
 	public IResponse addArrayValue(Collection<DatabaseValue> array) {
 		if (array != null) {
-			sb.append(ARRAY).append(array.size()).append(DELIMITER);
+			builder.append(ARRAY).append(array.size()).append(DELIMITER);
 			for (DatabaseValue value : array) {
 				addValue(value);
 			}
 		}
 		else {
-			sb.append(ARRAY).append(0).append(DELIMITER);
+			builder.append(ARRAY).append(0).append(DELIMITER);
 		}
 		return this;
 	}
@@ -114,19 +122,21 @@ public class Response implements IResponse {
 	@Override
 	public IResponse addArray(Collection<?> array) {
 		if (array != null) {
-			sb.append(ARRAY).append(array.size()).append(DELIMITER);
+			builder.append(ARRAY).append(array.size()).append(DELIMITER);
 			for (Object value : array) {
-				String string = String.valueOf(value);
 				if (value instanceof Integer) {
-					addInt(Integer.parseInt(string));
+					addInt((Integer) value);
 				}
-				else {
-					addBulkStr(string);
+				else if (value instanceof SafeString) {
+					addBulkStr((SafeString) value);
+				}
+				else if (value instanceof String) {
+					addSimpleStr((String) value);
 				}
 			}
 		}
 		else {
-			sb.append(ARRAY).append(0).append(DELIMITER);
+			builder.append(ARRAY).append(0).append(DELIMITER);
 		}
 		return this;
 	}
@@ -141,8 +151,54 @@ public class Response implements IResponse {
 		return exit;
 	}
 
+	public byte[] getBytes() {
+		return builder.build();
+	}
+
 	@Override
 	public String toString() {
-		return sb.toString();
+		return new String(getBytes(), StandardCharsets.UTF_8);
+	}
+
+	private static class ByteArrayBuilder {
+
+		private final ByteBuffer buffer = ByteBuffer.allocate(1024);
+
+		public ByteArrayBuilder append(int i) {
+			append(String.valueOf(i));
+			return this;
+		}
+
+		public ByteArrayBuilder append(byte b) {
+			buffer.put(b);
+			return this;
+		}
+
+		public ByteArrayBuilder append(byte[] buf) {
+			buffer.put(buf);
+			return this;
+		}
+
+		public ByteArrayBuilder append(String str) {
+			try {
+				buffer.put(str.getBytes("UTF-8"));
+			}
+			catch (UnsupportedEncodingException e) {
+				throw new IOError(e);
+			}
+			return this;
+		}
+
+		public ByteArrayBuilder append(SafeString str) {
+			buffer.put(str.getBytes());
+			return this;
+		}
+
+		public byte[] build() {
+			byte[] array = new byte[buffer.position()];
+			buffer.rewind();
+			buffer.get(array);
+			return array;
+		}
 	}
 }

@@ -9,6 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -30,7 +31,7 @@ public class GetSetCommandTest {
 
 		DatabaseValue value = captor.getValue();
 
-		assertThat(value.getValue(), is("1"));
+		assertThat(value.getValue(), is(safeString("1")));
 	}
 
 }

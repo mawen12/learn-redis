@@ -4,8 +4,8 @@ import java.util.Set;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
-import com.mawen.learn.redis.basic.command.annotation.Command;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
+import com.mawen.learn.redis.basic.redis.SafeString;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -25,7 +25,7 @@ public class SetPopCommandTest {
 		rule.withData("key", set("a", "b", "c"))
 				.withParams("key")
 				.execute()
-				.verify().addBulkStr(notNull(String.class));
+				.verify().addBulkStr(notNull(SafeString.class));
 
 		DatabaseValue value = rule.getDatabase().get("key");
 		assertThat(value.<Set<String>>getValue().size(), is(2));
@@ -35,7 +35,7 @@ public class SetPopCommandTest {
 	public void testExecuteNotExists() {
 		rule.withParams("key")
 				.execute()
-				.verify().addBulkStr(isNull(String.class));
+				.verify().addBulkStr(isNull(SafeString.class));
 	}
 
 }

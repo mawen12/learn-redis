@@ -11,6 +11,8 @@ Implemented commands
 - Server
   - FLUSHDB
   - SELECT
+  - _SYNC_
+  - _SLAVEOF_
 - Connection
   - ECHO
   - PING
@@ -108,7 +110,7 @@ TODO
 - Transaction (MULTI & EXEC).
 - Persistence to disk.
 - Publish/Subscribe._(Partially implemented)_
-- Master - Slave Replication.
+- Master - Slave Replication. _(Working on it!)_
 - Scripting with Javascript/Lua.
 - Partitioning?
 - Clustering?

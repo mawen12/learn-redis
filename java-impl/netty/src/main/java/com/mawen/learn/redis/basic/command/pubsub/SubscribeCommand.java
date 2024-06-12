@@ -1,6 +1,5 @@
 package com.mawen.learn.redis.basic.command.pubsub;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,7 +27,7 @@ public class SubscribeCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		IDatabase admin = request.getServerContext().getDatabase();
+		IDatabase admin = request.getServerContext().getAdminDatabase();
 		int i = 1;
 		for (String channel : request.getParams()) {
 			admin.merge(SUBSCRIPTIONS_PREFIX + channel, set(request.getSession().getId()), (oldValue, newValue) -> {

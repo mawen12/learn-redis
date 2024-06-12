@@ -8,8 +8,6 @@ import com.mawen.learn.redis.basic.data.DatabaseValue;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 @CommandUnderTest(PublishCommand.class)
 public class PublishCommandTest {
 

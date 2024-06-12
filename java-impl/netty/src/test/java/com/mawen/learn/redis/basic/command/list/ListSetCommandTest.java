@@ -2,13 +2,11 @@ package com.mawen.learn.redis.basic.command.list;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
-import com.mawen.learn.redis.basic.data.DatabaseValue;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 
 @CommandUnderTest(ListSetCommand.class)

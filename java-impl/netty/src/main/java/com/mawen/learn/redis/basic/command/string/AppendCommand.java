@@ -9,6 +9,7 @@ import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
@@ -17,15 +18,15 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
  * @since 2024/6/7
  */
 @Command("append")
-@ParamLength(2)
+@ParamLength(1)
 @ParamType(DataType.STRING)
 public class AppendCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		DatabaseValue value = db.merge(request.getParam(0), string(request.getParam(1)),
-				(oldValue, newValue) -> string(oldValue.<String>getValue() + (newValue.<String>getValue())));
+				(oldValue, newValue) -> string(oldValue.<SafeString>getValue().toString() + newValue.<SafeString>getValue().toString()));
 
-		response.addInt(value.<String>getValue().length());
+		response.addInt(value.<SafeString>getValue().length());
 	}
 }

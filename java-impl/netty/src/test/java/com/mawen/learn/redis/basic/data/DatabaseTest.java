@@ -5,12 +5,13 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 public class DatabaseTest {
 
-	private Database database = new Database(new HashMap<>());
+	private final Database database = new Database(new HashMap<>());
 
 	@Test
 	public void testDatabase() {
@@ -18,7 +19,7 @@ public class DatabaseTest {
 
 		database.put("a", value);
 
-		assertThat(database.get("a").getValue(), is("value"));
+		assertThat(database.get("a").getValue(), is(safeString("value")));
 		assertThat(database.containsKey("a"), is(true));
 		assertThat(database.containsKey("b"), is(false));
 		assertThat(database.isEmpty(), is(false));

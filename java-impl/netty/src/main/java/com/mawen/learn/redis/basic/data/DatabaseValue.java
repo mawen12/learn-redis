@@ -10,6 +10,9 @@ import java.util.NavigableSet;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
+import com.mawen.learn.redis.basic.redis.SafeString;
+
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static java.util.Collections.*;
 import static java.util.Map.*;
 import static java.util.stream.Collectors.*;
@@ -77,6 +80,10 @@ public class DatabaseValue {
 	}
 
 	public static DatabaseValue string(String value) {
+		return string(safeString(value));
+	}
+
+	public static DatabaseValue string(SafeString value) {
 		return new DatabaseValue(DataType.STRING, value);
 	}
 

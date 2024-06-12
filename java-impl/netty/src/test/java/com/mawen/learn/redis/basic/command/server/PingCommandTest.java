@@ -5,6 +5,8 @@ import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
+
 @CommandUnderTest(PingCommand.class)
 public class PingCommandTest {
 
@@ -21,6 +23,6 @@ public class PingCommandTest {
 	public void testExecuteWithParam() {
 		rule.withParams("HI!")
 				.execute()
-				.verify().addBulkStr("HI!");
+				.verify().addBulkStr(safeString("HI!"));
 	}
 }

@@ -25,8 +25,8 @@ public class DecrementByCommand implements ICommand {
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
 			DatabaseValue value = db.merge(request.getParam(0), string("-" + request.getParam(1)), (oldValue, newValue) -> {
-				int decrement = Integer.parseInt(newValue.getValue());
-				int current = Integer.parseInt(oldValue.getValue());
+				int decrement = Integer.parseInt(newValue.getValue().toString());
+				int current = Integer.parseInt(oldValue.getValue().toString());
 				return string(String.valueOf(current + decrement));
 			});
 

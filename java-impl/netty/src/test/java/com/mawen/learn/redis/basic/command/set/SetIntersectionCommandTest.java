@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
-import com.mawen.learn.redis.basic.command.annotation.Command;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import org.junit.Rule;
 import org.junit.Test;

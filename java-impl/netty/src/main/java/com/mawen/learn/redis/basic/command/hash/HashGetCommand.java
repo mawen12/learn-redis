@@ -12,6 +12,8 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
+
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/6
@@ -26,7 +28,7 @@ public class HashGetCommand implements ICommand {
 		DatabaseValue value = db.get(request.getParam(0));
 		if (value != null) {
 			Map<String, String> map = value.getValue();
-			response.addBulkStr(map.get(request.getParam(1)));
+			response.addBulkStr(safeString(map.get(request.getParam(1))));
 		}
 		else {
 			response.addBulkStr(null);

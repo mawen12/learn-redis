@@ -10,6 +10,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -24,7 +25,7 @@ public class GetCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key",string("value"))
+		rule.withData("key", string("value"))
 				.withParams("key")
 				.execute()
 				.verify().addValue(captor.capture());
@@ -32,7 +33,7 @@ public class GetCommandTest {
 		DatabaseValue value = captor.getValue();
 
 		assertThat(value.getType(), is(DataType.STRING));
-		assertThat(value.getValue(), is("value"));
+		assertThat(value.getValue(), is(safeString("value")));
 	}
 
 }

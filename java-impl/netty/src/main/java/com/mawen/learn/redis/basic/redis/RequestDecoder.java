@@ -1,8 +1,6 @@
 package com.mawen.learn.redis.basic.redis;
 
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.List;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -29,34 +27,31 @@ public class RequestDecoder extends LineBasedFrameDecoder {
 		return parseResponse(ctx, buffer);
 	}
 
-	private RedisToken<?> parseResponse(ChannelHandlerContext ctx, ByteBuf buffer) throws Exception {
+	private RedisToken parseResponse(ChannelHandlerContext ctx, ByteBuf buffer) throws Exception {
 		String line = readLine(ctx, buffer);
 
-		RedisToken<?> token = null;
+		RedisToken token = null;
 
 		if (line != null) {
 			if (line.startsWith(ARRAY_PREFIX)) {
-				// array
 				int size = Integer.parseInt(line.substring(1));
 				token = parseArray(ctx, buffer, size);
 			}
 			else if (line.startsWith(STATUS_PREFIX)) {
-				// simple string
 				token = new RedisToken.StatusRedisToken(line.substring(1));
 			}
 			else if (line.startsWith(ERROR_PREFIX)) {
-				// error
 				token = new RedisToken.ErrorRedisToken(line.substring(1));
 			}
 			else if (line.startsWith(INTEGER_PREFIX)) {
-				// integer
 				Integer value = Integer.valueOf(line.substring(1));
 				token = new RedisToken.IntegerRedisToken(value);
 			}
 			else if (line.startsWith(STRING_PREFIX)) {
-				// bulk string
-				String value = readLine(ctx, buffer);
-				token = new RedisToken.StringRedisToken(value);
+				int length = Integer.parseInt(line.substring(1));
+				ByteBuf bulk = buffer.readBytes(length);
+				token = new RedisToken.StringRedisToken(new SafeString(bulk.array()));
+				readLine(ctx, buffer);
 			}
 			else {
 				token = new RedisToken.UnknownRedisToken(line);
@@ -83,25 +78,26 @@ public class RequestDecoder extends LineBasedFrameDecoder {
 	}
 
 	private RedisToken.ArrayRedisToken parseArray(ChannelHandlerContext ctx, ByteBuf buffer, int size) throws Exception {
-		List<RedisToken<?>> response = new LinkedList<>();
+		RedisArray array = new RedisArray();
 
 		for (int i = 0; i < size; i++) {
 			String line = readLine(ctx, buffer);
 
 			if (line != null) {
 				if (line.startsWith(STRING_PREFIX)) {
-					// bulk string
-					String value = readLine(ctx, buffer);
-					response.add(new RedisToken.StringRedisToken(value));
+					int length = Integer.parseInt(line.substring(1));
+					ByteBuf bulk = buffer.readBytes(length);
+					array.add(new RedisToken.StringRedisToken(new SafeString(bulk.array())));
+					readLine(ctx, buffer);
 				}
 				else if (line.startsWith(INTEGER_PREFIX)) {
 					// integer
 					Integer value = Integer.valueOf(line.substring(1));
-					response.add(new RedisToken.IntegerRedisToken(value));
+					array.add(new RedisToken.IntegerRedisToken(value));
 				}
 			}
 		}
 
-		return new RedisToken.ArrayRedisToken(response);
+		return new RedisToken.ArrayRedisToken(array);
 	}
 }

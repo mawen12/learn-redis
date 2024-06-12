@@ -3,6 +3,7 @@ package com.mawen.learn.redis.basic.command;
 import java.util.Collection;
 
 import com.mawen.learn.redis.basic.data.DatabaseValue;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -16,11 +17,11 @@ public interface IResponse {
 
 	IResponse addArray(Collection<?> array);
 
-	IResponse addBulkStr(String str);
+	IResponse addBulkStr(SafeString str);
 
 	IResponse addSimpleStr(String str);
 
-	IResponse addInt(String str);
+	IResponse addInt(SafeString str);
 
 	IResponse addInt(int value);
 

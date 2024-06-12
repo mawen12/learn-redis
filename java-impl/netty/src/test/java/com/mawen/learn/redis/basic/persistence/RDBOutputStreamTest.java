@@ -17,12 +17,12 @@ import static org.junit.Assert.*;
 
 public class RDBOutputStreamTest {
 
-	private ByteArrayOutputStream baos;
+	private ByteBufferOutputStream baos;
 	private RDBOutputStream out;
 
 	@Before
 	public void setUp() {
-		baos = new ByteArrayOutputStream();
+		baos = new ByteBufferOutputStream();
 		out = new RDBOutputStream(baos);
 	}
 

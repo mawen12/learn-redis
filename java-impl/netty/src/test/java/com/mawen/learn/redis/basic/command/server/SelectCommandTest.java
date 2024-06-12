@@ -6,8 +6,6 @@ import com.mawen.learn.redis.basic.command.ISession;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 @CommandUnderTest(SelectCommand.class)
 public class SelectCommandTest {
 

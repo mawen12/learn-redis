@@ -6,7 +6,6 @@ import java.util.Iterator;
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import com.mawen.learn.redis.basic.command.ISession;
-import com.mawen.learn.redis.basic.data.DatabaseValue;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

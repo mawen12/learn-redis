@@ -12,6 +12,8 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
+
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/10
@@ -32,7 +34,7 @@ public class ListIndexCommand implements ICommand {
 				index += list.size();
 			}
 
-			response.addBulkStr(list.get(index));
+			response.addBulkStr(safeString(list.get(index)));
 		}
 		catch (NumberFormatException e) {
 			response.addError("ERR value is not an integer or out of range");

@@ -2,7 +2,6 @@ package com.mawen.learn.redis.basic.command;
 
 import java.util.Set;
 
-import com.mawen.learn.redis.basic.data.IDatabase;
 import io.netty.channel.ChannelHandlerContext;
 
 /**

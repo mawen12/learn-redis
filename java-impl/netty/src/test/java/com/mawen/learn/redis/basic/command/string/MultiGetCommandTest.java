@@ -12,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -39,9 +40,9 @@ public class MultiGetCommandTest {
 		DatabaseValue b = iterator.next();
 		DatabaseValue c = iterator.next();
 
-		assertThat(a.getValue(), is("1"));
+		assertThat(a.getValue(), is(safeString("1")));
 		assertThat(b, is(nullValue()));
-		assertThat(c.getValue(), is("2"));
+		assertThat(c.getValue(), is(safeString("2")));
 	}
 
 }

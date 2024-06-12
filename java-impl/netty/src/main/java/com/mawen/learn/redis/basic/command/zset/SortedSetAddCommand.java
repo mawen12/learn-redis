@@ -16,7 +16,6 @@ import com.mawen.learn.redis.basic.data.SortedSet;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static java.lang.Double.*;
-import static java.lang.Float.*;
 import static java.util.stream.Collectors.*;
 
 /**

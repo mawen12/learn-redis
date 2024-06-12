@@ -6,7 +6,7 @@ import com.mawen.learn.redis.basic.data.DatabaseValue;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.mockito.Matchers.*;
 
 @CommandUnderTest(ListIndexCommand.class)
@@ -20,12 +20,12 @@ public class ListIndexCommandTest {
 		rule.withData("key", DatabaseValue.list("a", "b", "c"))
 				.withParams("key", "0")
 				.execute()
-				.verify().addBulkStr("a");
+				.verify().addBulkStr(safeString("a"));
 
 		rule.withData("key", DatabaseValue.list("a", "b", "c"))
 				.withParams("key", "-1")
 				.execute()
-				.verify().addBulkStr("c");
+				.verify().addBulkStr(safeString("c"));
 
 		rule.withData("key", DatabaseValue.list("a", "b", "c"))
 				.withParams("key", "-4")

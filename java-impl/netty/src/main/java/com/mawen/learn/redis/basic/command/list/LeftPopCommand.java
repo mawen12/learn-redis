@@ -13,6 +13,7 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -40,7 +41,7 @@ public class LeftPopCommand implements ICommand {
 			response.addBulkStr(null);
 		}
 		else {
-			response.addBulkStr(removed.remove(0));
+			response.addBulkStr(safeString(removed.remove(0)));
 		}
 	}
 }

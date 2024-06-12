@@ -3,7 +3,6 @@ package com.mawen.learn.redis.basic.persistence;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -13,8 +12,10 @@ import java.util.zip.CheckedOutputStream;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.persistence.Util.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -77,7 +78,7 @@ public class RDBOutputStream {
 	private void value(DatabaseValue value) throws IOException {
 		switch (value.getType()) {
 			case STRING:
-				string(value.getValue());
+				string(value.<SafeString>getValue());
 				break;
 			case LIST:
 				list(value.getValue());
@@ -113,13 +114,17 @@ public class RDBOutputStream {
 	}
 
 	private void string(String value) throws IOException {
-		byte[] bytes = value.getBytes(DEFAULT_CHARSET);
-		length(bytes.length);
-		out.write(bytes);
+		string(safeString(value));
 	}
 
 	private void string(double value) throws IOException {
 		string(String.valueOf(value));
+	}
+
+	private void string(SafeString value) throws IOException {
+		byte[] bytes = value.getBytes();
+		length(bytes.length);
+		out.write(bytes);
 	}
 
 	private void list(List<String> value) throws IOException {

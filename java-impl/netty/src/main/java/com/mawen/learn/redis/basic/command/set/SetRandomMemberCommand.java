@@ -13,10 +13,10 @@ import com.mawen.learn.redis.basic.command.annotation.Command;
 import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
-import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -40,7 +40,7 @@ public class SetRandomMemberCommand implements ICommand {
 			response.addBulkStr(null);
 		}
 		else {
-			response.addBulkStr(random.get(0));
+			response.addBulkStr(safeString(random.get(0)));
 		}
 	}
 

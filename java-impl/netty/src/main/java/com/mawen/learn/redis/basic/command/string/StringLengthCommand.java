@@ -9,6 +9,7 @@ import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
@@ -24,7 +25,7 @@ public class StringLengthCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		DatabaseValue value = db.getOrDefault(request.getParam(0), string(""));
-		String str = value.getValue();
+		SafeString str = value.getValue();
 		response.addInt(str.length());
 	}
 }

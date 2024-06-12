@@ -6,6 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 
 @CommandUnderTest(LeftPopCommand.class)
@@ -20,7 +21,7 @@ public class LeftPopCommandTest {
 				.withParams("key")
 				.execute()
 				.assertThat("key", is(list("b", "c")))
-				.verify().addBulkStr("a");
+				.verify().addBulkStr(safeString("a"));
 	}
 
 }
