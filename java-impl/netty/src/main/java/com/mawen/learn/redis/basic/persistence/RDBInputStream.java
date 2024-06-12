@@ -15,6 +15,7 @@ import java.util.zip.CheckedInputStream;
 import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.sun.corba.se.impl.orbutil.graph.GraphImpl;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.persistence.Util.*;
@@ -25,15 +26,20 @@ import static com.mawen.learn.redis.basic.persistence.Util.*;
  */
 public class RDBInputStream {
 
+	private static final String REDIS_PREAMBLE = "REDIS";
+	private static final String DEFAULT_CHARSET = "UTF-8";
+
 	private static final int HASH = 0x04;
 	private static final int SORTED_SET = 0x03;
 	private static final int SET = 0x02;
 	private static final int LIST = 0x01;
 	private static final int STRING = 0x00;
+
 	private static final int TTL_MILISECONDS = 0xFC;
 	private static final int TTL_SECONDS = 0xFD;
 	private static final int SELECT = 0xFE;
 	private static final int END_OF_STREAM = 0xFF;
+
 	private static final int VERSION_LENGTH = 4;
 	private static final int REDIS_LENGTH = 5;
 
@@ -53,8 +59,8 @@ public class RDBInputStream {
 			throw new IOException("invalid version: " + version);
 		}
 
+		IDatabase db = null;
 		for (boolean end = false; !end; ) {
-			IDatabase db = null;
 			int read = in.read();
 			switch (read) {
 				case SELECT:
@@ -86,6 +92,7 @@ public class RDBInputStream {
 				case END_OF_STREAM:
 					// end of stream
 					end = true;
+					db = null;
 					break;
 				default:
 					throw new IOException("not supported: " + read);
@@ -108,17 +115,15 @@ public class RDBInputStream {
 	}
 
 	private long parseCheckSum() throws IOException {
-		byte[] buf = new byte[Long.BYTES];
-		in.read(buf);
-		return Util.byteArrayToLong(buf);
+		return Util.byteArrayToLong(read(Long.BYTES));
 	}
 
 	private int version() throws IOException {
-		byte[] redis = new byte[REDIS_LENGTH];
-		in.read(redis);
-		byte[] version = new byte[VERSION_LENGTH];
-		in.read(version);
-		return parseVersion(version);
+		String redis = new String(read(REDIS_LENGTH), DEFAULT_CHARSET);
+		if (!redis.equals(REDIS_PREAMBLE)) {
+			throw new IOException("not valid stream");
+		}
+		return parseVersion(read(VERSION_LENGTH));
 	}
 
 	private int parseVersion(byte[] version) {
@@ -158,11 +163,13 @@ public class RDBInputStream {
 	private void parseSortedSet(IDatabase db) throws IOException {
 		String key = parseString();
 		int size = parseLength();
-		Set<String> set = new LinkedHashSet<>();
+		Set<Map.Entry<Double, String>> entries = new LinkedHashSet<>();
 		for (int i = 0; i < size; i++) {
-			set.add(parseString());
+			String value = parseString();
+			Double score = parseDouble();
+			entries.add(score(score, value));
 		}
-		ensure(db, key, set(set));
+		ensure(db, key, zset(entries));
 	}
 
 	private void parseHash(IDatabase db) throws IOException {
@@ -190,9 +197,7 @@ public class RDBInputStream {
 
 	private String parseString() throws IOException {
 		int length = parseLength();
-		byte[] buf = new byte[length];
-		in.read(buf);
-		return new String(buf, StandardCharsets.UTF_8);
+		return new String(read(length), StandardCharsets.UTF_8);
 	}
 
 	private int parseLength() throws IOException {
@@ -208,9 +213,17 @@ public class RDBInputStream {
 		}
 		else {
 			// 5 bytes: 10...... XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
-			byte[] array = new byte[Integer.BYTES];
-			in.read(array);
-			return byteArrayToInt(array);
+			return byteArrayToInt(read(Integer.BYTES));
 		}
 	}
+
+	private byte[] read(int size) throws IOException {
+		byte[] array = new byte[size];
+		int read = in.read(array);
+		if (read != size) {
+			throw new IOException("error reading stream");
+		}
+		return array;
+	}
+
 }

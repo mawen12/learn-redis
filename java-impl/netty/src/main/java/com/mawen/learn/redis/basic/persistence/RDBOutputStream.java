@@ -2,6 +2,7 @@ package com.mawen.learn.redis.basic.persistence;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,10 @@ import static com.mawen.learn.redis.basic.persistence.Util.*;
  */
 public class RDBOutputStream {
 
-	private static final byte[] REDIS = "REDIS".getBytes();
+	private static final String DEFAULT_CHARSET = "UTF-8";
+
+	// REDIS
+	private static final byte[] REDIS = new byte[]{0x52, 0x45, 0x44, 0x49, 0x53};
 	private static final int END_OF_STREAM = 0xFF;
 	private static final int SELECT = 0xFE;
 
@@ -37,12 +41,12 @@ public class RDBOutputStream {
 		out.write(version(version));
 	}
 
-	private byte[] version(int version) {
+	private byte[] version(int version) throws UnsupportedEncodingException {
 		StringBuilder sb = new StringBuilder(String.valueOf(version));
 		for (int i = sb.length(); i < Integer.BYTES; i++) {
 			sb.insert(0, '0');
 		}
-		return sb.toString().getBytes();
+		return sb.toString().getBytes(DEFAULT_CHARSET);
 	}
 
 	public void select(int db) throws IOException {
@@ -109,7 +113,7 @@ public class RDBOutputStream {
 	}
 
 	private void string(String value) throws IOException {
-		byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+		byte[] bytes = value.getBytes(DEFAULT_CHARSET);
 		length(bytes.length);
 		out.write(bytes);
 	}
@@ -151,5 +155,6 @@ public class RDBOutputStream {
 	public void end() throws IOException {
 		out.write(END_OF_STREAM);
 		out.write(toByteArray(out.getChecksum().getValue()));
+		out.flush();
 	}
 }

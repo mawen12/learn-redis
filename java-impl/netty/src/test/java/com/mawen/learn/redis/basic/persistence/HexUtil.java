@@ -16,4 +16,12 @@ public class HexUtil {
 		}
 		return sb.toString();
 	}
+
+	public static byte[] toByteArray(String string) {
+		byte[] array = new byte[string.length() / 2];
+		for (int i = 0; i < array.length; i++) {
+			array[i] = (byte) Integer.parseInt(string.substring(i * 2, (i * 2) + 2), 16);
+		}
+		return array;
+	}
 }
