@@ -11,6 +11,7 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
 /**
@@ -25,7 +26,7 @@ public class SetMembersCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue value = db.getOrDefault(request.getParam(0), EMPTY_SET);
+		DatabaseValue value = db.getOrDefault(safeKey(request.getParam(0)), EMPTY_SET);
 		response.addValue(value);
 	}
 }

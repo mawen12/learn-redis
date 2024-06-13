@@ -11,6 +11,7 @@ import com.mawen.learn.redis.basic.command.IResponse;
 import com.mawen.learn.redis.basic.command.annotation.Command;
 import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
+import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.redis.SafeString;
 
@@ -26,13 +27,13 @@ public class KeysCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		Pattern pattern = createPattern(request.getParam(0));
-		Predicate<? super String> predicate = key -> pattern.matcher(key).matches();
-		Set<SafeString> keys = db.keySet().stream().filter(predicate).map(SafeString::safeString).collect(Collectors.toSet());
+		Predicate<? super DatabaseKey> predicate = key -> pattern.matcher(key.toString()).matches();
+		Set<SafeString> keys = db.keySet().stream().filter(predicate).map(DatabaseKey::getValue).collect(Collectors.toSet());
 		response.addArray(keys);
 	}
 
-	private Pattern createPattern(String param) {
-		return Pattern.compile(convertGlobToRegEX(param));
+	private Pattern createPattern(SafeString param) {
+		return Pattern.compile(convertGlobToRegEX(param.toString()));
 	}
 
 	/**

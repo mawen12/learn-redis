@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.zip.CheckedOutputStream;
 
 import com.mawen.learn.redis.basic.data.DataType;
+import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.redis.SafeString;
@@ -58,12 +59,12 @@ public class RDBOutputStream {
 	}
 
 	public void database(IDatabase db) throws IOException {
-		for (Map.Entry<String, DatabaseValue> entry : db.entrySet()) {
+		for (Map.Entry<DatabaseKey, DatabaseValue> entry : db.entrySet()) {
 			value(entry.getKey(), entry.getValue());
 		}
 	}
 
-	private void value(String key, DatabaseValue value) throws IOException {
+	private void value(DatabaseKey key, DatabaseValue value) throws IOException {
 		type(value.getType());
 		key(key);
 		value(value);
@@ -73,8 +74,8 @@ public class RDBOutputStream {
 		out.write(type.ordinal());
 	}
 
-	private void key(String key) throws IOException {
-		string(key);
+	private void key(DatabaseKey key) throws IOException {
+		string(key.getValue());
 	}
 
 	private void value(DatabaseValue value) throws IOException {

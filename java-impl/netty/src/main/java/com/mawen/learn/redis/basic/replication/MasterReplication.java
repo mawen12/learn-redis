@@ -10,10 +10,12 @@ import java.util.logging.Logger;
 
 import com.mawen.learn.redis.basic.command.IServerContext;
 import com.mawen.learn.redis.basic.command.Response;
+import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.redis.RedisArray;
 import com.mawen.learn.redis.basic.redis.RedisToken;
 import com.mawen.learn.redis.basic.redis.SafeString;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static java.lang.String.*;
@@ -30,7 +32,7 @@ public class MasterReplication implements Runnable {
 	private static final String SELECT_COMMAND = "SELECT";
 	private static final String PING_COMMAND = "PING";
 
-	private static final String SLAVES_KEY = "slaves";
+	private static final DatabaseKey SLAVES_KEY = safeKey("slaves");
 
 	private static final int TASK_DELAY = 2;
 

@@ -13,6 +13,7 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
 /**
@@ -27,7 +28,7 @@ public class ListLengthCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue value = db.getOrDefault(request.getParam(0), EMPTY_LIST);
+		DatabaseValue value = db.getOrDefault(safeKey(request.getParam(0)), EMPTY_LIST);
 
 		response.addInt(value.<List<String>>getValue().size());
 	}

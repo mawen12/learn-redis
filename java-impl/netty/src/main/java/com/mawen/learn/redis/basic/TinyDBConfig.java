@@ -63,7 +63,7 @@ public class TinyDBConfig {
 	public static TinyDBConfig withoutPersistence() {
 		TinyDBConfig config = new TinyDBConfig();
 		config.setNumDatabases(DEFAULT_DATABASES);
-		config.setPersistenceActive(true);
+		config.setPersistenceActive(false);
 		return config;
 	}
 

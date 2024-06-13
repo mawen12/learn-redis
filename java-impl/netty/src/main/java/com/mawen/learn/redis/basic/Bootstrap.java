@@ -1,5 +1,11 @@
 package com.mawen.learn.redis.basic;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+import joptsimple.OptionSpecBuilder;
+
+import static com.mawen.learn.redis.basic.ITinyDB.*;
 import static com.mawen.learn.redis.basic.TinyDBConfig.*;
 
 /**
@@ -9,42 +15,24 @@ import static com.mawen.learn.redis.basic.TinyDBConfig.*;
 public class Bootstrap {
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("usage: Bootstrap <host> <port> <persistence>");
+		OptionParser parser = new OptionParser();
+		OptionSpecBuilder help = parser.accepts("help", "print help");
+		OptionSpecBuilder persist = parser.accepts("P", "with persistence");
+		OptionSpec<String> host = parser.accepts("h", "host").withRequiredArg().ofType(String.class).defaultsTo(DEFAULT_HOST);
+		OptionSpec<Integer> port = parser.accepts("p", "port").withRequiredArg().ofType(Integer.class).defaultsTo(DEFAULT_PORT);
 
-		TinyDB db = new TinyDB(parseHost(args), parsePort(args), parseConfig(args));
-		db.start();
-
-		Runtime.getRuntime().addShutdownHook(new Thread(db::stop));
+		OptionSet options = parser.parse(args);
+		if (options.has(help)) {
+			parser.printHelpOn(System.out);
+		}
+		else {
+			TinyDB db = new TinyDB(options.valueOf(host), options.valueOf(port), parseConfig(options.has(persist)));
+			db.start();
+			Runtime.getRuntime().addShutdownHook(new Thread(db::stop));
+		}
 	}
 
-	private static String parseHost(String[] args) {
-		String host = TinyDB.DEFAULT_HOST;
-		if (args.length > 0) {
-			host = args[0];
-		}
-		return host;
-	}
-
-	private static int parsePort(String[] args) {
-		int port = TinyDB.DEFAULT_PORT;
-		if (args.length > 1) {
-			try {
-				port = Integer.parseInt(args[1]);
-			}
-			catch (NumberFormatException e) {
-				System.out.println("wrong part value " + args[1]);
-			}
-		}
-		return port;
-	}
-
-	private static TinyDBConfig parseConfig(String[] args) {
-		TinyDBConfig config = withoutPersistence();
-		if (args.length > 2) {
-			if (Boolean.parseBoolean(args[2])) {
-				config = withPersistence();
-			}
-		}
-		return config;
+	private static TinyDBConfig parseConfig(boolean persist) {
+		return persist ? withPersistence() : withoutPersistence();
 	}
 }

@@ -20,7 +20,7 @@ public class SelectCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
-			request.getSession().setCurrentDB(Integer.parseInt(request.getParam(0)));
+			request.getSession().setCurrentDB(Integer.parseInt(request.getParam(0).toString()));
 			response.addSimpleStr(RESULT_OK);
 		}
 		catch (NumberFormatException e) {

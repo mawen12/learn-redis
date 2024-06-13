@@ -1,18 +1,12 @@
 package com.mawen.learn.redis.basic.data;
 
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
-
-import javax.xml.crypto.Data;
 
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
@@ -25,13 +19,13 @@ public class Database implements IDatabase {
 
 	private final StampedLock lock = new StampedLock();
 
-	private final Map<String, DatabaseValue> cache;
+	private final Map<DatabaseKey, DatabaseValue> cache;
 
 	public Database() {
 		this(new HashMap<>());
 	}
 
-	public Database(Map<String, DatabaseValue> cache) {
+	public Database(Map<DatabaseKey, DatabaseValue> cache) {
 		this.cache = cache;
 	}
 
@@ -98,7 +92,7 @@ public class Database implements IDatabase {
 	}
 
 	@Override
-	public DatabaseValue put(String key, DatabaseValue value) {
+	public DatabaseValue put(DatabaseKey key, DatabaseValue value) {
 		long stamp = lock.writeLock();
 		try {
 			return cache.put(key, value);
@@ -120,7 +114,7 @@ public class Database implements IDatabase {
 	}
 
 	@Override
-	public void putAll(Map<? extends String, ? extends DatabaseValue> m) {
+	public void putAll(Map<? extends DatabaseKey, ? extends DatabaseValue> m) {
 		long stamp = lock.writeLock();
 		try {
 			cache.putAll(m);
@@ -142,16 +136,14 @@ public class Database implements IDatabase {
 	}
 
 	@Override
-	public Set<String> keySet() {
-		Set<String> keySet = null;
+	public Set<DatabaseKey> keySet() {
 		long stamp = lock.readLock();
 		try {
-			keySet = unmodifiableSet(cache.keySet().stream().collect(toSet()));
+			return unmodifiableSet(cache.keySet().stream().collect(toSet()));
 		}
 		finally {
 			lock.unlockRead(stamp);
 		}
-		return keySet;
 	}
 
 	@Override
@@ -168,20 +160,18 @@ public class Database implements IDatabase {
 	}
 
 	@Override
-	public Set<Entry<String, DatabaseValue>> entrySet() {
-		Set<Entry<String, DatabaseValue>> entrySet = null;
+	public Set<Entry<DatabaseKey, DatabaseValue>> entrySet() {
 		long stamp = lock.readLock();
 		try {
-			entrySet = cache.entrySet().stream().map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue())).collect(toSet());
+			return cache.entrySet().stream().map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue())).collect(toSet());
 		}
 		finally {
 			lock.unlockRead(stamp);
 		}
-		return entrySet;
 	}
 
 	@Override
-	public DatabaseValue putIfAbsent(String key, DatabaseValue value) {
+	public DatabaseValue putIfAbsent(DatabaseKey key, DatabaseValue value) {
 		long stamp = lock.writeLock();
 		try {
 			return cache.putIfAbsent(key, value);
@@ -192,7 +182,7 @@ public class Database implements IDatabase {
 	}
 
 	@Override
-	public DatabaseValue merge(String key, DatabaseValue value, BiFunction<? super DatabaseValue, ? super DatabaseValue, ? extends DatabaseValue> remappingFunction) {
+	public DatabaseValue merge(DatabaseKey key, DatabaseValue value, BiFunction<? super DatabaseValue, ? super DatabaseValue, ? extends DatabaseValue> remappingFunction) {
 		long stamp = lock.writeLock();
 		try {
 			return cache.merge(key, value, remappingFunction);
@@ -203,7 +193,7 @@ public class Database implements IDatabase {
 	}
 
 	@Override
-	public boolean isType(String key, DataType type) {
+	public boolean isType(DatabaseKey key, DataType type) {
 		long stamp = lock.readLock();
 		try {
 			return cache.getOrDefault(key, new DatabaseValue(type)).getType() == type;
@@ -214,7 +204,7 @@ public class Database implements IDatabase {
 	}
 
 	@Override
-	public boolean rename(String from, String to) {
+	public boolean rename(DatabaseKey from, DatabaseKey to) {
 		long stamp = lock.writeLock();
 		try {
 			DatabaseValue value = cache.remove(from);

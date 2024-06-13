@@ -13,7 +13,9 @@ import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
 /**
@@ -27,9 +29,9 @@ public class LeftPushCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		List<String> values = request.getParams().stream().skip(1).collect(Collectors.toList());
+		List<String> values = request.getParams().stream().skip(1).map(SafeString::toString).collect(Collectors.toList());
 
-		DatabaseValue result = db.merge(request.getParam(0), list(values), (oldValue, newValue) -> {
+		DatabaseValue result = db.merge(safeKey(request.getParam(0)), list(values), (oldValue, newValue) -> {
 			List<String> merge = new LinkedList<>();
 			merge.addAll(newValue.getValue());
 			merge.addAll(oldValue.getValue());

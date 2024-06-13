@@ -13,6 +13,7 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
 /**
@@ -28,7 +29,7 @@ public class HashSetCommand implements ICommand {
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		DatabaseValue value = hash(entry(request.getParam(1), request.getParam(2)));
 
-		DatabaseValue resultValue = db.merge(request.getParam(0), value, (oldValue, newValue) -> {
+		DatabaseValue resultValue = db.merge(safeKey(request.getParam(0)), value, (oldValue, newValue) -> {
 			Map<String, String> merge = new HashMap<>();
 			merge.putAll(oldValue.getValue());
 			merge.putAll(newValue.getValue());
@@ -37,6 +38,6 @@ public class HashSetCommand implements ICommand {
 
 		Map<String, String> resultMap = resultValue.getValue();
 
-		response.addInt(resultMap.get(request.getParam(1)) == null);
+		response.addInt(resultMap.get(request.getParam(1).toString()) == null);
 	}
 }

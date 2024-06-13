@@ -6,7 +6,9 @@ import com.mawen.learn.redis.basic.command.IResponse;
 import com.mawen.learn.redis.basic.command.annotation.Command;
 import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
 /**
@@ -19,10 +21,10 @@ public class MultiSetCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		String key = null;
-		for (String value : request.getParams()) {
+		SafeString key = null;
+		for (SafeString value : request.getParams()) {
 			if (key != null) {
-				db.put(key, string(value));
+				db.put(safeKey(key), string(value));
 				key = null;
 			}
 			else {

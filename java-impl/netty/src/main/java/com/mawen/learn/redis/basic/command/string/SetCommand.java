@@ -9,6 +9,7 @@ import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
 /**
@@ -22,7 +23,7 @@ public class SetCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		db.put(request.getParam(0), string(request.getParam(1)));
+		db.put(safeKey(request.getParam(0)), string(request.getParam(1)));
 		response.addSimpleStr(RESULT_OK);
 	}
 }

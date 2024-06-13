@@ -16,6 +16,7 @@ import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 
@@ -32,7 +33,7 @@ public class SetRandomMemberCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		List<String> random = new LinkedList<>();
-		db.merge(request.getParam(0), EMPTY_SET, (oldValue, newValue) -> {
+		db.merge(safeKey(request.getParam(0)), EMPTY_SET, (oldValue, newValue) -> {
 			List<String> merge = new ArrayList<>(oldValue.<Set<String>>getValue());
 			random.add(merge.get(random(merge)));
 			return set(merge);

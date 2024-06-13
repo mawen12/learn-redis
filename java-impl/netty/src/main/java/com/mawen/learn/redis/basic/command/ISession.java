@@ -2,6 +2,7 @@ package com.mawen.learn.redis.basic.command;
 
 import java.util.Set;
 
+import com.mawen.learn.redis.basic.redis.SafeString;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -14,11 +15,11 @@ public interface ISession {
 
 	ChannelHandlerContext getContext();
 
-	Set<String> getSubscriptions();
+	Set<SafeString> getSubscriptions();
 
-	void addSubscription(String channel);
+	void addSubscription(SafeString channel);
 
-	void removeSubscription(String channel);
+	void removeSubscription(SafeString channel);
 
 	int getCurrentDB();
 

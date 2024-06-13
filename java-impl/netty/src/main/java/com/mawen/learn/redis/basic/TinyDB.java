@@ -398,7 +398,7 @@ public class TinyDB implements ITinyDB, IServerContext {
 		// command
 		array.add(new RedisToken.StringRedisToken(safeString(request.getCommand())));
 		// params
-		for (SafeString safeStr : request.getSafeParams()) {
+		for (SafeString safeStr : request.getParams()) {
 			array.add(new RedisToken.StringRedisToken(safeStr));
 		}
 		return array;

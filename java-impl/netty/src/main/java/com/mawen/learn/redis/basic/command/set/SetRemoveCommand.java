@@ -13,7 +13,9 @@ import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static java.util.stream.Collectors.*;
 
@@ -28,9 +30,9 @@ public class SetRemoveCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		List<String> items = request.getParams().stream().skip(1).collect(toList());
+		List<String> items = request.getParams().stream().skip(1).map(SafeString::toString).collect(toList());
 		List<String> removed = new LinkedList<>();
-		db.merge(request.getParam(0), EMPTY_SET, (oldValue, newValue) -> {
+		db.merge(safeKey(request.getParam(0)), EMPTY_SET, (oldValue, newValue) -> {
 			Set<String> merge = new HashSet<>();
 			merge.addAll(oldValue.getValue());
 			for (String item : items) {

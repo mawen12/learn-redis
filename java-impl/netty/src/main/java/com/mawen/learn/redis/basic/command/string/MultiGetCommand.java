@@ -9,8 +9,11 @@ import com.mawen.learn.redis.basic.command.IResponse;
 import com.mawen.learn.redis.basic.command.annotation.Command;
 import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
+import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -24,7 +27,7 @@ public class MultiGetCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		List<DatabaseValue> result = new ArrayList<>(request.getLength());
-		for (String key : request.getParams()) {
+		for (DatabaseKey key : request.getParams().stream().map(DatabaseKey::safeKey).collect(toList())) {
 			result.add(db.get(key));
 		}
 		response.addArrayValue(result);

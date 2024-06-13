@@ -13,15 +13,11 @@ public interface IRequest {
 
 	String getCommand();
 
-	List<String> getParams();
+	List<SafeString> getParams();
 
-	List<SafeString> getSafeParams();
+	SafeString getParam(int i);
 
-	String getParam(int i);
-
-	SafeString getSafeParam(int i);
-
-	Optional<String> getOptionalParam(int i);
+	Optional<SafeString> getOptionalParam(int i);
 
 	int getLength();
 

@@ -11,6 +11,7 @@ import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.redis.SafeString;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
 /**
@@ -24,7 +25,7 @@ public class AppendCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue value = db.merge(request.getParam(0), string(request.getParam(1)),
+		DatabaseValue value = db.merge(safeKey(request.getParam(0)), string(request.getParam(1)),
 				(oldValue, newValue) -> string(oldValue.<SafeString>getValue().toString() + newValue.<SafeString>getValue().toString()));
 
 		response.addInt(value.<SafeString>getValue().length());

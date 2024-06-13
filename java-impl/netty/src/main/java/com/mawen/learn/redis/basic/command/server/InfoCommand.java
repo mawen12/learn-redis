@@ -17,6 +17,7 @@ import com.mawen.learn.redis.basic.command.annotation.Command;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static java.lang.String.*;
@@ -48,9 +49,10 @@ public class InfoCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		Map<String, Map<String, String>> sections = new HashMap<>();
-		Optional<String> param = request.getOptionalParam(0);
+		Optional<SafeString> param = request.getOptionalParam(0);
 		if (param.isPresent()) {
-			sections.put(param.get(), section(param.get(), request.getServerContext()));
+			String sectionName = param.get().toString();
+			sections.put(sectionName, section(sectionName, request.getServerContext()));
 		}
 		else {
 			for (String section : allSections()) {

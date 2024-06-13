@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.mawen.learn.redis.basic.redis.SafeString;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -19,7 +20,7 @@ public class Session implements ISession{
 
 	private int db;
 
-	private final Set<String> subscriptions = new HashSet<>();
+	private final Set<SafeString> subscriptions = new HashSet<>();
 
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -40,17 +41,17 @@ public class Session implements ISession{
 	}
 
 	@Override
-	public Set<String> getSubscriptions() {
+	public Set<SafeString> getSubscriptions() {
 		return subscriptions;
 	}
 
 	@Override
-	public void addSubscription(String channel) {
+	public void addSubscription(SafeString channel) {
 		subscriptions.add(channel);
 	}
 
 	@Override
-	public void removeSubscription(String channel) {
+	public void removeSubscription(SafeString channel) {
 		subscriptions.remove(channel);
 	}
 

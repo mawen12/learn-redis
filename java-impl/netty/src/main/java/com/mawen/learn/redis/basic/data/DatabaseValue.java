@@ -129,6 +129,10 @@ public class DatabaseValue {
 		return new AbstractMap.SimpleEntry<>(key, value);
 	}
 
+	public static Map.Entry<String, String> entry(SafeString key, SafeString value) {
+		return new AbstractMap.SimpleEntry<>(key.toString(), value.toString());
+	}
+
 	public static Entry<Double, String> score(double score, String value) {
 		return new AbstractMap.SimpleEntry<>(score, value);
 	}

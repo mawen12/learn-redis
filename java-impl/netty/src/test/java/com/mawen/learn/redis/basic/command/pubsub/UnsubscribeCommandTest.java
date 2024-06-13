@@ -12,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -31,7 +32,7 @@ public class UnsubscribeCommandTest {
 				.execute()
 				.assertThat("subscriptions:test", is(set()));
 
-		rule.verify(ISession.class).removeSubscription("test");
+		rule.verify(ISession.class).removeSubscription(safeString("test"));
 
 		rule.verify().addArray(captor.capture());
 
@@ -41,8 +42,8 @@ public class UnsubscribeCommandTest {
 
 		Iterator<?> iter = response.iterator();
 
-		assertThat(iter.next(), is("unsubscribe"));
-		assertThat(iter.next(), is("test"));
+		assertThat(iter.next(), is(safeString("unsubscribe")));
+		assertThat(iter.next(), is(safeString("test")));
 		assertThat(iter.next(), is(0));
 	}
 

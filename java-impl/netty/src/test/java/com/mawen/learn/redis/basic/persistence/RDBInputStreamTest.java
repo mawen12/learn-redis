@@ -8,6 +8,7 @@ import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import org.junit.Test;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -44,6 +45,6 @@ public class RDBInputStreamTest {
 
 	private void assertDB(IDatabase db, DatabaseValue value) {
 		assertThat(db, notNullValue());
-		assertThat(db.get("a"), is(value));
+		assertThat(db.get(safeKey("a")), is(value));
 	}
 }

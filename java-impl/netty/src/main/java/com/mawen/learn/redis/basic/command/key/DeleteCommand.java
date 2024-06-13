@@ -7,6 +7,9 @@ import com.mawen.learn.redis.basic.command.annotation.Command;
 import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
+
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -19,8 +22,8 @@ public class DeleteCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		int removed = 0;
-		for (String key : request.getParams()) {
-			DatabaseValue value = db.remove(key);
+		for (SafeString key : request.getParams()) {
+			DatabaseValue value = db.remove(safeKey(key));
 			if (value != null) {
 				removed += 1;
 			}

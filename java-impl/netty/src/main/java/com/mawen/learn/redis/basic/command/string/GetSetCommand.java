@@ -10,6 +10,7 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
 /**
@@ -23,7 +24,7 @@ public class GetSetCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue value = db.put(request.getParam(0), string(request.getParam(1)));
+		DatabaseValue value = db.put(safeKey(request.getParam(0)), string(request.getParam(1)));
 		response.addValue(value);
 	}
 }

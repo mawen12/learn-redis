@@ -1,12 +1,11 @@
 package com.mawen.learn.redis.basic.command;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Optional;
 
 import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 import org.hamcrest.Matcher;
 import org.junit.Assert;
 import org.junit.rules.TestRule;
@@ -17,6 +16,8 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -92,18 +93,18 @@ public class CommandRule implements TestRule {
 
 	public CommandRule withParams(String... params) {
 		if (params != null) {
-			when(request.getParams()).thenReturn(Arrays.asList(params));
+			when(request.getParams()).thenReturn(safeAsList(params));
 			int i = 0;
 			for (String param : params) {
-				when(request.getParam(i++)).thenReturn(param);
+				when(request.getParam(i++)).thenReturn(safeString(param));
 			}
 			when(request.getLength()).thenReturn(params.length);
-			when(request.getOptionalParam(anyInt())).thenAnswer(new Answer<Optional<String>>() {
+			when(request.getOptionalParam(anyInt())).thenAnswer(new Answer<Optional<SafeString>>() {
 				@Override
-				public Optional<String> answer(InvocationOnMock invocation) throws Throwable {
+				public Optional<SafeString> answer(InvocationOnMock invocation) throws Throwable {
 					Integer i = (Integer) invocation.getArguments()[0];
 					if (i < params.length) {
-						return Optional.of(params[i]);
+						return Optional.of(safeString(params[i]));
 					}
 					return Optional.empty();
 				}
@@ -113,12 +114,12 @@ public class CommandRule implements TestRule {
 	}
 
 	public CommandRule withData(String key, DatabaseValue value) {
-		database.put(key, value);
+		database.put(safeKey(key), value);
 		return this;
 	}
 
 	public CommandRule assertThat(String key, Matcher<DatabaseValue> matcher) {
-		Assert.assertThat(database.get(key), matcher);
+		Assert.assertThat(database.get(safeKey(key)), matcher);
 		return this;
 	}
 

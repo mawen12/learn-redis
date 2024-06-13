@@ -13,7 +13,9 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.data.SortedSet;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static java.lang.Double.*;
 import static java.util.stream.Collectors.*;
@@ -30,8 +32,8 @@ public class SortedSetAddCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
-			DatabaseValue initial = db.getOrDefault(request.getParam(0), EMPTY_ZSET);
-			DatabaseValue result = db.merge(request.getParam(0), parseInput(request), (oldValue, newValue) -> {
+			DatabaseValue initial = db.getOrDefault(safeKey(request.getParam(0)), EMPTY_ZSET);
+			DatabaseValue result = db.merge(safeKey(request.getParam(0)), parseInput(request), (oldValue, newValue) -> {
 				Set<Entry<Double, String>> merge = new SortedSet();
 				merge.addAll(oldValue.getValue());
 				merge.addAll(newValue.getValue());
@@ -48,7 +50,7 @@ public class SortedSetAddCommand implements ICommand {
 	private DatabaseValue parseInput(IRequest request) {
 		Set<Entry<Double, String>> set = new SortedSet();
 		String score = null;
-		for (String string : request.getParams().stream().skip(1).collect(toList())) {
+		for (String string : request.getParams().stream().skip(1).map(SafeString::toString).collect(toList())) {
 			if (score != null) {
 				set.add(score(parseDouble(score), string));
 				score = null;

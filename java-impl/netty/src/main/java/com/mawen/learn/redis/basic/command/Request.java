@@ -6,8 +6,6 @@ import java.util.Optional;
 
 import com.mawen.learn.redis.basic.redis.SafeString;
 
-import static java.util.stream.Collectors.*;
-
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/6
@@ -18,9 +16,9 @@ public class Request implements IRequest {
 
 	private final List<SafeString> params;
 
-	private ISession session;
+	private final ISession session;
 
-	private IServerContext server;
+	private final IServerContext server;
 
 	public Request(IServerContext server, ISession session, SafeString command, List<SafeString> params) {
 		super();
@@ -36,25 +34,12 @@ public class Request implements IRequest {
 	}
 
 	@Override
-	public List<String> getParams() {
-		return params.stream().map(SafeString::toString).collect(toList());
-	}
-
-	@Override
-	public List<SafeString> getSafeParams() {
+	public List<SafeString> getParams() {
 		return Collections.unmodifiableList(params);
 	}
 
 	@Override
-	public String getParam(int i) {
-		if (i < params.size()) {
-			return params.get(i).toString();
-		}
-		return null;
-	}
-
-	@Override
-	public SafeString getSafeParam(int i) {
+	public SafeString getParam(int i) {
 		if (i < params.size()) {
 			return params.get(i);
 		}
@@ -62,7 +47,7 @@ public class Request implements IRequest {
 	}
 
 	@Override
-	public Optional<String> getOptionalParam(int i) {
+	public Optional<SafeString> getOptionalParam(int i) {
 		return Optional.ofNullable(getParam(i));
 	}
 

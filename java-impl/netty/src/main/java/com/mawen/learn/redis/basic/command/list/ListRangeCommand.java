@@ -14,6 +14,7 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
 /**
@@ -29,14 +30,14 @@ public class ListRangeCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
-			DatabaseValue value = db.getOrDefault(request.getParam(0), EMPTY_LIST);
+			DatabaseValue value = db.getOrDefault(safeKey(request.getParam(0)), EMPTY_LIST);
 			List<String> list = value.getValue();
 
-			int from = Integer.parseInt(request.getParam(1));
+			int from = Integer.parseInt(request.getParam(1).toString());
 			if (from < 0) {
 				from += list.size();
 			}
-			int to = Integer.parseInt(request.getParam(2));
+			int to = Integer.parseInt(request.getParam(2).toString());
 			if (to < 0) {
 				to += list.size();
 			}

@@ -1,7 +1,5 @@
 package com.mawen.learn.redis.basic.replication;
 
-import java.util.HashMap;
-
 import com.mawen.learn.redis.basic.command.IServerContext;
 import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.data.IDatabase;

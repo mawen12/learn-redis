@@ -5,6 +5,7 @@ import java.util.Collections;
 import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
+import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.mawen.learn.redis.basic.command.ICommand.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -75,8 +77,8 @@ public class CommandWrapperTest {
 
 	@Test
 	public void testTypeOK() {
-		when(db.isType(anyString(), eq(DataType.STRING))).thenReturn(true);
-		when(request.getParam(0)).thenReturn("test");
+		when(db.isType(any(DatabaseKey.class), eq(DataType.STRING))).thenReturn(true);
+		when(request.getParam(0)).thenReturn(safeString("test"));
 
 		CommandWrapper wrapper = new CommandWrapper(new TypeCommand());
 
@@ -87,8 +89,8 @@ public class CommandWrapperTest {
 
 	@Test
 	public void testTypeKO() {
-		when(db.isType(anyString(), eq(DataType.STRING))).thenReturn(false);
-		when(request.getParam(0)).thenReturn("test");
+		when(db.isType(any(DatabaseKey.class), eq(DataType.STRING))).thenReturn(false);
+		when(request.getParam(0)).thenReturn(safeString("test"));
 
 		CommandWrapper wrapper = new CommandWrapper(new TypeCommand());
 

@@ -1,12 +1,12 @@
 package com.mawen.learn.redis.basic.data;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -20,11 +20,11 @@ public class DatabaseTest {
 	public void testDatabase() {
 		DatabaseValue value = string("value");
 
-		database.put("a", value);
+		database.put(safeKey("a"), value);
 
-		assertThat(database.get("a").getValue(), is(safeString("value")));
-		assertThat(database.containsKey("a"), is(true));
-		assertThat(database.containsKey("b"), is(false));
+		assertThat(database.get(safeKey("a")).getValue(), is(safeString("value")));
+		assertThat(database.containsKey(safeKey("a")), is(true));
+		assertThat(database.containsKey(safeKey("b")), is(false));
 		assertThat(database.isEmpty(), is(false));
 		assertThat(database.size(), is(1));
 
@@ -33,19 +33,19 @@ public class DatabaseTest {
 		assertThat(values.size(), is(1));
 		assertThat(values.contains(string("value")), is(true));
 
-		Set<String> keySet = database.keySet();
+		Set<DatabaseKey> keySet = database.keySet();
 
 		assertThat(keySet.size(), is(1));
-		assertThat(keySet.contains("a"), is(true));
+		assertThat(keySet.contains(safeKey("a")), is(true));
 
-		Set<Map.Entry<String, DatabaseValue>> entrySet = database.entrySet();
+		Set<Map.Entry<DatabaseKey, DatabaseValue>> entrySet = database.entrySet();
 
 		assertThat(entrySet.size(), is(1));
 
-		Map.Entry<String, DatabaseValue> entry = entrySet.iterator().next();
+		Map.Entry<DatabaseKey, DatabaseValue> entry = entrySet.iterator().next();
 
-		assertThat(entry.getKey(), is("a"));
-		assertThat(entry.getValue(), is("value"));
+		assertThat(entry.getKey(), is(safeKey("a")));
+		assertThat(entry.getValue(), is(string("value")));
 	}
 
 }

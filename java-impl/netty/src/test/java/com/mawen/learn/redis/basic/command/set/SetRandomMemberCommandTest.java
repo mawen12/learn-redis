@@ -9,6 +9,7 @@ import com.mawen.learn.redis.basic.redis.SafeString;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
@@ -26,7 +27,7 @@ public class SetRandomMemberCommandTest {
 				.execute()
 				.verify().addBulkStr(notNull(SafeString.class));
 
-		DatabaseValue value = rule.getDatabase().get("key");
+		DatabaseValue value = rule.getDatabase().get(safeKey("key"));
 		assertThat(value.<Set<String>>getValue().size(), is(3));
 	}
 
