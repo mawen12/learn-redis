@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.mawen.learn.redis.basic.command.annotation.Command;
+import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.command.hash.HashExistsCommand;
 import com.mawen.learn.redis.basic.command.hash.HashGetAllCommand;
 import com.mawen.learn.redis.basic.command.hash.HashGetCommand;
@@ -70,6 +71,7 @@ public class CommandSuite {
 
 	private static final Logger logger = Logger.getLogger(CommandSuite.class.getName());
 
+	private final Map<String, Class<? extends ICommand>> metadata = new HashMap<>();
 	private final Map<String, ICommand> commands = new HashMap<>();
 
 	public CommandSuite() {
@@ -156,6 +158,7 @@ public class CommandSuite {
 
 			if (annotation != null) {
 				commands.put(annotation.value(), command(command));
+				metadata.put(annotation.value(), clazz);
 			}
 			else {
 				logger.warning(() -> "annotation not present at " + clazz.getName());
@@ -172,5 +175,13 @@ public class CommandSuite {
 
 	public ICommand getCommand(String name) {
 		return commands.get(name.toLowerCase());
+	}
+
+	public boolean isReadOnlyCommand(String command) {
+		Class<? extends ICommand> clazz = metadata.get(command);
+		if (clazz != null) {
+			return clazz.isAnnotationPresent(ReadOnly.class);
+		}
+		return true;
 	}
 }

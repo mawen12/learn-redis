@@ -1,5 +1,7 @@
 package com.mawen.learn.redis.basic;
 
+import static com.mawen.learn.redis.basic.TinyDBConfig.*;
+
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/6
@@ -7,9 +9,9 @@ package com.mawen.learn.redis.basic;
 public class Bootstrap {
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("usage: Bootstrap <host> <port>");
+		System.out.println("usage: Bootstrap <host> <port> <persistence>");
 
-		TinyDB db = new TinyDB(parseHost(args), parsePort(args));
+		TinyDB db = new TinyDB(parseHost(args), parsePort(args), parseConfig(args));
 		db.start();
 
 		Runtime.getRuntime().addShutdownHook(new Thread(db::stop));
@@ -34,5 +36,15 @@ public class Bootstrap {
 			}
 		}
 		return port;
+	}
+
+	private static TinyDBConfig parseConfig(String[] args) {
+		TinyDBConfig config = withoutPersistence();
+		if (args.length > 2) {
+			if (Boolean.parseBoolean(args[2])) {
+				config = withPersistence();
+			}
+		}
+		return config;
 	}
 }

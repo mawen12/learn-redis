@@ -14,6 +14,10 @@ import com.mawen.learn.redis.basic.redis.RedisArray;
  */
 public interface IServerContext {
 
+	void setMaster(boolean master);
+
+	boolean isMaster();
+
 	int getPort();
 
 	int getClients();

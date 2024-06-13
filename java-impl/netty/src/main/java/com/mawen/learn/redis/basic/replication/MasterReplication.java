@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import com.mawen.learn.redis.basic.command.IServerContext;
 import com.mawen.learn.redis.basic.command.Response;
@@ -22,7 +23,16 @@ import static java.util.Arrays.*;
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/12
  */
-public class MasterReplication implements Runnable{
+public class MasterReplication implements Runnable {
+
+	private static final Logger logger = Logger.getLogger(MasterReplication.class.getName());
+
+	private static final String SELECT_COMMAND = "SELECT";
+	private static final String PING_COMMAND = "PING";
+
+	private static final String SLAVES_KEY = "slaves";
+
+	private static final int TASK_DELAY = 2;
 
 	private final IServerContext server;
 
@@ -33,16 +43,31 @@ public class MasterReplication implements Runnable{
 	}
 
 	public void start() {
-		executor.scheduleWithFixedDelay(this, 5, 5, TimeUnit.SECONDS);
+		executor.scheduleWithFixedDelay(this, TASK_DELAY, TASK_DELAY, TimeUnit.SECONDS);
+	}
+
+	public void stop() {
+		executor.shutdown();
 	}
 
 	public void addSlave(String id) {
-		server.getAdminDatabase().merge("slaves", set(id), (oldValue, newValue) -> {
+		server.getAdminDatabase().merge(SLAVES_KEY, set(id), (oldValue, newValue) -> {
 			List<String> merge = new LinkedList<>();
-			merge.addAll(newValue.getValue());
 			merge.addAll(oldValue.getValue());
+			merge.addAll(newValue.getValue());
 			return set(merge);
 		});
+		logger.info(() -> "new slave: " + id);
+	}
+
+	public void removeSlave(String id) {
+		server.getAdminDatabase().merge(SLAVES_KEY, set(id), (oldValue, newValue) -> {
+			List<String> merge = new LinkedList<>();
+			merge.addAll(oldValue.getValue());
+			merge.removeAll(newValue.getValue());
+			return set(merge);
+		});
+		logger.info(() -> "slave removed: " + id);
 	}
 
 	@Override
@@ -56,17 +81,17 @@ public class MasterReplication implements Runnable{
 
 	private String createCommands() {
 		Response response = new Response();
-		response.addArray(asList("PING"));
+		response.addArray(asList(PING_COMMAND));
 		for (RedisArray array : server.getCommands()) {
 			RedisToken currentDB = array.remove(0);
-			response.addArray(safeAsList("SELECT", valueOf(currentDB.<Integer>getValue())));
+			response.addArray(safeAsList(SELECT_COMMAND, valueOf(currentDB.<Integer>getValue())));
 			response.addArray(toList(array));
 		}
 		return response.toString();
 	}
 
 	private Set<String> getSlaves() {
-		return server.getAdminDatabase().getOrDefault("slaves", EMPTY_SET).getValue();
+		return server.getAdminDatabase().getOrDefault(SLAVES_KEY, EMPTY_SET).getValue();
 	}
 
 	private List<SafeString> toList(RedisArray request) {

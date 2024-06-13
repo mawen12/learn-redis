@@ -29,6 +29,8 @@ public class SlaveReplication implements ITinyDBCallback {
 
 	private static final Logger logger = Logger.getLogger(SlaveReplication.class.getName());
 
+	private static final String SYNC_COMMAND = "SYNC\r\n";
+
 	private final TinyDBClient client;
 
 	private final IServerContext server;
@@ -43,20 +45,23 @@ public class SlaveReplication implements ITinyDBCallback {
 
 	public void start() {
 		this.client.start();
+		server.setMaster(false);
 	}
 
 	public void stop() {
 		this.client.stop();
+		server.setMaster(true);
 	}
 
 	@Override
 	public void onConnect() {
-		this.client.send("SYNC\r\n");
+		logger.info(() -> "Connected with master");
+		this.client.send(SYNC_COMMAND);
 	}
 
 	@Override
 	public void onDisconnect() {
-
+		logger.info(() -> "Disconnected from master");
 	}
 
 	@Override
@@ -78,6 +83,8 @@ public class SlaveReplication implements ITinyDBCallback {
 
 		RedisToken commandToken = array.remove(0);
 
+		logger.fine(() -> "command received from master: " + commandToken.getValue());
+
 		ICommand command = server.getCommand(commandToken.getValue().toString());
 
 		if (command != null) {
@@ -87,13 +94,13 @@ public class SlaveReplication implements ITinyDBCallback {
 	}
 
 	private Request request(RedisToken commandToken, RedisArray array) {
-		return new Request(server, session, commandToken.getValue(), toList(array));
+		return new Request(server, session, commandToken.getValue(), arrayToList(array));
 	}
 
-	private List<SafeString> toList(RedisArray request) {
+	private List<SafeString> arrayToList(RedisArray request) {
 		List<SafeString> cmd = new LinkedList<>();
 		for (RedisToken token : request) {
-			cmd.add(token.<SafeString>getValue());
+			cmd.add(token.getValue());
 		}
 		return cmd;
 	}
@@ -103,6 +110,7 @@ public class SlaveReplication implements ITinyDBCallback {
 		try {
 			SafeString value = token.getValue();
 			server.importRDB(array(value));
+			logger.info(() -> "loaded RDB file from master");
 		}
 		catch (IOException e) {
 			logger.log(Level.SEVERE, "error importing RDB file", e);

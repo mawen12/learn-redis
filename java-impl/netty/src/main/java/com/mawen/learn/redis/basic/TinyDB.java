@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,6 +27,7 @@ import com.mawen.learn.redis.basic.command.Session;
 import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.persistence.PersistenceManager;
 import com.mawen.learn.redis.basic.persistence.RDBInputStream;
 import com.mawen.learn.redis.basic.persistence.RDBOutputStream;
 import com.mawen.learn.redis.basic.redis.RedisArray;
@@ -59,8 +62,10 @@ public class TinyDB implements ITinyDB, IServerContext {
 
 	private static final Logger logger = Logger.getLogger(TinyDB.class.getName());
 
-	private static final int INITIAL_SIZE = 1024;
-	private static final int BUFFER_SIZE = INITIAL_SIZE * INITIAL_SIZE;
+	private static final Charset DEFAULT_CHARSET = CharsetUtil.UTF_8;
+	private static final String SLAVES_KEY = "slaves";
+
+	private static final int BUFFER_SIZE = 1024 * 1024;
 	private static final int MAX_FRAME_SIZE = BUFFER_SIZE * 100;
 
 	private static final int DEFAULT_DATABASES = 10;
@@ -73,11 +78,13 @@ public class TinyDB implements ITinyDB, IServerContext {
 	private TinyDBInitializerHandler acceptHandler;
 	private TinyDBConnectionHandler connectionHandler;
 	private ChannelFuture future;
+	private Optional<PersistenceManager> persistence;
+	private boolean master;
 
 	private final CommandSuite commands = new CommandSuite();
 	private final BlockingQueue<RedisArray> queue = new LinkedBlockingQueue<>();
 	private final List<IDatabase> databases = new LinkedList<>();
-	private final IDatabase admin = new Database(new HashMap<>());
+	private final IDatabase admin = new Database();
 	private final Map<String, ISession> clients = new HashMap<>();
 
 	public TinyDB() {
@@ -85,18 +92,28 @@ public class TinyDB implements ITinyDB, IServerContext {
 	}
 
 	public TinyDB(String host, int port) {
-		this(host, port, DEFAULT_DATABASES);
+		this(host, port, TinyDBConfig.withoutPersistence());
 	}
 
-	public TinyDB(String host, int port, int databases) {
+	public TinyDB(String host, int port, TinyDBConfig config) {
 		this.port = port;
 		this.host = host;
-		for (int i = 0; i < databases; i++) {
-			this.databases.add(new Database(new HashMap<>()));
+		if (config.isPersistenceActive()) {
+			this.persistence = Optional.of(new PersistenceManager(this, config));
+		}
+		else {
+			this.persistence = Optional.empty();
+		}
+		for (int i = 0; i < config.getNumDatabases(); i++) {
+			this.databases.add(new Database());
 		}
 	}
 
 	public void start() {
+		setMaster(true);
+
+		persistence.ifPresent(PersistenceManager::start);
+
 		bossGroup = new NioEventLoopGroup();
 		workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
 		acceptHandler = new TinyDBInitializerHandler(this);
@@ -124,6 +141,7 @@ public class TinyDB implements ITinyDB, IServerContext {
 			if (future != null) {
 				future.channel().close();
 			}
+			persistence.ifPresent(PersistenceManager::stop);
 		}
 		finally {
 			workerGroup.shutdownGracefully();
@@ -204,8 +222,9 @@ public class TinyDB implements ITinyDB, IServerContext {
 	public void publish(String sourceKey, String message) {
 		ISession session = clients.get(sourceKey);
 		if (session != null) {
-			ByteBuf buffer = session.getContext().alloc().buffer(INITIAL_SIZE, BUFFER_SIZE);
-			buffer.writeBytes(safeString(message).getBuffer());
+			SafeString safeString = safeString(message);
+			ByteBuf buffer = session.getContext().alloc().buffer(safeString.length());
+			buffer.writeBytes(safeString.getBuffer());
 			session.getContext().writeAndFlush(buffer);
 		}
 	}
@@ -265,6 +284,16 @@ public class TinyDB implements ITinyDB, IServerContext {
 		return commands.getCommand(name);
 	}
 
+	@Override
+	public void setMaster(boolean master) {
+		this.master = master;
+	}
+
+	@Override
+	public boolean isMaster() {
+		return master;
+	}
+
 	private IRequest parseMessage(String sourceKey, RedisToken message) {
 		IRequest request = null;
 
@@ -300,34 +329,65 @@ public class TinyDB implements ITinyDB, IServerContext {
 		IDatabase db = databases.get(session.getCurrentDB());
 		ICommand command = commands.getCommand(request.getCommand());
 		if (command != null) {
-			session.enqueue(() -> {
-				try {
-					Response response = new Response();
-					command.execute(db, request, response);
+			if (!isReadOnly(request.getCommand())) {
+				session.enqueue(() -> {
+					try {
+						Response response = new Response();
+						command.execute(db, request, response);
+						session.getContext().writeAndFlush(responseToBuffer(session, response));
 
-					ByteBuf buffer = session.getContext().alloc().buffer(1024);
-					buffer.writeBytes(response.getBytes());
-					session.getContext().writeAndFlush(buffer);
+						replication(request);
 
-					replication(request);
-
-					if (response.isExit()) {
-						session.getContext().close();
+						if (response.isExit()) {
+							session.getContext().close();
+						}
 					}
-				}
-				catch (RuntimeException e) {
-					logger.log(Level.SEVERE, "error executing command: " + request, e);
-				}
-			});
+					catch (RuntimeException e) {
+						logger.log(Level.SEVERE, "error executing command: " + request, e);
+					}
+				});
+			}
+			else {
+				session.getContext().writeAndFlush(
+						stringToBuffer(session, "-READONLY You can't write against a read only slave"));
+			}
 		}
 		else {
-			session.getContext().writeAndFlush("-ERR unknown command '" + request.getCommand() + "'");
+			session.getContext().writeAndFlush(
+					"-ERR unknown command '" + request.getCommand() + "'");
 		}
 	}
 
+	private boolean isReadOnly(String command) {
+		return !isMaster()
+				&& !commands.isReadOnlyCommand(command);
+	}
+
+	private ByteBuf stringToBuffer(ISession session, String str) {
+		byte[] array = DEFAULT_CHARSET.encode(str + "\r\n").array();
+		return bytesToBuffer(session, array);
+	}
+
+	private ByteBuf responseToBuffer(ISession session, Response response) {
+		byte[] array = response.getBytes();
+		ByteBuf buffer = session.getContext().alloc().buffer(array.length);
+		buffer.writeBytes(array);
+		return buffer;
+	}
+
+	private ByteBuf bytesToBuffer(ISession session, byte[] array) {
+		ByteBuf buffer = session.getContext().alloc().buffer(array.length);
+		buffer.writeBytes(array);
+		return buffer;
+	}
+
 	private void replication(IRequest request) {
-		if (!admin.getOrDefault("slaves", DatabaseValue.EMPTY_SET).<Set<String>>getValue().isEmpty()) {
-			queue.add(requestToArray(request));
+		if (!commands.isReadOnlyCommand(request.getCommand())) {
+			RedisArray array = requestToArray(request);
+			if (!admin.getOrDefault(SLAVES_KEY, DatabaseValue.EMPTY_SET).<Set<String>>getValue().isEmpty()) {
+				queue.add(array);
+			}
+			persistence.ifPresent(p -> p.append(array));
 		}
 	}
 

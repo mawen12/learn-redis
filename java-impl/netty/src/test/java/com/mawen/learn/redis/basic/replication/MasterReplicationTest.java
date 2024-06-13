@@ -26,7 +26,7 @@ public class MasterReplicationTest {
 	@InjectMocks
 	private MasterReplication master;
 
-	private final IDatabase db = new Database(new HashMap<>());
+	private final IDatabase db = new Database();
 
 	@Test
 	public void testReplication() {

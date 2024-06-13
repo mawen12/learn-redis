@@ -7,11 +7,14 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static java.util.stream.Collectors.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -42,17 +45,15 @@ public class Response implements IResponse {
 					break;
 				case HASH:
 					Map<String, String> map = value.getValue();
-					List<Object> list = new LinkedList<>();
-					map.forEach((k, v) -> {
-						list.add(safeString(k));
-						list.add(safeString(v));
-					});
-					addArray(list);
+					addArray(map.entrySet().stream()
+							.flatMap(entry -> Stream.of(safeString(entry.getKey()), safeString(entry.getValue())))
+							.collect(toList()));
 					break;
 				case LIST:
 				case SET:
 				case ZSET:
-					addArray(value.getValue());
+					Collection<String> col = value.getValue();
+					addArray(col.stream().map(SafeString::safeString).collect(toList()));
 					break;
 				default:
 					break;
@@ -158,12 +159,14 @@ public class Response implements IResponse {
 
 	@Override
 	public String toString() {
-		return new String(getBytes(), StandardCharsets.UTF_8);
+		return new String(getBytes(), DEFAULT_CHARSET);
 	}
 
 	private static class ByteBufferBuilder {
 
-		private ByteBuffer buffer = ByteBuffer.allocate(1024);
+		private static final int INITIAL_CAPACITY = 1024;
+
+		private ByteBuffer buffer = ByteBuffer.allocate(INITIAL_CAPACITY);
 
 		public ByteBufferBuilder append(int i) {
 			append(String.valueOf(i));
@@ -193,14 +196,15 @@ public class Response implements IResponse {
 		}
 
 		public ByteBufferBuilder append(ByteBuffer b) {
-			ensureCapacity(b.capacity());
-			buffer.put(b);
+			byte[] array = new byte[b.remaining()];
+			b.get(array);
+			append(array);
 			return this;
 		}
 
 		private void ensureCapacity(int len) {
 			if (buffer.remaining() < len) {
-				buffer = ByteBuffer.allocate(buffer.capacity() + 1024).put(build());
+				buffer = ByteBuffer.allocate(buffer.capacity() + Math.max(len, INITIAL_CAPACITY)).put(build());
 			}
 		}
 

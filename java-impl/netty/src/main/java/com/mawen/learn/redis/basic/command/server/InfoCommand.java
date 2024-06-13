@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -13,6 +14,8 @@ import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IResponse;
 import com.mawen.learn.redis.basic.command.IServerContext;
 import com.mawen.learn.redis.basic.command.annotation.Command;
+import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
+import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
@@ -23,6 +26,7 @@ import static java.util.Arrays.*;
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/11
  */
+@ReadOnly
 @Command("info")
 public class InfoCommand implements ICommand {
 
@@ -106,8 +110,13 @@ public class InfoCommand implements ICommand {
 	}
 
 	private Map<String, String> replication(IServerContext ctx) {
-		return map(entry("role", "master"),
-				entry("connected_slaves", "0"));
+		return map(entry("role", ctx.isMaster() ? "master" : "slave"),
+				entry("connected_slaves", slaves(ctx)));
+	}
+
+	private String slaves(IServerContext ctx) {
+		DatabaseValue slaves = ctx.getAdminDatabase().getOrDefault("slaves", DatabaseValue.EMPTY_SET);
+		return String.valueOf(slaves.<Set<String>>getValue().size());
 	}
 
 	private Map<String, String> clients(IServerContext ctx) {

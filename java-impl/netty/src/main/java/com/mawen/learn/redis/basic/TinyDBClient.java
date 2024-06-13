@@ -105,7 +105,7 @@ public class TinyDBClient implements ITinyDB {
 
 	@Override
 	public void channel(SocketChannel channel) {
-		logger.fine(() -> "connected to server");
+		logger.info(() -> "connected to server: " + host + ":" + port);
 
 		channel.pipeline().addLast("stringEncoder", new StringEncoder(CharsetUtil.UTF_8));
 		channel.pipeline().addLast("linDelimiter", new RequestDecoder(MAX_FRAME_SIZE));
@@ -123,12 +123,12 @@ public class TinyDBClient implements ITinyDB {
 
 	@Override
 	public void disconnected(ChannelHandlerContext ctx) {
+		logger.info(() -> "client disconnected from server: " + host + ":" + port);
+
 		if (this.ctx != null) {
-			logger.info(() -> "client disconnected from server");
+			callback.onDisconnect();
 
 			this.ctx = null;
-
-			callback.onDisconnect();
 
 			// reconnect
 			connect();

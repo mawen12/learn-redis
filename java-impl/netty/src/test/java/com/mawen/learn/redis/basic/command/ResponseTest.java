@@ -32,6 +32,16 @@ public class ResponseTest {
 	}
 
 	@Test
+	public void testAddValueList() {
+		assertThat(response.addValue(list("a", "b", "c")).toString(), is("*3\r\n$1\r\na\r\n$1\r\nb\r\n$1\r\nc\r\n"));
+	}
+
+	@Test
+	public void testAddValueSet() {
+		assertThat(response.addValue(set("a", "b", "c")).toString(), is("*3\r\n$1\r\na\r\n$1\r\nb\r\n$1\r\nc\r\n"));
+	}
+
+	@Test
 	public void testAddValueNull() {
 		assertThat(response.addValue(null).toString(), is("$-1\r\n"));
 	}

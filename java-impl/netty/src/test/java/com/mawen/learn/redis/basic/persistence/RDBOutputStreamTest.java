@@ -25,11 +25,6 @@ public class RDBOutputStreamTest {
 		out = new RDBOutputStream(baos);
 	}
 
-	/**
-	 * <pre>
-	 *
-	 * </pre>
-	 */
 	@Test
 	public void testStartEnd() throws IOException {
 		out.preamble(3);
@@ -100,7 +95,7 @@ public class RDBOutputStreamTest {
 
 	private static class DatabaseBuilder {
 
-		private final IDatabase db = new Database(new HashMap<>());
+		private final IDatabase db = new Database();
 
 		public DatabaseBuilder add(String key, DatabaseValue value) {
 			db.put(key, value);
