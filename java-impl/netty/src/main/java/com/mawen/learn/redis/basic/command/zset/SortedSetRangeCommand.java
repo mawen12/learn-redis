@@ -35,7 +35,7 @@ public class SortedSetRangeCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
-			DatabaseValue value = db.getOrDefault(request.getParam(0), zset());
+			DatabaseValue value = db.getOrDefault(request.getParam(0), EMPTY_ZSET);
 			NavigableSet<Entry<Float, String>> set = value.getValue();
 
 			int from = Integer.parseInt(request.getParam(1));

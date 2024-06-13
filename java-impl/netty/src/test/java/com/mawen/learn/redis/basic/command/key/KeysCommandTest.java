@@ -21,7 +21,7 @@ public class KeysCommandTest {
 	public final CommandRule rule = new CommandRule(this);
 
 	@Captor
-	private ArgumentCaptor<Collection<String>> captor;
+	private ArgumentCaptor<Collection<?>> captor;
 
 	@Test
 	public void testExecute() {
@@ -32,7 +32,7 @@ public class KeysCommandTest {
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> value = captor.getValue();
+		Collection<?> value = captor.getValue();
 
 		assertThat(value.size(), is(3));
 		assertThat(value.contains(safeString("abc")), is(true));
@@ -49,7 +49,7 @@ public class KeysCommandTest {
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> value = captor.getValue();
+		Collection<?> value = captor.getValue();
 
 		assertThat(value.size(), is(2));
 		assertThat(value.contains(safeString("abc")), is(true));
@@ -66,7 +66,7 @@ public class KeysCommandTest {
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> value = captor.getValue();
+		Collection<?> value = captor.getValue();
 
 		assertThat(value.size(), is(2));
 		assertThat(value.contains(safeString("abc")), is(true));

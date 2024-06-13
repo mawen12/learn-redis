@@ -2,9 +2,7 @@ package com.mawen.learn.redis.basic.replication;
 
 import java.util.HashMap;
 
-import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IServerContext;
-import com.mawen.learn.redis.basic.command.Request;
 import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.redis.RedisArray;
@@ -15,9 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.mawen.learn.redis.basic.redis.SafeString.safeAsList;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
-import static java.util.Arrays.asList;
+import static java.util.Arrays.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)

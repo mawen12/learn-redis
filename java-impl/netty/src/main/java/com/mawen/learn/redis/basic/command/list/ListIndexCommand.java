@@ -12,6 +12,7 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 
 /**
@@ -26,7 +27,7 @@ public class ListIndexCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
-			DatabaseValue value = db.getOrDefault(request.getParam(0), DatabaseValue.list());
+			DatabaseValue value = db.getOrDefault(request.getParam(0), EMPTY_LIST);
 			List<String> list = value.getValue();
 
 			int index = Integer.parseInt(request.getParam(1));

@@ -1,6 +1,5 @@
 package com.mawen.learn.redis.basic.persistence;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 

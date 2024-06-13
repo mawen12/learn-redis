@@ -40,7 +40,7 @@ public class SortedSetRangeByScoreCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
-			DatabaseValue value = db.getOrDefault(request.getParam(0), zset());
+			DatabaseValue value = db.getOrDefault(request.getParam(0), EMPTY_ZSET);
 			NavigableSet<Map.Entry<Double, String>> set = value.getValue();
 
 			float from = parseRange(request.getParam(1));

@@ -1,8 +1,7 @@
 package com.mawen.learn.redis.basic.command;
 
-import java.io.IOError;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -26,11 +25,13 @@ public class Response implements IResponse {
 	private static final byte SIMPLE_STRING = '+';
 	private static final byte BULK_STRING = '$';
 
-	public static final byte[] DELIMITER = new byte[]{'\r', '\n'};
+	private static final byte[] DELIMITER = new byte[]{'\r', '\n'};
+
+	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
 	private boolean exit;
 
-	private final ByteArrayBuilder builder = new ByteArrayBuilder();
+	private final ByteBufferBuilder builder = new ByteBufferBuilder();
 
 	@Override
 	public IResponse addValue(DatabaseValue value) {
@@ -160,38 +161,47 @@ public class Response implements IResponse {
 		return new String(getBytes(), StandardCharsets.UTF_8);
 	}
 
-	private static class ByteArrayBuilder {
+	private static class ByteBufferBuilder {
 
-		private final ByteBuffer buffer = ByteBuffer.allocate(1024);
+		private ByteBuffer buffer = ByteBuffer.allocate(1024);
 
-		public ByteArrayBuilder append(int i) {
+		public ByteBufferBuilder append(int i) {
 			append(String.valueOf(i));
 			return this;
 		}
 
-		public ByteArrayBuilder append(byte b) {
+		public ByteBufferBuilder append(byte b) {
+			ensureCapacity(1);
 			buffer.put(b);
 			return this;
 		}
 
-		public ByteArrayBuilder append(byte[] buf) {
+		public ByteBufferBuilder append(byte[] buf) {
+			ensureCapacity(buf.length);
 			buffer.put(buf);
 			return this;
 		}
 
-		public ByteArrayBuilder append(String str) {
-			try {
-				buffer.put(str.getBytes("UTF-8"));
-			}
-			catch (UnsupportedEncodingException e) {
-				throw new IOError(e);
-			}
+		public ByteBufferBuilder append(String str) {
+			append(DEFAULT_CHARSET.encode(str));
 			return this;
 		}
 
-		public ByteArrayBuilder append(SafeString str) {
-			buffer.put(str.getBytes());
+		public ByteBufferBuilder append(SafeString str) {
+			append(str.getBuffer());
 			return this;
+		}
+
+		public ByteBufferBuilder append(ByteBuffer b) {
+			ensureCapacity(b.capacity());
+			buffer.put(b);
+			return this;
+		}
+
+		private void ensureCapacity(int len) {
+			if (buffer.remaining() < len) {
+				buffer = ByteBuffer.allocate(buffer.capacity() + 1024).put(build());
+			}
 		}
 
 		public byte[] build() {

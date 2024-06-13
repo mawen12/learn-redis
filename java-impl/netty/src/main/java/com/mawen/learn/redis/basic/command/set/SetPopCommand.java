@@ -30,7 +30,7 @@ public class SetPopCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		List<String> removed = new LinkedList<>();
-		db.merge(request.getParam(0), set(), (oldValue, newValue) -> {
+		db.merge(request.getParam(0), EMPTY_SET, (oldValue, newValue) -> {
 			List<String> merge = new ArrayList<>(oldValue.<Set<String>>getValue());
 			removed.add(merge.remove(random(merge)));
 			return set(merge);

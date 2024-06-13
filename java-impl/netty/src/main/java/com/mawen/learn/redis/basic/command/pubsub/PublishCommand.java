@@ -11,6 +11,7 @@ import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 
 /**
@@ -26,7 +27,7 @@ public class PublishCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		IDatabase admin = request.getServerContext().getAdminDatabase();
-		DatabaseValue value = admin.getOrDefault(SUBSCRIPTIONS_PREFIX + request.getParam(0), DatabaseValue.set());
+		DatabaseValue value = admin.getOrDefault(SUBSCRIPTIONS_PREFIX + request.getParam(0), EMPTY_SET);
 
 		Set<String> subscribers = value.getValue();
 		for (String subscriber : subscribers) {

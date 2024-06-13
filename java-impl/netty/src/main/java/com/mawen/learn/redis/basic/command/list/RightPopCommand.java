@@ -28,7 +28,7 @@ public class RightPopCommand implements ICommand {
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		List<String> removed = new LinkedList<>();
 
-		db.merge(request.getParam(0), list(), (oldValue, newValue) -> {
+		db.merge(request.getParam(0), EMPTY_LIST, (oldValue, newValue) -> {
 			List<String> merge = new LinkedList<>();
 			merge.addAll(oldValue.getValue());
 			if (!merge.isEmpty()) {

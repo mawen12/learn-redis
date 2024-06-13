@@ -25,7 +25,7 @@ public class SetUnionCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue first = db.getOrDefault(request.getParam(0), DatabaseValue.set());
+		DatabaseValue first = db.getOrDefault(request.getParam(0), DatabaseValue.EMPTY_SET);
 		Set<String> result = new HashSet<>(first.<Set<String>>getValue());
 
 		for (String param : request.getParams().stream().skip(1).collect(Collectors.toList())) {

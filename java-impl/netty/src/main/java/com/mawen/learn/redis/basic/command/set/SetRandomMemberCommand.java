@@ -30,7 +30,7 @@ public class SetRandomMemberCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		List<String> random = new LinkedList<>();
-		db.merge(request.getParam(0), set(), (oldValue, newValue) -> {
+		db.merge(request.getParam(0), EMPTY_SET, (oldValue, newValue) -> {
 			List<String> merge = new ArrayList<>(oldValue.<Set<String>>getValue());
 			random.add(merge.get(random(merge)));
 			return set(merge);

@@ -24,7 +24,7 @@ public class StringLengthCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue value = db.getOrDefault(request.getParam(0), string(""));
+		DatabaseValue value = db.getOrDefault(request.getParam(0), EMPTY_STRING);
 		SafeString str = value.getValue();
 		response.addInt(str.length());
 	}

@@ -31,7 +31,7 @@ public class HashDeleteCommand implements ICommand {
 		List<String> keys = request.getParams().stream().skip(1).collect(Collectors.toList());
 
 		List<String> removedKeys = new LinkedList<>();
-		db.merge(request.getParam(0), hash(), (oldValue, newValue) -> {
+		db.merge(request.getParam(0), EMPTY_HASH, (oldValue, newValue) -> {
 			Map<String, String> merged = new HashMap<>();
 			merged.putAll(oldValue.getValue());
 			for (String key : keys) {

@@ -30,7 +30,7 @@ public class SortedSetAddCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
-			DatabaseValue initial = db.getOrDefault(request.getParam(0), zset());
+			DatabaseValue initial = db.getOrDefault(request.getParam(0), EMPTY_ZSET);
 			DatabaseValue result = db.merge(request.getParam(0), parseInput(request), (oldValue, newValue) -> {
 				Set<Entry<Double, String>> merge = new SortedSet();
 				merge.addAll(oldValue.getValue());

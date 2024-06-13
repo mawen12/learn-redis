@@ -7,7 +7,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.mawen.learn.redis.basic.command.IRequest;
 import com.mawen.learn.redis.basic.command.IServerContext;
 import com.mawen.learn.redis.basic.command.Response;
 import com.mawen.learn.redis.basic.redis.RedisArray;
@@ -67,7 +66,7 @@ public class MasterReplication implements Runnable{
 	}
 
 	private Set<String> getSlaves() {
-		return server.getAdminDatabase().getOrDefault("slaves", set()).getValue();
+		return server.getAdminDatabase().getOrDefault("slaves", EMPTY_SET).getValue();
 	}
 
 	private List<SafeString> toList(RedisArray request) {

@@ -25,7 +25,7 @@ public class ListLengthCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue value = db.getOrDefault(request.getParam(0), list());
+		DatabaseValue value = db.getOrDefault(request.getParam(0), EMPTY_LIST);
 
 		response.addInt(value.<List<String>>getValue().size());
 	}

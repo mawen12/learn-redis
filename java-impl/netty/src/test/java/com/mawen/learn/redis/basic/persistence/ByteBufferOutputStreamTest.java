@@ -1,7 +1,6 @@
 package com.mawen.learn.redis.basic.persistence;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 import org.junit.Test;
 
@@ -13,14 +12,12 @@ public class ByteBufferOutputStreamTest {
 
 	@Test
 	public void testStream() throws IOException {
-		ByteBufferOutputStream out = new ByteBufferOutputStream();
+		ByteBufferOutputStream out = new ByteBufferOutputStream(10);
 
 		out.write(9);
 		out.write(toByteArray("486F6C61206D756E646F21"));
 
-		byte[] array = out.toByteArray();
-
-		assertThat(HexUtil.toHexString(array), is("09486F6C61206D756E646F21"));
+		assertThat(HexUtil.toHexString(out.toByteArray()), is("09486F6C61206D756E646F21"));
 
 		out.close();
 	}

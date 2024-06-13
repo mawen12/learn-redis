@@ -2,7 +2,6 @@ package com.mawen.learn.redis.basic.persistence;
 
 import java.io.IOException;
 
-import com.mawen.learn.redis.basic.redis.SafeString;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.persistence.HexUtil.*;

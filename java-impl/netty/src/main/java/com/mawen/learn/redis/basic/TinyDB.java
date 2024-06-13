@@ -205,7 +205,7 @@ public class TinyDB implements ITinyDB, IServerContext {
 		ISession session = clients.get(sourceKey);
 		if (session != null) {
 			ByteBuf buffer = session.getContext().alloc().buffer(INITIAL_SIZE, BUFFER_SIZE);
-			buffer.writeBytes(safeString(message).getBytes());
+			buffer.writeBytes(safeString(message).getBuffer());
 			session.getContext().writeAndFlush(buffer);
 		}
 	}
@@ -326,7 +326,7 @@ public class TinyDB implements ITinyDB, IServerContext {
 	}
 
 	private void replication(IRequest request) {
-		if (!admin.getOrDefault("slaves", DatabaseValue.set()).<Set<String>>getValue().isEmpty()) {
+		if (!admin.getOrDefault("slaves", DatabaseValue.EMPTY_SET).<Set<String>>getValue().isEmpty()) {
 			queue.add(requestToArray(request));
 		}
 	}

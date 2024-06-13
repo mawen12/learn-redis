@@ -17,7 +17,7 @@ import com.mawen.learn.redis.basic.data.IDatabase;
 
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static java.lang.String.*;
-import static java.util.Arrays.asList;
+import static java.util.Arrays.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>

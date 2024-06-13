@@ -14,6 +14,8 @@ import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/9
@@ -25,10 +27,10 @@ public class SetDifferenceCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue first = db.getOrDefault(request.getParam(0), DatabaseValue.set());
+		DatabaseValue first = db.getOrDefault(request.getParam(0), EMPTY_SET);
 		Set<String> result = new HashSet<>(first.<Set<String>>getValue());
 		for (String param : request.getParams().stream().skip(1).collect(Collectors.toList())) {
-			result.removeAll(db.getOrDefault(param, DatabaseValue.set()).<Set<String>>getValue());
+			result.removeAll(db.getOrDefault(param, EMPTY_SET).<Set<String>>getValue());
 		}
 		response.addArray(result);
 	}

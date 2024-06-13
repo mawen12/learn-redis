@@ -30,7 +30,7 @@ public class SetRemoveCommand implements ICommand {
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		List<String> items = request.getParams().stream().skip(1).collect(toList());
 		List<String> removed = new LinkedList<>();
-		db.merge(request.getParam(0), set(), (oldValue, newValue) -> {
+		db.merge(request.getParam(0), EMPTY_SET, (oldValue, newValue) -> {
 			Set<String> merge = new HashSet<>();
 			merge.addAll(oldValue.getValue());
 			for (String item : items) {

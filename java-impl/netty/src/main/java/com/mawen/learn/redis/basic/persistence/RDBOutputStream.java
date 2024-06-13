@@ -3,6 +3,8 @@ package com.mawen.learn.redis.basic.persistence;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -23,7 +25,7 @@ import static com.mawen.learn.redis.basic.redis.SafeString.*;
  */
 public class RDBOutputStream {
 
-	private static final String DEFAULT_CHARSET = "UTF-8";
+	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
 	// REDIS
 	private static final byte[] REDIS = new byte[]{0x52, 0x45, 0x44, 0x49, 0x53};

@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.mawen.learn.redis.basic.ITinyDB;
-import com.mawen.learn.redis.basic.TinyDB;
 import com.mawen.learn.redis.basic.TinyDBRule;
 import com.mawen.learn.redis.basic.command.IServerContext;
 import com.mawen.learn.redis.basic.command.ISession;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;

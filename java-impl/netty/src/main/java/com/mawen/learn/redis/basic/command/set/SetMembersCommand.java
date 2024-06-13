@@ -23,7 +23,7 @@ public class SetMembersCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue value = db.getOrDefault(request.getParam(0), set());
+		DatabaseValue value = db.getOrDefault(request.getParam(0), EMPTY_SET);
 		response.addValue(value);
 	}
 }

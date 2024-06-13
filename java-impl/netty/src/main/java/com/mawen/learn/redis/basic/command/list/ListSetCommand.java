@@ -27,7 +27,7 @@ public class ListSetCommand implements ICommand {
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
 			int index = Integer.parseInt(request.getParam(1));
-			db.merge(request.getParam(0), list(), (oldValue, newValue) -> {
+			db.merge(request.getParam(0), EMPTY_LIST, (oldValue, newValue) -> {
 				List<String> merge = new ArrayList<>(oldValue.<List<String>>getValue());
 				merge.set(index > -1 ? index : merge.size() + index, request.getParam(2));
 				return list(merge);
