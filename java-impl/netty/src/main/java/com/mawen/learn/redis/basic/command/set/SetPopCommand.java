@@ -14,10 +14,10 @@ import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -30,9 +30,9 @@ public class SetPopCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		List<String> removed = new LinkedList<>();
+		List<SafeString> removed = new LinkedList<>();
 		db.merge(safeKey(request.getParam(0)), EMPTY_SET, (oldValue, newValue) -> {
-			List<String> merge = new ArrayList<>(oldValue.<Set<String>>getValue());
+			List<SafeString> merge = new ArrayList<>(oldValue.<Set<SafeString>>getValue());
 			removed.add(merge.remove(random(merge)));
 			return set(merge);
 		});
@@ -41,11 +41,11 @@ public class SetPopCommand implements ICommand {
 			response.addBulkStr(null);
 		}
 		else {
-			response.addBulkStr(safeString(removed.get(0)));
+			response.addBulkStr(removed.get(0));
 		}
 	}
 
-	private int random(List<String> merge) {
+	private int random(List<SafeString> merge) {
 		return new Random().nextInt(merge.size());
 	}
 }

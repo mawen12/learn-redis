@@ -29,15 +29,15 @@ public class LeftPushCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		List<String> values = request.getParams().stream().skip(1).map(SafeString::toString).collect(Collectors.toList());
+		List<SafeString> values = request.getParams().stream().skip(1).collect(Collectors.toList());
 
 		DatabaseValue result = db.merge(safeKey(request.getParam(0)), list(values), (oldValue, newValue) -> {
-			List<String> merge = new LinkedList<>();
+			List<SafeString> merge = new LinkedList<>();
 			merge.addAll(newValue.getValue());
 			merge.addAll(oldValue.getValue());
 			return list(merge);
 		});
 
-		response.addInt(result.<List<String>>getValue().size());
+		response.addInt(result.<List<SafeString>>getValue().size());
 	}
 }

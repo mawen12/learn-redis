@@ -38,10 +38,10 @@ public class UnsubscribeCommand implements ICommand {
 		Collection<SafeString> channels = getChannels(request);
 		int i = request.getLength();
 		for (SafeString channel : channels) {
-			admin.merge(safeKey(SUBSCRIPTIONS_PREFIX + channel), set(request.getSession().getId()),(oldValue, newValue) -> {
-				Set<String> merge = new HashSet<>();
+			admin.merge(safeKey(SUBSCRIPTIONS_PREFIX + channel), set(safeString(request.getSession().getId())),(oldValue, newValue) -> {
+				Set<SafeString> merge = new HashSet<>();
 				merge.addAll(oldValue.getValue());
-				merge.remove(request.getSession().getId());
+				merge.remove(safeString(request.getSession().getId()));
 				return set(merge);
 			});
 

@@ -5,12 +5,14 @@ import java.util.Iterator;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
+import com.mawen.learn.redis.basic.redis.SafeString;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -21,7 +23,7 @@ public class SortedSetRangeCommandTest {
 	public final CommandRule rule = new CommandRule(this);
 
 	@Captor
-	private ArgumentCaptor<Collection<String>> captor;
+	private ArgumentCaptor<Collection<SafeString>> captor;
 
 	@Test
 	public void testExecute() {
@@ -30,15 +32,15 @@ public class SortedSetRangeCommandTest {
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> array = captor.getValue();
+		Collection<SafeString> array = captor.getValue();
 
 		assertThat(array.size(), is(3));
 
-		Iterator<String> iter = array.iterator();
+		Iterator<SafeString> iter = array.iterator();
 
-		assertThat(iter.next(), is("a"));
-		assertThat(iter.next(), is("b"));
-		assertThat(iter.next(), is("c"));
+		assertThat(iter.next(), is(safeString("a")));
+		assertThat(iter.next(), is(safeString("b")));
+		assertThat(iter.next(), is(safeString("c")));
 	}
 
 	@Test
@@ -48,18 +50,18 @@ public class SortedSetRangeCommandTest {
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> array = captor.getValue();
+		Collection<SafeString> array = captor.getValue();
 
 		assertThat(array.size(), is(6));
 
-		Iterator<String> iter = array.iterator();
+		Iterator<SafeString> iter = array.iterator();
 
-		assertThat(iter.next(), is("a"));
-		assertThat(iter.next(), is("1.0"));
-		assertThat(iter.next(), is("b"));
-		assertThat(iter.next(), is("2.0"));
-		assertThat(iter.next(), is("c"));
-		assertThat(iter.next(), is("3.0"));
+		assertThat(iter.next(), is(safeString("a")));
+		assertThat(iter.next(), is(1.0));
+		assertThat(iter.next(), is(safeString("b")));
+		assertThat(iter.next(), is(2.0));
+		assertThat(iter.next(), is(safeString("c")));
+		assertThat(iter.next(), is(3.0));
 	}
 
 	@Test
@@ -69,13 +71,13 @@ public class SortedSetRangeCommandTest {
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> array = captor.getValue();
+		Collection<SafeString> array = captor.getValue();
 
 		assertThat(array.size(), is(2));
 
-		Iterator<String> iter = array.iterator();
-		assertThat(iter.next(), is("a"));
-		assertThat(iter.next(), is("b"));
+		Iterator<SafeString> iter = array.iterator();
+		assertThat(iter.next(), is(safeString("a")));
+		assertThat(iter.next(), is(safeString("b")));
 	}
 
 	@Test
@@ -85,14 +87,14 @@ public class SortedSetRangeCommandTest {
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> array = captor.getValue();
+		Collection<SafeString> array = captor.getValue();
 
 		assertThat(array.size(), is(2));
 
-		Iterator<String> iter = array.iterator();
+		Iterator<SafeString> iter = array.iterator();
 
-		assertThat(iter.next(), is("b"));
-		assertThat(iter.next(), is("c"));
+		assertThat(iter.next(), is(safeString("b")));
+		assertThat(iter.next(), is(safeString("c")));
 	}
 
 	@Test
@@ -102,7 +104,7 @@ public class SortedSetRangeCommandTest {
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> array = captor.getValue();
+		Collection<SafeString> array = captor.getValue();
 
 		assertThat(array.size(), is(0));
 	}
@@ -114,7 +116,7 @@ public class SortedSetRangeCommandTest {
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> array = captor.getValue();
+		Collection<SafeString> array = captor.getValue();
 
 		assertThat(array.size(), is(0));
 	}
@@ -126,13 +128,13 @@ public class SortedSetRangeCommandTest {
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> array = captor.getValue();
+		Collection<SafeString> array = captor.getValue();
 
 		assertThat(array.size(), is(1));
 
-		Iterator<String> iter = array.iterator();
+		Iterator<SafeString> iter = array.iterator();
 
-		assertThat(iter.next(), is("a"));
+		assertThat(iter.next(), is(safeString("a")));
 	}
 
 	@Test
@@ -141,7 +143,7 @@ public class SortedSetRangeCommandTest {
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> array = captor.getValue();
+		Collection<SafeString> array = captor.getValue();
 
 		assertThat(array.size(), is(0));
 	}

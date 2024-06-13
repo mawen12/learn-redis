@@ -29,15 +29,15 @@ public class RightPushCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		List<String> values = request.getParams().stream().skip(1).map(SafeString::toString).collect(Collectors.toList());
+		List<SafeString> values = request.getParams().stream().skip(1).collect(Collectors.toList());
 
 		DatabaseValue value = db.merge(safeKey(request.getParam(0)), list(values), (oldValue, newValue) -> {
-			List<String> merge = new LinkedList<>();
+			List<SafeString> merge = new LinkedList<>();
 			merge.addAll(oldValue.getValue());
 			merge.addAll(newValue.getValue());
 			return list(merge);
 		});
 
-		response.addInt(value.<List<String>>getValue().size());
+		response.addInt(value.<List<SafeString>>getValue().size());
 	}
 }

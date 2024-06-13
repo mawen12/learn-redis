@@ -4,9 +4,10 @@ import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import com.mawen.learn.redis.basic.command.IResponse;
 import com.mawen.learn.redis.basic.command.IServerContext;
-import com.mawen.learn.redis.basic.data.DatabaseValue;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
 @CommandUnderTest(PublishCommand.class)
 public class PublishCommandTest {
@@ -16,7 +17,7 @@ public class PublishCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("subscriptions:test", DatabaseValue.set("localhost:12345"))
+		rule.withData("subscriptions:test", setFromString("localhost:12345"))
 				.withParams("test", "Hello World!")
 				.execute();
 

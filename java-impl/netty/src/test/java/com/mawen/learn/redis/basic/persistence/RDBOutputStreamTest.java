@@ -44,14 +44,14 @@ public class RDBOutputStreamTest {
 
 	@Test
 	public void testList() throws IOException {
-		out.database(database().add(safeKey("a"), list("test")).build());
+		out.database(database().add(safeKey("a"), listFromString("test")).build());
 
 		assertThat(toHexString(baos.toByteArray()), is("010161010474657374"));
 	}
 
 	@Test
 	public void testSet() throws IOException {
-		out.database(database().add(safeKey("a"), set("test")).build());
+		out.database(database().add(safeKey("a"), setFromString("test")).build());
 
 		assertThat(toHexString(baos.toByteArray()), is("020161010474657374"));
 	}
@@ -76,9 +76,9 @@ public class RDBOutputStreamTest {
 		out.select(0);
 		out.database(database().add(safeKey("a"), string("test")).build());
 		out.select(1);
-		out.database(database().add(safeKey("a"), list("test")).build());
+		out.database(database().add(safeKey("a"), listFromString("test")).build());
 		out.select(2);
-		out.database(database().add(safeKey("a"), set("test")).build());
+		out.database(database().add(safeKey("a"), setFromString("test")).build());
 		out.select(3);
 		out.database(database().add(safeKey("a"), zset(score(1.0, "test"))).build());
 		out.select(4);

@@ -5,8 +5,8 @@ import java.io.UnsupportedEncodingException;
 
 import org.junit.Test;
 
+import static com.mawen.learn.redis.basic.persistence.ByteUtils.toByteArray;
 import static com.mawen.learn.redis.basic.persistence.HexUtil.*;
-import static com.mawen.learn.redis.basic.persistence.Util.toByteArray;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 

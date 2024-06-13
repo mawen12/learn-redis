@@ -12,6 +12,7 @@ import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
@@ -27,8 +28,8 @@ public class SetAddCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue value = db.merge(safeKey(request.getParam(0)), set(request.getParam(1).toString()), (oldValue, newValue) -> {
-			Set<String> merge = new HashSet<>();
+		DatabaseValue value = db.merge(safeKey(request.getParam(0)), set(request.getParam(1)), (oldValue, newValue) -> {
+			Set<SafeString> merge = new HashSet<>();
 			merge.addAll(oldValue.getValue());
 			merge.addAll(newValue.getValue());
 			return set(merge);

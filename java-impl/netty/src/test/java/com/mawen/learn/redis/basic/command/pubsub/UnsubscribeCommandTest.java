@@ -6,6 +6,7 @@ import java.util.Iterator;
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import com.mawen.learn.redis.basic.command.ISession;
+import com.mawen.learn.redis.basic.redis.SafeString;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -23,11 +24,11 @@ public class UnsubscribeCommandTest {
 	public final CommandRule rule = new CommandRule(this);
 
 	@Captor
-	private ArgumentCaptor<Collection<String>> captor;
+	private ArgumentCaptor<Collection<SafeString>> captor;
 
 	@Test
 	public void testExecute() {
-		rule.withData("subscriptions:test", set("localhost:12345"))
+		rule.withData("subscriptions:test", setFromString("localhost:12345"))
 				.withParams("test")
 				.execute()
 				.assertThat("subscriptions:test", is(set()));

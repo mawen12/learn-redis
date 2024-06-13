@@ -13,7 +13,9 @@ import static java.util.stream.Collectors.*;
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/12
  */
-public class SafeString {
+public class SafeString implements Comparable<SafeString> {
+
+	public static final SafeString EMPTY_STRING = new SafeString(new byte[]{});
 
 	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
@@ -42,6 +44,22 @@ public class SafeString {
 
 	public int length() {
 		return buffer.remaining();
+	}
+
+	@Override
+	public int compareTo(SafeString o) {
+		return compare(getBytes(), o.getBytes());
+	}
+
+	private int compare(byte[] left, byte[] right) {
+		for (int i = 0, j = 0; i < left.length && j < right.length; i++, j++) {
+			int a = left[i] & 0xff;
+			int b = right[j] & 0xff;
+			if (a != b) {
+				return a - b;
+			}
+		}
+		return left.length - right.length;
 	}
 
 	@Override
@@ -83,5 +101,16 @@ public class SafeString {
 	public static List<SafeString> safeAsList(String... strs) {
 		Objects.requireNonNull(strs);
 		return Stream.of(strs).map(SafeString::safeString).collect(toList());
+	}
+
+	public static SafeString append(SafeString strA, SafeString strB) {
+		Objects.requireNonNull(strA);
+		Objects.requireNonNull(strB);
+
+		ByteBuffer byteBuffer = ByteBuffer.allocate(strA.length() + strB.length()).put(strA.getBytes());
+		byteBuffer.put(strA.getBytes());
+		byteBuffer.put(strB.getBytes());
+		byteBuffer.rewind();
+		return new SafeString(byteBuffer);
 	}
 }

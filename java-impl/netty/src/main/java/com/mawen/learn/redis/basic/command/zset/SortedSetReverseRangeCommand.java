@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.mawen.learn.redis.basic.command.ICommand;
@@ -22,6 +21,7 @@ import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static java.util.stream.Collectors.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -39,7 +39,7 @@ public class SortedSetReverseRangeCommand implements ICommand {
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
 			DatabaseValue value = db.getOrDefault(DatabaseKey.safeKey(request.getParam(0)), EMPTY_ZSET);
-			NavigableSet<Map.Entry<Float, String>> set = value.getValue();
+			NavigableSet<Map.Entry<Float, SafeString>> set = value.getValue();
 
 			int from = Integer.parseInt(request.getParam(2).toString());
 			if (from < 0) {
@@ -50,14 +50,14 @@ public class SortedSetReverseRangeCommand implements ICommand {
 				to += set.size();
 			}
 
-			List<String> result = Collections.emptyList();
+			List<Object> result = Collections.emptyList();
 			if (from <= to) {
 				Optional<SafeString> withScores = request.getOptionalParam(3);
 				if (withScores.isPresent() && withScores.get().toString().equals(PARAM_WITHSCORES)) {
-					result = set.stream().skip(from).limit((to - from) + 1).flatMap(o -> Stream.of(o.getValue(), String.valueOf(o.getKey()))).collect(Collectors.toList());
+					result = set.stream().skip(from).limit((to - from) + 1).flatMap(o -> Stream.of(o.getValue(), o.getKey())).collect(toList());
 				}
 				else {
-					result = set.stream().skip(from).limit((to - from) + 1).map(Map.Entry::getValue).collect(Collectors.toList());
+					result = set.stream().skip(from).limit((to - from) + 1).map(Map.Entry::getValue).collect(toList());
 				}
 			}
 

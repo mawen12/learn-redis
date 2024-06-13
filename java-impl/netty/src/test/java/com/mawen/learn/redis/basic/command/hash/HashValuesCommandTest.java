@@ -4,12 +4,14 @@ import java.util.Collection;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
+import com.mawen.learn.redis.basic.redis.SafeString;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -20,7 +22,7 @@ public class HashValuesCommandTest {
 	public final CommandRule rule = new CommandRule(this);
 
 	@Captor
-	private ArgumentCaptor<Collection<String>> captor;
+	private ArgumentCaptor<Collection<SafeString>> captor;
 
 	@Test
 	public void testExecute() {
@@ -29,12 +31,22 @@ public class HashValuesCommandTest {
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> values = captor.getValue();
+		Collection<SafeString> values = captor.getValue();
 
 		assertThat(values.size(), is(3));
-		assertThat(values.contains("value1"), is(true));
-		assertThat(values.contains("value2"), is(true));
-		assertThat(values.contains("value3"), is(true));
+		assertThat(values.contains(safeString("value1")), is(true));
+		assertThat(values.contains(safeString("value2")), is(true));
+		assertThat(values.contains(safeString("value3")), is(true));
 	}
 
+	@Test
+	public void testExecuteNotExists() {
+		rule.withParams("test")
+				.execute()
+				.verify().addArray(captor.capture());
+
+		Collection<SafeString> values = captor.getValue();
+
+		assertThat(values.isEmpty(), is(true));
+	}
 }

@@ -10,6 +10,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
@@ -22,13 +23,13 @@ public class SetRandomMemberCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key", DatabaseValue.set("a", "b", "c"))
+		rule.withData("key", setFromString("a", "b", "c"))
 				.withParams("key")
 				.execute()
 				.verify().addBulkStr(notNull(SafeString.class));
 
 		DatabaseValue value = rule.getDatabase().get(safeKey("key"));
-		assertThat(value.<Set<String>>getValue().size(), is(3));
+		assertThat(value.<Set<SafeString>>getValue().size(), is(3));
 	}
 
 	@Test

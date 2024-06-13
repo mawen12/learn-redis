@@ -21,7 +21,6 @@ import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static java.lang.String.*;
 import static java.util.stream.Collectors.*;
 
 /**
@@ -40,7 +39,7 @@ public class SortedSetRangeCommand implements ICommand {
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
 			DatabaseValue value = db.getOrDefault(safeKey(request.getParam(0)), EMPTY_ZSET);
-			NavigableSet<Entry<Float, String>> set = value.getValue();
+			NavigableSet<Entry<Float, SafeString>> set = value.getValue();
 
 			int from = Integer.parseInt(request.getParam(1).toString());
 			if (from < 0) {
@@ -51,11 +50,11 @@ public class SortedSetRangeCommand implements ICommand {
 				to = set.size() + to;
 			}
 
-			List<String> result = Collections.emptyList();
+			List<Object> result = Collections.emptyList();
 			if (from <= to) {
 				Optional<SafeString> withScores = request.getOptionalParam(3);
 				if (withScores.isPresent() && withScores.get().toString().equalsIgnoreCase(PARAM_WITHSCORES)) {
-					result = set.stream().skip(from).limit((to - from) + 1).flatMap(o -> Stream.of(o.getValue(), valueOf(o.getKey()))).collect(toList());
+					result = set.stream().skip(from).limit((to - from) + 1).flatMap(o -> Stream.of(o.getValue(), o.getKey())).collect(toList());
 				}
 				else {
 					result = set.stream().skip(from).limit((to - from) + 1).map(Entry::getValue).collect(toList());

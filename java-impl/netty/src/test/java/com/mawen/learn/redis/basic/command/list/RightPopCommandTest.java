@@ -17,10 +17,10 @@ public class RightPopCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key", list("a", "b", "c"))
+		rule.withData("key", listFromString("a", "b", "c"))
 				.withParams("key")
 				.execute()
-				.assertThat("key",is(list("a", "b")))
+				.assertThat("key",is(listFromString("a", "b")))
 				.verify().addBulkStr(safeString("c"));
 	}
 

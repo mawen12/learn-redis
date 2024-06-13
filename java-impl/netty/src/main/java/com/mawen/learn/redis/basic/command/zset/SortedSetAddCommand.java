@@ -34,7 +34,7 @@ public class SortedSetAddCommand implements ICommand {
 		try {
 			DatabaseValue initial = db.getOrDefault(safeKey(request.getParam(0)), EMPTY_ZSET);
 			DatabaseValue result = db.merge(safeKey(request.getParam(0)), parseInput(request), (oldValue, newValue) -> {
-				Set<Entry<Double, String>> merge = new SortedSet();
+				Set<Entry<Double, SafeString>> merge = new SortedSet();
 				merge.addAll(oldValue.getValue());
 				merge.addAll(newValue.getValue());
 				return zset(merge);
@@ -48,11 +48,11 @@ public class SortedSetAddCommand implements ICommand {
 	}
 
 	private DatabaseValue parseInput(IRequest request) {
-		Set<Entry<Double, String>> set = new SortedSet();
-		String score = null;
-		for (String string : request.getParams().stream().skip(1).map(SafeString::toString).collect(toList())) {
+		Set<Entry<Double, SafeString>> set = new SortedSet();
+		SafeString score = null;
+		for (SafeString string : request.getParams().stream().skip(1).collect(toList())) {
 			if (score != null) {
-				set.add(score(parseDouble(score), string));
+				set.add(score(parseDouble(score.toString()), string));
 				score = null;
 			}
 			else {
@@ -63,7 +63,7 @@ public class SortedSetAddCommand implements ICommand {
 		return zset(set);
 	}
 
-	private int changed(Set<Entry<Float, String>> input, Set<Entry<Float, String>> result) {
+	private int changed(Set<Entry<Float, SafeString>> input, Set<Entry<Float, SafeString>> result) {
 		return result.size() - input.size();
 	}
 }

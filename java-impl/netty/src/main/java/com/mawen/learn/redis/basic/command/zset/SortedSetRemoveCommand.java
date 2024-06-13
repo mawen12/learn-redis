@@ -31,13 +31,13 @@ public class SortedSetRemoveCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		List<String> items = request.getParams().stream().skip(1).map(SafeString::toString).collect(Collectors.toList());
-		List<String> removed = new LinkedList<>();
+		List<SafeString> items = request.getParams().stream().skip(1).collect(Collectors.toList());
+		List<SafeString> removed = new LinkedList<>();
 
 		db.merge(safeKey(request.getParam(0)), EMPTY_ZSET, (oldValue, newValue) -> {
-			Set<Map.Entry<Double, String>> merge = new SortedSet();
+			Set<Map.Entry<Double, SafeString>> merge = new SortedSet();
 			merge.addAll(oldValue.getValue());
-			for (String item : items) {
+			for (SafeString item : items) {
 				if (merge.remove(item)) {
 					removed.add(item);
 				}

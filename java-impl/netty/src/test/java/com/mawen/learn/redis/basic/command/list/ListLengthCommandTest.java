@@ -15,7 +15,7 @@ public class ListLengthCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key", list("a", "b", "c"))
+		rule.withData("key", listFromString("a", "b", "c"))
 				.withParams("key")
 				.execute()
 				.verify().addInt(3);

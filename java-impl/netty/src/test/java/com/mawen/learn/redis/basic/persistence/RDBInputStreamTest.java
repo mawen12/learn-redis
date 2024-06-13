@@ -33,8 +33,8 @@ public class RDBInputStreamTest {
 		assertThat(databases.size(), is(5));
 
 		assertDB(databases.get(0), string("test"));
-		assertDB(databases.get(1), list("test"));
-		assertDB(databases.get(2), set("test"));
+		assertDB(databases.get(1), listFromString("test"));
+		assertDB(databases.get(2), setFromString("test"));
 		assertDB(databases.get(3), zset(score(1.0, "test")));
 		assertDB(databases.get(4), hash(entry("1", "test")));
 	}

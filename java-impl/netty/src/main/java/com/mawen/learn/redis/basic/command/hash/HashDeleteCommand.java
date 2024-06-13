@@ -32,12 +32,12 @@ public class HashDeleteCommand implements ICommand {
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		List<SafeString> keys = request.getParams().stream().skip(1).collect(Collectors.toList());
 
-		List<String> removedKeys = new LinkedList<>();
+		List<SafeString> removedKeys = new LinkedList<>();
 		db.merge(safeKey(request.getParam(0)), EMPTY_HASH, (oldValue, newValue) -> {
-			Map<String, String> merged = new HashMap<>();
+			Map<SafeString, SafeString> merged = new HashMap<>();
 			merged.putAll(oldValue.getValue());
 			for (SafeString key : keys) {
-				String data = merged.remove(key.toString());
+				SafeString data = merged.remove(key);
 				if (data != null) {
 					removedKeys.add(data);
 				}

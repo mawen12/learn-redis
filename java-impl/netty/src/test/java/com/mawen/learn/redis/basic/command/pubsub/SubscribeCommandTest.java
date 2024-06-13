@@ -6,6 +6,7 @@ import java.util.Iterator;
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import com.mawen.learn.redis.basic.command.ISession;
+import com.mawen.learn.redis.basic.redis.SafeString;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -23,13 +24,13 @@ public class SubscribeCommandTest {
 	public final CommandRule rule = new CommandRule(this);
 
 	@Captor
-	private ArgumentCaptor<Collection<String>> captor;
+	private ArgumentCaptor<Collection<SafeString>> captor;
 
 	@Test
 	public void testExecute() {
 		rule.withParams("test")
 				.execute()
-				.assertThat("subscriptions:test", is(set("localhost:12345")));
+				.assertThat("subscriptions:test", is(setFromString("localhost:12345")));
 
 		rule.verify(ISession.class).addSubscription(safeString("test"));
 

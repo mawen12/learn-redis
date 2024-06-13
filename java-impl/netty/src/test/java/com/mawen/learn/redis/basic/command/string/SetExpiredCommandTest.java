@@ -1,30 +1,26 @@
-package com.mawen.learn.redis.basic.command.list;
+package com.mawen.learn.redis.basic.command.string;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
+import com.mawen.learn.redis.basic.data.DatabaseKey;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 
-@CommandUnderTest(LeftPushCommand.class)
-public class LeftPushCommandTest {
+@CommandUnderTest(SetExpiredCommand.class)
+public class SetExpiredCommandTest {
 
 	@Rule
 	public final CommandRule rule = new CommandRule(this);
 
 	@Test
 	public void testExecute() {
-		rule.withParams("key", "a", "b", "c")
+		rule.withParams("a", "10", "1")
 				.execute()
-				.assertThat("key", is(listFromString("a", "b", "c")))
-				.verify().addInt(3);
-
-		rule.withParams("key", "d")
-				.execute()
-				.assertThat("key", is(listFromString("d", "a", "b", "c")))
-				.verify().addInt(4);
+				.assertThat("a", is(string("1")))
+				.verify().addSimpleStr("OK");
+		rule.getDatabase().get(DatabaseKey.safeKey("a"));
 	}
-
 }

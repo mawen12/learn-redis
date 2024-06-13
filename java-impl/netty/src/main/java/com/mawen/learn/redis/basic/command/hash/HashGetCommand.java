@@ -12,9 +12,10 @@ import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -28,13 +29,8 @@ public class HashGetCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		DatabaseValue value = db.get(safeKey(request.getParam(0)));
-		if (value != null) {
-			Map<String, String> map = value.getValue();
-			response.addBulkStr(safeString(map.get(request.getParam(1).toString())));
-		}
-		else {
-			response.addBulkStr(null);
-		}
+		DatabaseValue value = db.getOrDefault(safeKey(request.getParam(0)), EMPTY_HASH);
+		Map<SafeString, SafeString> map = value.getValue();
+		response.addBulkStr(map.get(request.getParam(1)));
 	}
 }

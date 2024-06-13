@@ -18,12 +18,12 @@ public class RightPushCommandTest {
 	public void testExecute() {
 		rule.withParams("key", "a", "b", "c")
 				.execute()
-				.assertThat("key", is(list("a", "b", "c")))
+				.assertThat("key", is(listFromString("a", "b", "c")))
 				.verify().addInt(3);
 
 		rule.withParams("key", "d")
 				.execute()
-				.assertThat("key", is(list("a", "b", "c", "d")))
+				.assertThat("key", is(listFromString("a", "b", "c", "d")))
 				.verify().addInt(4);
 	}
 

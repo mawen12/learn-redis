@@ -17,7 +17,7 @@ import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.redis.SafeString;
 
-import static com.mawen.learn.redis.basic.persistence.Util.*;
+import static com.mawen.learn.redis.basic.persistence.ByteUtils.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 
 /**
@@ -130,31 +130,31 @@ public class RDBOutputStream {
 		out.write(bytes);
 	}
 
-	private void list(List<String> value) throws IOException {
+	private void list(List<SafeString> value) throws IOException {
 		length(value.size());
-		for (String item : value) {
+		for (SafeString item : value) {
 			string(item);
 		}
 	}
 
-	private void hash(Map<String, String> value) throws IOException {
+	private void hash(Map<SafeString, SafeString> value) throws IOException {
 		length(value.size());
-		for (Map.Entry<String, String> entry : value.entrySet()) {
+		for (Map.Entry<SafeString, SafeString> entry : value.entrySet()) {
 			string(entry.getKey());
 			string(entry.getValue());
 		}
 	}
 
-	private void set(Set<String> value) throws IOException {
+	private void set(Set<SafeString> value) throws IOException {
 		length(value.size());
-		for (String item : value) {
+		for (SafeString item : value) {
 			string(item);
 		}
 	}
 
-	private void zset(NavigableSet<Map.Entry<Double, String>> value) throws IOException {
+	private void zset(NavigableSet<Map.Entry<Double, SafeString>> value) throws IOException {
 		length(value.size());
-		for (Map.Entry<Double, String> item : value) {
+		for (Map.Entry<Double, SafeString> item : value) {
 			string(item.getValue());
 			string(item.getKey());
 		}

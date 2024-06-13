@@ -23,7 +23,7 @@ public class SetPopCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key", set("a", "b", "c"))
+		rule.withData("key", setFromString("a", "b", "c"))
 				.withParams("key")
 				.execute()
 				.verify().addBulkStr(notNull(SafeString.class));

@@ -18,7 +18,7 @@ public class SetAddCommandTest {
 	public void testExecute() throws Exception {
 		rule.withParams("key", "value")
 				.execute()
-				.assertThat("key",is(set("value")))
+				.assertThat("key",is(setFromString("value")))
 				.verify().addInt(1);
 	}
 

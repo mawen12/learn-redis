@@ -4,7 +4,7 @@ package com.mawen.learn.redis.basic.persistence;
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/11
  */
-public class Util {
+public class ByteUtils {
 
 	public static byte[] toByteArray(long value) {
 		byte[] b = new byte[Long.BYTES];

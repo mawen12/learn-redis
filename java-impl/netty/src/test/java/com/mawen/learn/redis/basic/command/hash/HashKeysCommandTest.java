@@ -4,12 +4,14 @@ import java.util.Collection;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
+import com.mawen.learn.redis.basic.redis.SafeString;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -20,7 +22,7 @@ public class HashKeysCommandTest {
 	public final CommandRule rule = new CommandRule(this);
 
 	@Captor
-	private ArgumentCaptor<Collection<String>> captor;
+	private ArgumentCaptor<Collection<SafeString>> captor;
 
 	@Test
 	public void testExecute() {
@@ -29,11 +31,11 @@ public class HashKeysCommandTest {
 				.execute()
 				.verify().addArray(captor.capture());
 
-		Collection<String> keys = captor.getValue();
+		Collection<SafeString> keys = captor.getValue();
 
 		assertThat(keys.size(), is(2));
-		assertThat(keys.contains("a"), is(true));
-		assertThat(keys.contains("b"), is(true));
+		assertThat(keys.contains(safeString("a")), is(true));
+		assertThat(keys.contains(safeString("b")), is(true));
 	}
 
 }

@@ -11,10 +11,10 @@ import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -27,10 +27,10 @@ public class RightPopCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		List<String> removed = new LinkedList<>();
+		List<SafeString> removed = new LinkedList<>();
 
 		db.merge(safeKey(request.getParam(0)), EMPTY_LIST, (oldValue, newValue) -> {
-			List<String> merge = new LinkedList<>();
+			List<SafeString> merge = new LinkedList<>();
 			merge.addAll(oldValue.getValue());
 			if (!merge.isEmpty()) {
 				removed.add(merge.remove(merge.size() - 1));
@@ -42,7 +42,7 @@ public class RightPopCommand implements ICommand {
 			response.addBulkStr(null);
 		}
 		else {
-			response.addBulkStr(safeString(removed.remove(0)));
+			response.addBulkStr(removed.remove(0));
 		}
 	}
 }

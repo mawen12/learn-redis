@@ -15,10 +15,10 @@ public class SetMembersCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key", set("a", "b", "c"))
+		rule.withData("key", setFromString("a", "b", "c"))
 				.withParams("key")
 				.execute()
-				.verify().addValue(set("a", "b", "c"));
+				.verify().addValue(setFromString("a", "b", "c"));
 	}
 
 }

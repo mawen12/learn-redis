@@ -11,6 +11,7 @@ import com.mawen.learn.redis.basic.command.annotation.ParamLength;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
@@ -29,8 +30,8 @@ public class ListSetCommand implements ICommand {
 		try {
 			int index = Integer.parseInt(request.getParam(1).toString());
 			db.merge(safeKey(request.getParam(0)), EMPTY_LIST, (oldValue, newValue) -> {
-				List<String> merge = new ArrayList<>(oldValue.<List<String>>getValue());
-				merge.set(index > -1 ? index : merge.size() + index, request.getParam(2).toString());
+				List<SafeString> merge = new ArrayList<>(oldValue.<List<SafeString>>getValue());
+				merge.set(index > -1 ? index : merge.size() + index, request.getParam(2));
 				return list(merge);
 			});
 

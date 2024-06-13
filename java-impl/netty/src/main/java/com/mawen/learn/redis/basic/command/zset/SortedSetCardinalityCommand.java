@@ -13,6 +13,7 @@ import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 
@@ -29,7 +30,7 @@ public class SortedSetCardinalityCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		DatabaseValue value = db.getOrDefault(safeKey(request.getParam(0)), DatabaseValue.EMPTY_SET);
-		Set<Map.Entry<Float, String>> set = value.getValue();
+		Set<Map.Entry<Float, SafeString>> set = value.getValue();
 		response.addInt(set.size());
 	}
 }

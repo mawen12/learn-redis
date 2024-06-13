@@ -32,7 +32,7 @@ public class MasterReplication implements Runnable {
 	private static final String SELECT_COMMAND = "SELECT";
 	private static final String PING_COMMAND = "PING";
 
-	private static final DatabaseKey SLAVES_KEY = safeKey("slaves");
+	private static final DatabaseKey SLAVES_KEY = safeKey(safeString("slaves"));
 
 	private static final int TASK_DELAY = 2;
 
@@ -53,8 +53,8 @@ public class MasterReplication implements Runnable {
 	}
 
 	public void addSlave(String id) {
-		server.getAdminDatabase().merge(SLAVES_KEY, set(id), (oldValue, newValue) -> {
-			List<String> merge = new LinkedList<>();
+		server.getAdminDatabase().merge(SLAVES_KEY, set(safeString(id)), (oldValue, newValue) -> {
+			List<SafeString> merge = new LinkedList<>();
 			merge.addAll(oldValue.getValue());
 			merge.addAll(newValue.getValue());
 			return set(merge);
@@ -63,8 +63,8 @@ public class MasterReplication implements Runnable {
 	}
 
 	public void removeSlave(String id) {
-		server.getAdminDatabase().merge(SLAVES_KEY, set(id), (oldValue, newValue) -> {
-			List<String> merge = new LinkedList<>();
+		server.getAdminDatabase().merge(SLAVES_KEY, set(safeString(id)), (oldValue, newValue) -> {
+			List<SafeString> merge = new LinkedList<>();
 			merge.addAll(oldValue.getValue());
 			merge.removeAll(newValue.getValue());
 			return set(merge);
@@ -76,8 +76,8 @@ public class MasterReplication implements Runnable {
 	public void run() {
 		String commands = createCommands();
 
-		for (String slave : getSlaves()) {
-			server.publish(slave, commands);
+		for (SafeString slave : getSlaves()) {
+			server.publish(slave.toString(), commands);
 		}
 	}
 
@@ -92,14 +92,14 @@ public class MasterReplication implements Runnable {
 		return response.toString();
 	}
 
-	private Set<String> getSlaves() {
+	private Set<SafeString> getSlaves() {
 		return server.getAdminDatabase().getOrDefault(SLAVES_KEY, EMPTY_SET).getValue();
 	}
 
 	private List<SafeString> toList(RedisArray request) {
 		List<SafeString> cmd = new LinkedList<>();
 		for (RedisToken token : request) {
-			cmd.add(token.<SafeString>getValue());
+			cmd.add(token.getValue());
 		}
 		return cmd;
 	}

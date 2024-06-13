@@ -17,10 +17,10 @@ public class LeftPopCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key", list("a", "b", "c"))
+		rule.withData("key", listFromString("a", "b", "c"))
 				.withParams("key")
 				.execute()
-				.assertThat("key", is(list("b", "c")))
+				.assertThat("key", is(listFromString("b", "c")))
 				.verify().addBulkStr(safeString("a"));
 	}
 

@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.redis.SafeString;
 
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static java.util.stream.Collectors.*;
 
 /**
@@ -41,16 +40,15 @@ public class Response implements IResponse {
 					addBulkStr(value.getValue());
 					break;
 				case HASH:
-					Map<String, String> map = value.getValue();
+					Map<SafeString, SafeString> map = value.getValue();
 					addArray(map.entrySet().stream()
-							.flatMap(entry -> Stream.of(safeString(entry.getKey()), safeString(entry.getValue())))
+							.flatMap(entry -> Stream.of(entry.getKey(), entry.getValue()))
 							.collect(toList()));
 					break;
 				case LIST:
 				case SET:
 				case ZSET:
-					Collection<String> col = value.getValue();
-					addArray(col.stream().map(SafeString::safeString).collect(toList()));
+					addArray(value.getValue());
 					break;
 				default:
 					break;

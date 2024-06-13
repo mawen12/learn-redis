@@ -12,6 +12,7 @@ import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
@@ -29,6 +30,6 @@ public class SetIsMemberCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		DatabaseValue value = db.getOrDefault(safeKey(request.getParam(0)), set());
-		response.addInt(value.<Set<String>>getValue().contains(request.getParam(1).toString()));
+		response.addInt(value.<Set<SafeString>>getValue().contains(request.getParam(1)));
 	}
 }

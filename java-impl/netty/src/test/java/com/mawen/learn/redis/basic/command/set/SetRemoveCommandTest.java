@@ -16,15 +16,15 @@ public class SetRemoveCommandTest {
 
 	@Test
 	public void testExecute() throws Exception {
-		rule.withData("key", set("a", "b", "c"))
+		rule.withData("key", setFromString("a", "b", "c"))
 				.withParams("key", "a")
 				.execute()
-				.assertThat("key", is(set("b", "c")))
+				.assertThat("key", is(setFromString("b", "c")))
 				.verify().addInt(1);
 
 		rule.withParams("key", "a")
 				.execute()
-				.assertThat("key", is(set("b", "c")))
+				.assertThat("key", is(setFromString("b", "c")))
 				.verify().addInt(0);
 	}
 

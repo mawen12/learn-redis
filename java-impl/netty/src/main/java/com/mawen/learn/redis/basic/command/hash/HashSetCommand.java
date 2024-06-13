@@ -12,6 +12,7 @@ import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
@@ -30,14 +31,14 @@ public class HashSetCommand implements ICommand {
 		DatabaseValue value = hash(entry(request.getParam(1), request.getParam(2)));
 
 		DatabaseValue resultValue = db.merge(safeKey(request.getParam(0)), value, (oldValue, newValue) -> {
-			Map<String, String> merge = new HashMap<>();
+			Map<SafeString, SafeString> merge = new HashMap<>();
 			merge.putAll(oldValue.getValue());
 			merge.putAll(newValue.getValue());
 			return hash(merge.entrySet());
 		});
 
-		Map<String, String> resultMap = resultValue.getValue();
+		Map<SafeString, SafeString> resultMap = resultValue.getValue();
 
-		response.addInt(resultMap.get(request.getParam(1).toString()) == null);
+		response.addInt(resultMap.get(request.getParam(1)) == null);
 	}
 }

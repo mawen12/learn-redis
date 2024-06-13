@@ -17,6 +17,7 @@ import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.redis.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
@@ -44,24 +45,24 @@ public class SortedSetRangeByScoreCommand implements ICommand {
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		try {
 			DatabaseValue value = db.getOrDefault(safeKey(request.getParam(0)), EMPTY_ZSET);
-			NavigableSet<Map.Entry<Double, String>> set = value.getValue();
+			NavigableSet<Map.Entry<Double, SafeString>> set = value.getValue();
 
 			float from = parseRange(request.getParam(1).toString());
 			float to = parseRange(request.getParam(2).toString());
 
 			Options options = parseOptions(request);
 
-			Set<Map.Entry<Double, String>> range = set.subSet(
-					score(from, EMPTY_STRING), inclusive(request.getParam(1).toString()),
-					score(to, EMPTY_STRING), inclusive(request.getParam(2).toString()));
+			Set<Map.Entry<Double, SafeString>> range = set.subSet(
+					score(from, EMPTY_STRING), inclusive(request.getParam(1)),
+					score(to, EMPTY_STRING), inclusive(request.getParam(2)));
 
-			List<String> result = Collections.emptyList();
+			List<Object> result = Collections.emptyList();
 			if (from <= to) {
 				if (options.withScores) {
-					result = range.stream().flatMap(o -> Stream.of(String.valueOf(o.getValue()), String.valueOf(o.getKey()))).collect(toList());
+					result = range.stream().flatMap(o -> Stream.of(o.getValue(), o.getKey())).collect(toList());
 				}
 				else {
-					result = range.stream().map(o -> String.valueOf(o.getValue())).collect(toList());
+					result = range.stream().map(Map.Entry::getValue).collect(toList());
 				}
 
 				if (options.withLimit) {
@@ -91,8 +92,8 @@ public class SortedSetRangeByScoreCommand implements ICommand {
 		return options;
 	}
 
-	private boolean inclusive(String param) {
-		return !param.startsWith(EXCLUSIVE);
+	private boolean inclusive(SafeString param) {
+		return !param.toString().startsWith(EXCLUSIVE);
 	}
 
 	private float parseRange(String param) throws NumberFormatException {
