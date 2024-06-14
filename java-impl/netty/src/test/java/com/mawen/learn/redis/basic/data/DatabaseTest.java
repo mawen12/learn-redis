@@ -9,7 +9,9 @@ import org.junit.Test;
 import static com.mawen.learn.redis.basic.DatabaseKeyMatchers.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class DatabaseTest {
@@ -48,4 +50,14 @@ public class DatabaseTest {
 		assertThat(entry.getValue(), is(string("value")));
 	}
 
+	@Test
+	public void testExecute() {
+		database.put(safeKey("a"), string("1"));
+		database.overrideKey(safeKey("a", 10));
+		database.getKey(safeKey(""));
+
+		DatabaseKey key = database.getKey(safeKey("a"));
+		assertThat(key, is(notNullValue()));
+		assertThat(key.expiredAt(), is(greaterThan(0L)));
+	}
 }

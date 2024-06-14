@@ -1,10 +1,12 @@
 package com.mawen.learn.redis.basic.redis;
 
+import static java.util.Objects.*;
+
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/6
  */
-public class RedisToken {
+public abstract class RedisToken {
 
 	private static final String SEPARATOR = "=>";
 
@@ -13,8 +15,8 @@ public class RedisToken {
 	private final Object value;
 
 	public RedisToken(RedisTokenType type, Object value) {
-		this.type = type;
-		this.value = value;
+		this.type = requireNonNull(type);
+		this.value = requireNonNull(value);
 	}
 
 	public RedisTokenType getType() {

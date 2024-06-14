@@ -46,6 +46,7 @@ public class DatabaseValue {
 		return type;
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T getValue() {
 		return (T) value;
 	}
@@ -83,6 +84,11 @@ public class DatabaseValue {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "DatabaseValue [type=" + type + ", value=" + value + "]";
 	}
 
 	public static DatabaseValue string(String value) {
@@ -131,11 +137,6 @@ public class DatabaseValue {
 
 	public static Entry<Double, SafeString> score(double score, SafeString value) {
 		return new AbstractMap.SimpleEntry<>(score, value);
-	}
-
-	@Override
-	public String toString() {
-		return "DatabaseValue [type=" + type + ", value=" + value + "]";
 	}
 
 	private static Collector<SafeString, ?, LinkedList<SafeString>> toList() {

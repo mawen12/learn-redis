@@ -4,9 +4,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
+import static java.util.Objects.*;
 import static java.util.stream.Collectors.*;
 
 /**
@@ -22,13 +22,11 @@ public class SafeString implements Comparable<SafeString> {
 	private final ByteBuffer buffer;
 
 	public SafeString(byte[] bytes) {
-		Objects.requireNonNull(bytes);
-		this.buffer = ByteBuffer.wrap(bytes);
+		this.buffer = ByteBuffer.wrap(requireNonNull(bytes));
 	}
 
 	public SafeString(ByteBuffer buffer) {
-		Objects.requireNonNull(buffer);
-		this.buffer = buffer;
+		this.buffer = requireNonNull(buffer);
 	}
 
 	public byte[] getBytes() {
@@ -94,20 +92,15 @@ public class SafeString implements Comparable<SafeString> {
 	}
 
 	public static SafeString safeString(String str) {
-		Objects.requireNonNull(str);
-		return new SafeString(DEFAULT_CHARSET.encode(str));
+		return new SafeString(DEFAULT_CHARSET.encode(requireNonNull(str)));
 	}
 
 	public static List<SafeString> safeAsList(String... strs) {
-		Objects.requireNonNull(strs);
-		return Stream.of(strs).map(SafeString::safeString).collect(toList());
+		return Stream.of(requireNonNull(strs)).map(SafeString::safeString).collect(toList());
 	}
 
 	public static SafeString append(SafeString strA, SafeString strB) {
-		Objects.requireNonNull(strA);
-		Objects.requireNonNull(strB);
-
-		ByteBuffer byteBuffer = ByteBuffer.allocate(strA.length() + strB.length());
+		ByteBuffer byteBuffer = ByteBuffer.allocate(requireNonNull(strA).length() + requireNonNull(strB).length());
 		byteBuffer.put(strA.getBytes());
 		byteBuffer.put(strB.getBytes());
 		byteBuffer.rewind();

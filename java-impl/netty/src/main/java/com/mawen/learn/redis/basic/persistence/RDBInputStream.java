@@ -27,7 +27,7 @@ import static com.mawen.learn.redis.basic.redis.SafeString.*;
  */
 public class RDBInputStream {
 
-	private static final int TO_MILLIS = 1000;
+	private static final long TO_MILLIS = 1000L;
 
 	private static final SafeString REDIS_PREAMBLE = safeString("REDIS");
 

@@ -1,6 +1,5 @@
 package com.mawen.learn.redis.basic;
 
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import com.mawen.learn.redis.basic.redis.RedisToken;
@@ -8,7 +7,6 @@ import com.mawen.learn.redis.basic.redis.RequestDecoder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -31,7 +29,6 @@ public class TinyDBClient implements ITinyDB {
 
 	private final String host;
 	private final int port;
-	private final int reconnectionTime;
 
 	private EventLoopGroup workerGroup;
 	private Bootstrap bootstrap;
@@ -39,25 +36,24 @@ public class TinyDBClient implements ITinyDB {
 	private ChannelFuture future;
 
 	private ChannelHandlerContext ctx;
-	private TinyDBInitializerHandler initHandler;
+	private TinyDBInitializerHandler acceptHandler;
 	private TinyDBConnectionHandler connectionHandler;
 
 	private final ITinyDBCallback callback;
 
 	public TinyDBClient(ITinyDBCallback callback) {
-		this("localhost", 7081, callback);
+		this(ITinyDB.DEFAULT_HOST, ITinyDB.DEFAULT_PORT, callback);
 	}
 
 	public TinyDBClient(String host, int port, ITinyDBCallback callback) {
 		this.host = host;
 		this.port = port;
-		this.reconnectionTime = 10;
 		this.callback = callback;
 	}
 
 	public void start() {
 		workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors());
-		initHandler = new TinyDBInitializerHandler(this);
+		acceptHandler = new TinyDBInitializerHandler(this);
 		connectionHandler = new TinyDBConnectionHandler(this);
 
 		bootstrap = new Bootstrap()
@@ -67,7 +63,7 @@ public class TinyDBClient implements ITinyDB {
 				.option(ChannelOption.SO_RCVBUF, BUFFER_SIZE)
 				.option(ChannelOption.SO_SNDBUF, BUFFER_SIZE)
 				.option(ChannelOption.SO_KEEPALIVE, true)
-				.handler(initHandler);
+				.handler(acceptHandler);
 
 		try {
 			connect();
@@ -91,16 +87,9 @@ public class TinyDBClient implements ITinyDB {
 	private void connect() {
 		logger.info(() -> "trying to connect");
 
-		this.future = bootstrap.connect(host, port).addListener((ChannelFutureListener) future -> {
-			if (!future.isSuccess()) {
-				future.channel().close();
+		future = bootstrap.connect(host, port);
 
-				workerGroup.schedule(this::connect, reconnectionTime, TimeUnit.SECONDS);
-			}
-			else {
-				logger.info(() -> "successful connection");
-			}
-		});
+		future.syncUninterruptibly();
 	}
 
 	@Override
@@ -129,9 +118,6 @@ public class TinyDBClient implements ITinyDB {
 			callback.onDisconnect();
 
 			this.ctx = null;
-
-			// reconnect
-			connect();
 		}
 	}
 
