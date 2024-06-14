@@ -3,7 +3,7 @@ package com.mawen.learn.redis.basic.data;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 
 import static tonivade.equalizer.Equalizer.*;
 

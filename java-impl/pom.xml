@@ -13,6 +13,7 @@
     <description>Use Java implement Redis</description>
     <modules>
         <module>netty</module>
+        <module>resp-server</module>
     </modules>
     <packaging>pom</packaging>
 

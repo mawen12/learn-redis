@@ -15,11 +15,13 @@ import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.protocol.SafeString;
+
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.persistence.ByteUtils.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
+
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>

@@ -11,9 +11,9 @@ import java.util.Objects;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static java.util.Collections.*;
 import static java.util.Map.*;
 import static java.util.stream.Collectors.*;

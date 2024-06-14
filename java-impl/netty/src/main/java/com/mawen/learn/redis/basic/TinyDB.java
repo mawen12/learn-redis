@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,25 +17,22 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.mawen.learn.redis.basic.command.CommandSuite;
-import com.mawen.learn.redis.basic.command.ICommand;
-import com.mawen.learn.redis.basic.command.IRequest;
-import com.mawen.learn.redis.basic.command.IServerContext;
-import com.mawen.learn.redis.basic.command.ISession;
-import com.mawen.learn.redis.basic.command.Request;
-import com.mawen.learn.redis.basic.command.Response;
-import com.mawen.learn.redis.basic.command.Session;
+import com.mawen.learn.redis.basic.command.RedisCommandSuite;
+import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.persistence.PersistenceManager;
 import com.mawen.learn.redis.basic.persistence.RDBInputStream;
 import com.mawen.learn.redis.basic.persistence.RDBOutputStream;
-import com.mawen.learn.redis.basic.redis.RedisArray;
-import com.mawen.learn.redis.basic.redis.RedisToken;
-import com.mawen.learn.redis.basic.redis.RedisTokenType;
-import com.mawen.learn.redis.basic.redis.RequestDecoder;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.RedisServer;
+import com.mawen.learn.redis.resp.command.ICommand;
+import com.mawen.learn.redis.resp.command.IRequest;
+import com.mawen.learn.redis.resp.command.IResponse;
+import com.mawen.learn.redis.resp.command.ISession;
+import com.mawen.learn.redis.resp.command.Request;
+import com.mawen.learn.redis.resp.protocol.RedisToken;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -49,7 +47,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static java.util.Collections.*;
 
 /**
@@ -58,34 +57,13 @@ import static java.util.Collections.*;
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/6
  */
-public class TinyDB implements ITinyDB, IServerContext {
+public class TinyDB extends RedisServer implements ITinyDB {
 
 	private static final Logger logger = Logger.getLogger(TinyDB.class.getName());
 
-	private static final Charset DEFAULT_CHARSET = CharsetUtil.UTF_8;
-	private static final String SLAVES_KEY = "slaves";
+	private final BlockingQueue<List<RedisToken>> queue = new LinkedBlockingQueue<>();
 
-	private static final int BUFFER_SIZE = 1024 * 1024;
-	private static final int MAX_FRAME_SIZE = BUFFER_SIZE * 100;
-
-	private static final int DEFAULT_DATABASES = 10;
-
-	private final int port;
-	private final String host;
-
-	private EventLoopGroup bossGroup;
-	private EventLoopGroup workerGroup;
-	private TinyDBInitializerHandler acceptHandler;
-	private TinyDBConnectionHandler connectionHandler;
-	private ChannelFuture future;
 	private Optional<PersistenceManager> persistence;
-	private boolean master;
-
-	private final CommandSuite commands = new CommandSuite();
-	private final BlockingQueue<RedisArray> queue = new LinkedBlockingQueue<>();
-	private final List<IDatabase> databases = new LinkedList<>();
-	private final IDatabase admin = new Database();
-	private final Map<String, ISession> clients = new HashMap<>();
 
 	public TinyDB() {
 		this(DEFAULT_HOST, DEFAULT_PORT);
@@ -96,105 +74,35 @@ public class TinyDB implements ITinyDB, IServerContext {
 	}
 
 	public TinyDB(String host, int port, TinyDBConfig config) {
-		this.port = port;
-		this.host = host;
+		super(host, port, new RedisCommandSuite());
 		if (config.isPersistenceActive()) {
 			this.persistence = Optional.of(new PersistenceManager(this, config));
 		}
 		else {
 			this.persistence = Optional.empty();
 		}
-		for (int i = 0; i < config.getNumDatabases(); i++) {
-			this.databases.add(new Database());
-		}
+		state.put("state", new RedisServerState(config.getNumDatabases()));
 	}
 
 	public void start() {
-		setMaster(true);
-
-		persistence.ifPresent(PersistenceManager::start);
-
-		bossGroup = new NioEventLoopGroup();
-		workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
-		acceptHandler = new TinyDBInitializerHandler(this);
-		connectionHandler = new TinyDBConnectionHandler(this);
-
-		ServerBootstrap bootstrap = new ServerBootstrap();
-		bootstrap.group(bossGroup, workerGroup)
-				.channel(NioServerSocketChannel.class)
-				.childHandler(acceptHandler)
-				.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-				.option(ChannelOption.SO_RCVBUF, BUFFER_SIZE)
-				.option(ChannelOption.SO_SNDBUF, BUFFER_SIZE)
-				.childOption(ChannelOption.SO_KEEPALIVE, true)
-				.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
-
-		future = bootstrap.bind(host, port);
-
-		future.syncUninterruptibly();
-
-		logger.info(() -> "server started: " + host + ":" + port);
+		super.start();
 	}
 
 	public void stop() {
-		try {
-			if (future != null) {
-				future.channel().close();
-			}
-			persistence.ifPresent(PersistenceManager::stop);
-		}
-		finally {
-			workerGroup.shutdownGracefully();
-			bossGroup.shutdownGracefully();
-		}
+		super.stop();
 
-		clients.clear();
 		queue.clear();
-		admin.clear();
 
 		logger.info("server stopped");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void channel(SocketChannel channel) {
-		logger.fine(() -> "new channel: " + sourceKey(channel));
-
-		channel.pipeline().addLast("stringEncoder", new StringEncoder(CharsetUtil.UTF_8));
-		channel.pipeline().addLast("linDelimiter", new RequestDecoder(MAX_FRAME_SIZE));
-		channel.pipeline().addLast(connectionHandler);
+	protected void createSession(ISession session) {
+		session.putValue("state", new RedisSessionState());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void connected(ChannelHandlerContext ctx) {
-		String sourceKey = sourceKey(ctx.channel());
-
-		logger.fine(() -> "client connected: " + sourceKey);
-
-		getSession(sourceKey, ctx);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void disconnected(ChannelHandlerContext ctx) {
-		String sourceKey = sourceKey(ctx.channel());
-
-		logger.fine(() -> "client disconnected: " + sourceKey);
-
-		ISession session = clients.remove(sourceKey);
-		if (session != null) {
-			cleanSession(session);
-		}
-	}
-
-	private void cleanSession(ISession session) {
+	protected void cleanSession(ISession session) {
 		try {
 			processCommand(new Request(this, session, safeString("unsubscribe"), emptyList()));
 		}
@@ -203,25 +111,65 @@ public class TinyDB implements ITinyDB, IServerContext {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void receive(ChannelHandlerContext ctx, RedisToken message) {
-		String sourceKey = sourceKey(ctx.channel());
+	protected void executeCommand(ICommand command, IRequest request, IResponse response) {
+		ISession session = request.getSession();
+		RedisSessionState sessionState = getSessionState(session);
+		if (!isReadOnly(command)) {
+			sessionState.enqueue(() -> {
+				try {
+					command.execute(request, response);
+					writeResponse(session, response);
 
-		logger.finest(() -> "message received: " + sourceKey);
+					replication(request, command);
 
-		IRequest request = parseMessage(sourceKey, message, getSession(sourceKey, ctx));
-		if (request != null) {
-			processCommand(request);
+					if (response.isExit()) {
+						session.getContext().close();
+					}
+				}
+				catch (RuntimeException e) {
+					logger.log(Level.SEVERE, "error executing command: " + request, e);
+				}
+			});
+		}
+		else {
+			writeResponse(session, response.addError("READONLY You can't write against a read only slave"));
 		}
 	}
 
-	private ISession getSession(String sourceKey, ChannelHandlerContext ctx) {
-		ISession session = clients.getOrDefault(sourceKey, new Session(sourceKey, ctx));
-		clients.putIfAbsent(sourceKey, session);
-		return session;
+	private boolean isReadOnly(ICommand command) {
+		return !isMaster() && isReadOnlyCommand(command);
+	}
+
+	private void replication(IRequest request, ICommand command) {
+		if (isReadOnlyCommand(command)) {
+			List<RedisToken> array = requestToArray(request);
+			if (hasSlaves()) {
+				queue.add(array);
+			}
+			persistence.ifPresent(p -> p.append(array));
+		}
+	}
+
+	private boolean isReadOnlyCommand(ICommand command) {
+		return !command.getClass().isAnnotationPresent(ReadOnly.class);
+	}
+
+	private List<RedisToken> requestToArray(IRequest request) {
+		List<RedisToken> array = new ArrayList<>();
+		// currentDB
+		array.add(new RedisToken.IntegerRedisToken(getSessionState(request.getSession()).getCurrentDB()));
+		// command
+		array.add(new RedisToken.StringRedisToken(safeString(request.getCommand())));
+		// params
+		for (SafeString safeStr : request.getParams()) {
+			array.add(new RedisToken.StringRedisToken(safeStr));
+		}
+		return array;
+	}
+
+	private RedisSessionState getSessionState(ISession session) {
+		return session.getValue("state");
 	}
 
 	@Override
@@ -237,181 +185,46 @@ public class TinyDB implements ITinyDB, IServerContext {
 
 	@Override
 	public IDatabase getAdminDatabase() {
-		return admin;
+		return getState().getAdminDatabase();
 	}
 
 	@Override
 	public IDatabase getDatabase(int i) {
-		return databases.get(i);
-	}
-
-	@Override
-	public int getPort() {
-		return port;
-	}
-
-	@Override
-	public int getClients() {
-		return clients.size();
+		return getState().getDatabase(i);
 	}
 
 	@Override
 	public void exportRDB(OutputStream output) throws IOException {
-		RDBOutputStream rdb = new RDBOutputStream(output);
-		rdb.preamble(6);
-		for (int i = 0; i < databases.size(); i++) {
-			IDatabase db = databases.get(i);
-			if (!db.isEmpty()) {
-				rdb.select(i);
-				rdb.database(db);
-			}
-		}
-		rdb.end();
+		getState().exportRDB(output);
 	}
 
 	@Override
 	public void importRDB(InputStream input) throws IOException {
-		RDBInputStream rdb = new RDBInputStream(input);
-
-		for (Map.Entry<Integer, IDatabase> entry : rdb.parse().entrySet()) {
-			this.databases.set(entry.getKey(), entry.getValue());
-		}
-	}
-
-	@Override
-	public List<RedisArray> getCommands() {
-		List<RedisArray> current = new LinkedList<>();
-		queue.drainTo(current);
-		return current;
-	}
-
-	@Override
-	public ICommand getCommand(String name) {
-		return commands.getCommand(name);
-	}
-
-	@Override
-	public void setMaster(boolean master) {
-		this.master = master;
+		getState().importRDB(input);
 	}
 
 	@Override
 	public boolean isMaster() {
-		return master;
+		return getState().isMaster();
 	}
 
-	private IRequest parseMessage(String sourceKey, RedisToken message, ISession session) {
-		IRequest request = null;
-
-		if (message.getType() == RedisTokenType.ARRAY) {
-			request = parseArray(sourceKey, message, session);
-		}
-		else if (message.getType() == RedisTokenType.UNKNOWN) {
-			request = parseLine(sourceKey, message, session);
-		}
-		return request;
+	@Override
+	public void setMaster(boolean master) {
+		getState().setMaster(master);
 	}
 
-	private Request parseLine(String sourceKey, RedisToken message, ISession session) {
-		String command = message.getValue();
-		String[] params = command.split(" ");
-		String[] array = new String[params.length - 1];
-		System.arraycopy(params, 1, array, 0, array.length);
-		return new Request(this, session, safeString(params[0]), safeAsList(array));
+	private RedisServerState getState() {
+		return getValue("state");
 	}
 
-	private Request parseArray(String sourceKey, RedisToken message, ISession session) {
-		List<SafeString> params = new LinkedList<>();
-		for (RedisToken token : message.<RedisArray>getValue()) {
-			params.add(token.getValue());
-		}
-		return new Request(this, session, params.remove(0), params);
+	private boolean hasSlaves() {
+		return getState().hasSlaves();
 	}
 
-	private void processCommand(IRequest request) {
-		logger.fine(() -> "received command: " + request);
-
-		ISession session = request.getSession();
-		IDatabase db = databases.get(session.getCurrentDB());
-		ICommand command = commands.getCommand(request.getCommand());
-		if (command != null) {
-			if (!isReadOnly(request.getCommand())) {
-				session.enqueue(() -> {
-					try {
-						Response response = new Response();
-						command.execute(db, request, response);
-						session.getContext().writeAndFlush(responseToBuffer(session, response));
-
-						replication(request);
-
-						if (response.isExit()) {
-							session.getContext().close();
-						}
-					}
-					catch (RuntimeException e) {
-						logger.log(Level.SEVERE, "error executing command: " + request, e);
-					}
-				});
-			}
-			else {
-				session.getContext().writeAndFlush(
-						stringToBuffer(session, "-READONLY You can't write against a read only slave"));
-			}
-		}
-		else {
-			session.getContext().writeAndFlush(
-					"-ERR unknown command '" + request.getCommand() + "'");
-		}
-	}
-
-	private boolean isReadOnly(String command) {
-		return !isMaster()
-				&& !commands.isReadOnlyCommand(command);
-	}
-
-	private ByteBuf stringToBuffer(ISession session, String str) {
-		byte[] array = DEFAULT_CHARSET.encode(str + "\r\n").array();
-		return bytesToBuffer(session, array);
-	}
-
-	private ByteBuf responseToBuffer(ISession session, Response response) {
-		byte[] array = response.getBytes();
-		ByteBuf buffer = session.getContext().alloc().buffer(array.length);
-		buffer.writeBytes(array);
-		return buffer;
-	}
-
-	private ByteBuf bytesToBuffer(ISession session, byte[] array) {
-		ByteBuf buffer = session.getContext().alloc().buffer(array.length);
-		buffer.writeBytes(array);
-		return buffer;
-	}
-
-	private void replication(IRequest request) {
-		if (!commands.isReadOnlyCommand(request.getCommand())) {
-			RedisArray array = requestToArray(request);
-			if (!admin.getOrDefault(SLAVES_KEY, DatabaseValue.EMPTY_SET).<Set<String>>getValue().isEmpty()) {
-				queue.add(array);
-			}
-			persistence.ifPresent(p -> p.append(array));
-		}
-	}
-
-	private RedisArray requestToArray(IRequest request) {
-		RedisArray array = new RedisArray();
-		// currentDB
-		array.add(new RedisToken.IntegerRedisToken(request.getSession().getCurrentDB()));
-		// command
-		array.add(new RedisToken.StringRedisToken(safeString(request.getCommand())));
-		// params
-		for (SafeString safeStr : request.getParams()) {
-			array.add(new RedisToken.StringRedisToken(safeStr));
-		}
-		return array;
-	}
-
-	private String sourceKey(Channel channel) {
-		InetSocketAddress remoteAddress = (InetSocketAddress) channel.remoteAddress();
-		return remoteAddress.getHostName() + ":" + remoteAddress.getPort();
+	@Override
+	public List<List<RedisToken>> getCommands() {
+		List<List<RedisToken>> current = new LinkedList<>();
+		queue.drainTo(current);
+		return current;
 	}
 }

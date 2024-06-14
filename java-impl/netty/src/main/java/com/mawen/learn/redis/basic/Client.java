@@ -6,7 +6,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.mawen.learn.redis.basic.redis.RedisToken;
+import com.mawen.learn.redis.resp.IRedisCallback;
+import com.mawen.learn.redis.resp.RedisClient;
+import com.mawen.learn.redis.resp.protocol.RedisToken;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -18,7 +20,7 @@ import static com.mawen.learn.redis.basic.ITinyDB.*;
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/14
  */
-public class Client implements ITinyDBCallback {
+public class Client implements IRedisCallback {
 
 	private static final Logger logger = Logger.getLogger(Client.class.getName());
 
@@ -69,7 +71,7 @@ public class Client implements ITinyDBCallback {
 
 			String optionHost = options.valueOf(host);
 			int optionPort = parsePort(options.valueOf(port));
-			TinyDBClient client = new TinyDBClient(optionHost, optionPort, callback);
+			RedisClient client = new RedisClient(optionHost, optionPort, callback);
 			client.start();
 
 

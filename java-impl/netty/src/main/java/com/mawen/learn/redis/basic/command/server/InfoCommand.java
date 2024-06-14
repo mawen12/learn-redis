@@ -9,17 +9,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.mawen.learn.redis.basic.command.ICommand;
-import com.mawen.learn.redis.basic.command.IRequest;
-import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.command.IServerContext;
-import com.mawen.learn.redis.basic.command.annotation.Command;
+import com.mawen.learn.redis.basic.command.IRedisCommand;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.annotation.Command;
+import com.mawen.learn.redis.resp.command.IRequest;
+import com.mawen.learn.redis.resp.command.IResponse;
+import com.mawen.learn.redis.resp.command.IServerContext;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static java.lang.String.*;
 import static java.util.Arrays.*;
 
@@ -29,7 +29,7 @@ import static java.util.Arrays.*;
  */
 @ReadOnly
 @Command("info")
-public class InfoCommand implements ICommand {
+public class InfoCommand implements IRedisCommand {
 
 	private static final String SHARP = "#";
 	private static final String SEPARATOR = ":";
@@ -112,12 +112,12 @@ public class InfoCommand implements ICommand {
 	}
 
 	private Map<String, String> replication(IServerContext ctx) {
-		return map(entry("role", ctx.isMaster() ? "master" : "slave"),
+		return map(entry("role", getServerState(ctx).isMaster() ? "master" : "slave"),
 				entry("connected_slaves", slaves(ctx)));
 	}
 
 	private String slaves(IServerContext ctx) {
-		DatabaseValue slaves = ctx.getAdminDatabase().getOrDefault("slaves", DatabaseValue.EMPTY_SET);
+		DatabaseValue slaves = getAdminDatabase(ctx).getOrDefault("slaves", DatabaseValue.EMPTY_SET);
 		return String.valueOf(slaves.<Set<String>>getValue().size());
 	}
 

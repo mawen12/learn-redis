@@ -17,19 +17,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.mawen.learn.redis.basic.ITinyDB;
 import com.mawen.learn.redis.basic.TinyDBConfig;
-import com.mawen.learn.redis.basic.command.ICommand;
-import com.mawen.learn.redis.basic.command.IServerContext;
-import com.mawen.learn.redis.basic.command.ISession;
-import com.mawen.learn.redis.basic.command.Request;
-import com.mawen.learn.redis.basic.command.Response;
-import com.mawen.learn.redis.basic.command.Session;
-import com.mawen.learn.redis.basic.data.IDatabase;
-import com.mawen.learn.redis.basic.redis.RedisArray;
-import com.mawen.learn.redis.basic.redis.RedisParser;
-import com.mawen.learn.redis.basic.redis.RedisSource;
-import com.mawen.learn.redis.basic.redis.RedisToken;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.command.ICommand;
+import com.mawen.learn.redis.resp.command.ISession;
+import com.mawen.learn.redis.resp.command.Request;
+import com.mawen.learn.redis.resp.command.Response;
+import com.mawen.learn.redis.resp.command.Session;
+import com.mawen.learn.redis.resp.protocol.RedisParser;
+import com.mawen.learn.redis.resp.protocol.RedisSource;
+import com.mawen.learn.redis.resp.protocol.RedisToken;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 
 import static java.util.stream.Collectors.*;
 
@@ -45,7 +43,7 @@ public class PersistenceManager implements Runnable {
 
 	private OutputStream output;
 
-	private final IServerContext server;
+	private final ITinyDB server;
 
 	private final String dumpFile;
 	private final String redoFile;
@@ -56,7 +54,7 @@ public class PersistenceManager implements Runnable {
 
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-	public PersistenceManager(IServerContext server, TinyDBConfig config) {
+	public PersistenceManager(ITinyDB server, TinyDBConfig config) {
 		this.server = server;
 		this.dumpFile = config.getRdbFile();
 		this.redoFile = config.getAofFile();
@@ -84,7 +82,7 @@ public class PersistenceManager implements Runnable {
 		createRedo();
 	}
 
-	public void append(RedisArray command) {
+	public void append(List<RedisToken> command) {
 		if (output != null) {
 			executor.submit(() -> appendRedo(command));
 		}
@@ -124,7 +122,7 @@ public class PersistenceManager implements Runnable {
 	}
 
 	private void processCommand(RedisToken token) {
-		RedisArray array = token.getValue();
+		List<RedisToken> array = token.getValue();
 
 		RedisToken commandToken = array.remove(0);
 
@@ -133,16 +131,15 @@ public class PersistenceManager implements Runnable {
 		ICommand command = server.getCommand(commandToken.getValue().toString());
 
 		if (command != null) {
-			IDatabase current = server.getDatabase(session.getCurrentDB());
-			command.execute(current, request(token, array), new Response());
+			command.execute(request(commandToken, array), new Response());
 		}
 	}
 
-	private Request request(RedisToken commandToken, RedisArray array) {
+	private Request request(RedisToken commandToken, List<RedisToken> array) {
 		return new Request(server, session, commandToken.getValue(), arrayToList(array));
 	}
 
-	private List<SafeString> arrayToList(RedisArray array) {
+	private List<SafeString> arrayToList(List<RedisToken> array) {
 		List<SafeString> cmd = new LinkedList<>();
 		for (RedisToken token : array) {
 			cmd.add(token.getValue());
@@ -184,7 +181,7 @@ public class PersistenceManager implements Runnable {
 		}
 	}
 
-	private void appendRedo(RedisArray command) {
+	private void appendRedo(List<RedisToken> command) {
 		try {
 			Response response = new Response();
 			response.addArray(command.stream().map(RedisToken::getValue).collect(toList()));

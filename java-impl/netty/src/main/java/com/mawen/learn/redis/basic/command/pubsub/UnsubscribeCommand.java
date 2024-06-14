@@ -4,19 +4,20 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mawen.learn.redis.basic.command.ICommand;
-import com.mawen.learn.redis.basic.command.IRequest;
-import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.command.annotation.Command;
-import com.mawen.learn.redis.basic.command.annotation.ParamLength;
+import com.mawen.learn.redis.basic.command.IRedisCommand;
 import com.mawen.learn.redis.basic.command.annotation.PubSubAllowed;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.IDatabase;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.annotation.Command;
+import com.mawen.learn.redis.resp.annotation.ParamLength;
+import com.mawen.learn.redis.resp.command.IRequest;
+import com.mawen.learn.redis.resp.command.IResponse;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static java.util.Arrays.*;
 
 /**
@@ -27,14 +28,14 @@ import static java.util.Arrays.*;
 @Command("unsubscribe")
 @ParamLength(1)
 @PubSubAllowed
-public class UnsubscribeCommand implements ICommand {
+public class UnsubscribeCommand implements IRedisCommand {
 
 	private static final SafeString UNSUBSCRIBE = safeString("unsubscribe");
 	private static final String SUBSCRIPTIONS_PREFIX = "subscriptions:";
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		IDatabase admin = request.getServerContext().getAdminDatabase();
+		IDatabase admin = getAdminDatabase(request.getServerContext());
 		Collection<SafeString> channels = getChannels(request);
 		int i = request.getLength();
 		for (SafeString channel : channels) {
@@ -45,14 +46,14 @@ public class UnsubscribeCommand implements ICommand {
 				return set(merge);
 			});
 
-			request.getSession().removeSubscription(channel);
+			getSessionState(request.getSession()).removeSubscription(channel);
 			response.addArray(asList(UNSUBSCRIBE, channel, --i));
 		}
 	}
 
 	private Collection<SafeString> getChannels(IRequest request) {
 		if (request.getParams().isEmpty()) {
-			return request.getSession().getSubscriptions();
+			return getSessionState(request.getSession()).getSubscriptions();
 		}
 		return request.getParams();
 	}

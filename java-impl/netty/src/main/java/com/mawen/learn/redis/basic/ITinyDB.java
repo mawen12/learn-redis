@@ -1,37 +1,36 @@
 package com.mawen.learn.redis.basic;
 
-import com.mawen.learn.redis.basic.redis.RedisToken;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.socket.SocketChannel;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+
+import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.resp.command.IServerContext;
+import com.mawen.learn.redis.resp.protocol.RedisToken;
 
 /**
- * Server interface
- *
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
- * @since 2024/6/6
+ * @since 2024/6/14
  */
-public interface ITinyDB {
+public interface ITinyDB extends IServerContext {
 
 	int DEFAULT_PORT = 7081;
 	String DEFAULT_HOST = "localhost";
 
-	/**
-	 * When a new channel is created, and the server has to prepare the pipeline
-	 */
-	void channel(SocketChannel channel);
+	boolean isMaster();
 
-	/**
-	 * When a new client is connected
-	 */
-	void connected(ChannelHandlerContext ctx);
+	void setMaster(boolean master);
 
-	/**
-	 * When a client is disconnected
-	 */
-	void disconnected(ChannelHandlerContext ctx);
+	void importRDB(InputStream input) throws IOException;
 
-	/**
-	 * When a message is received
-	 */
-	void receive(ChannelHandlerContext ctx, RedisToken message);
+	void exportRDB(OutputStream output) throws IOException;
+
+	IDatabase getDatabase(int i);
+
+	IDatabase getAdminDatabase();
+
+	void publish(String sourceKey, String message);
+
+	List<List<RedisToken>> getCommands();
 }

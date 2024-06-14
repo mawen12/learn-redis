@@ -11,7 +11,8 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.protocol.SafeString;
+
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>

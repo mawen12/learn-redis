@@ -2,19 +2,21 @@ package com.mawen.learn.redis.basic.command.pubsub;
 
 import java.util.Set;
 
-import com.mawen.learn.redis.basic.command.ICommand;
-import com.mawen.learn.redis.basic.command.IRequest;
-import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.command.Response;
-import com.mawen.learn.redis.basic.command.annotation.Command;
-import com.mawen.learn.redis.basic.command.annotation.ParamLength;
+import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.annotation.Command;
+import com.mawen.learn.redis.resp.annotation.ParamLength;
+import com.mawen.learn.redis.resp.command.IRequest;
+import com.mawen.learn.redis.resp.command.IResponse;
+import com.mawen.learn.redis.resp.command.Response;
+import com.mawen.learn.redis.resp.protocol.SafeString;
+
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static java.util.Arrays.*;
 
 /**
@@ -23,7 +25,7 @@ import static java.util.Arrays.*;
  */
 @Command("publish")
 @ParamLength(2)
-public class PublishCommand implements ICommand {
+public class PublishCommand implements IRedisCommand {
 
 	private static final SafeString MESSAGE = safeString("message");
 
@@ -31,15 +33,24 @@ public class PublishCommand implements ICommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
-		IDatabase admin = request.getServerContext().getAdminDatabase();
-		DatabaseValue value = admin.getOrDefault(safeKey(safeString(SUBSCRIPTIONS_PREFIX + request.getParam(0))), EMPTY_SET);
+		IDatabase admin = getAdminDatabase(request.getServerContext());
+		DatabaseValue value = getSubscriptions(admin, request.getParam(0));
 
 		Set<SafeString> subscribers = value.getValue();
 		for (SafeString subscriber : subscribers) {
-			request.getServerContext().publish(subscriber.toString(), message(request));
+			publish(request, subscriber);
 		}
 
 		response.addInt(subscribers.size());
+	}
+
+	private void publish(IRequest request, SafeString subscriber) {
+		getTinyDB(request.getServerContext()).publish(subscriber.toString(), message(request));
+	}
+
+	private DatabaseValue getSubscriptions(IDatabase admin, SafeString channel) {
+		DatabaseKey subscriptorsKey = safeKey(safeString(SUBSCRIPTIONS_PREFIX + channel));
+		return admin.getOrDefault(subscriptorsKey, EMPTY_SET);
 	}
 
 	private String message(IRequest request) {

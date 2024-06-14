@@ -3,15 +3,16 @@ package com.mawen.learn.redis.basic.command.string;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mawen.learn.redis.basic.command.ICommand;
-import com.mawen.learn.redis.basic.command.IRequest;
-import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.command.annotation.Command;
-import com.mawen.learn.redis.basic.command.annotation.ParamLength;
+import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.RedisResponse;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.resp.annotation.Command;
+import com.mawen.learn.redis.resp.annotation.ParamLength;
+import com.mawen.learn.redis.resp.command.IRequest;
+import com.mawen.learn.redis.resp.command.IResponse;
 
 import static java.util.stream.Collectors.*;
 
@@ -22,7 +23,7 @@ import static java.util.stream.Collectors.*;
 @ReadOnly
 @Command("mget")
 @ParamLength(1)
-public class MultiGetCommand implements ICommand {
+public class MultiGetCommand implements IRedisCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
@@ -30,6 +31,6 @@ public class MultiGetCommand implements ICommand {
 		for (DatabaseKey key : request.getParams().stream().map(DatabaseKey::safeKey).collect(toList())) {
 			result.add(db.get(key));
 		}
-		response.addArrayValue(result);
+		new RedisResponse(response).addArrayValue(result);
 	}
 }

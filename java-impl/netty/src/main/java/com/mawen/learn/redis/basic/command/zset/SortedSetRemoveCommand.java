@@ -6,16 +6,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.mawen.learn.redis.basic.command.ICommand;
-import com.mawen.learn.redis.basic.command.IRequest;
-import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.command.annotation.Command;
-import com.mawen.learn.redis.basic.command.annotation.ParamLength;
+import com.mawen.learn.redis.basic.command.IRedisCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.data.SortedSet;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.annotation.Command;
+import com.mawen.learn.redis.resp.annotation.ParamLength;
+import com.mawen.learn.redis.resp.command.IRequest;
+import com.mawen.learn.redis.resp.command.IResponse;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
@@ -27,7 +27,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 @Command("zrem")
 @ParamLength(2)
 @ParamType(DataType.ZSET)
-public class SortedSetRemoveCommand implements ICommand {
+public class SortedSetRemoveCommand implements IRedisCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

@@ -1,15 +1,16 @@
 package com.mawen.learn.redis.basic.command.hash;
 
-import com.mawen.learn.redis.basic.command.ICommand;
-import com.mawen.learn.redis.basic.command.IRequest;
-import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.command.annotation.Command;
-import com.mawen.learn.redis.basic.command.annotation.ParamLength;
+import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.RedisResponse;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.resp.annotation.Command;
+import com.mawen.learn.redis.resp.annotation.ParamLength;
+import com.mawen.learn.redis.resp.command.IRequest;
+import com.mawen.learn.redis.resp.command.IResponse;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 
@@ -21,13 +22,13 @@ import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 @Command("hgetall")
 @ParamLength(1)
 @ParamType(DataType.HASH)
-public class HashGetAllCommand implements ICommand {
+public class HashGetAllCommand implements IRedisCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		DatabaseValue value = db.get(safeKey(request.getParam(0)));
 		if (value != null) {
-			response.addValue(value);
+			new RedisResponse(response).addValue(value);
 		}
 		else {
 			response.addArray(null);

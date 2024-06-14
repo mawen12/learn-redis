@@ -1,13 +1,14 @@
 package com.mawen.learn.redis.basic.command.server;
 
-import com.mawen.learn.redis.basic.command.ICommand;
-import com.mawen.learn.redis.basic.command.IRequest;
-import com.mawen.learn.redis.basic.command.IResponse;
-import com.mawen.learn.redis.basic.command.annotation.Command;
-import com.mawen.learn.redis.basic.command.annotation.ParamLength;
+import com.mawen.learn.redis.basic.TinyDB;
+import com.mawen.learn.redis.basic.command.IRedisCommand;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.replication.SlaveReplication;
+import com.mawen.learn.redis.resp.annotation.Command;
+import com.mawen.learn.redis.resp.annotation.ParamLength;
+import com.mawen.learn.redis.resp.command.IRequest;
+import com.mawen.learn.redis.resp.command.IResponse;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -16,7 +17,7 @@ import com.mawen.learn.redis.basic.replication.SlaveReplication;
 @ReadOnly
 @Command("slaveof")
 @ParamLength(2)
-public class SlaveOfCommand implements ICommand {
+public class SlaveOfCommand implements IRedisCommand {
 
 	private SlaveReplication slave;
 
@@ -40,11 +41,11 @@ public class SlaveOfCommand implements ICommand {
 			}
 		}
 
-		response.addSimpleStr(RESULT_OK);
+		response.addSimpleStr(IResponse.RESULT_OK);
 	}
 
 	private void startReplication(IRequest request, String host, String port) {
-		slave = new SlaveReplication(request.getServerContext(), request.getSession(), host, Integer.parseInt(port));
+		slave = new SlaveReplication((TinyDB)request.getServerContext(), request.getSession(), host, Integer.parseInt(port));
 		slave.start();
 	}
 }

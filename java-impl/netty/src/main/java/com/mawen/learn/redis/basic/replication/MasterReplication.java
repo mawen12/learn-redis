@@ -8,16 +8,17 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import com.mawen.learn.redis.basic.command.IServerContext;
-import com.mawen.learn.redis.basic.command.Response;
+import com.mawen.learn.redis.basic.ITinyDB;
+import com.mawen.learn.redis.basic.RedisServerState;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
-import com.mawen.learn.redis.basic.redis.RedisArray;
-import com.mawen.learn.redis.basic.redis.RedisToken;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.resp.command.Response;
+import com.mawen.learn.redis.resp.protocol.RedisToken;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static java.lang.String.*;
 import static java.util.Arrays.*;
 
@@ -36,11 +37,11 @@ public class MasterReplication implements Runnable {
 
 	private static final int TASK_DELAY = 2;
 
-	private final IServerContext server;
+	private final ITinyDB server;
 
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-	public MasterReplication(IServerContext server) {
+	public MasterReplication(ITinyDB server) {
 		this.server = server;
 	}
 
@@ -62,8 +63,12 @@ public class MasterReplication implements Runnable {
 		logger.info(() -> "new slave: " + id);
 	}
 
+	private IDatabase getAdminDatabase() {
+		return getServerState().getAdminDatabase();
+	}
+
 	public void removeSlave(String id) {
-		server.getAdminDatabase().merge(SLAVES_KEY, set(safeString(id)), (oldValue, newValue) -> {
+		getAdminDatabase().merge(SLAVES_KEY, set(safeString(id)), (oldValue, newValue) -> {
 			List<SafeString> merge = new LinkedList<>();
 			merge.addAll(oldValue.getValue());
 			merge.removeAll(newValue.getValue());
@@ -81,10 +86,14 @@ public class MasterReplication implements Runnable {
 		}
 	}
 
+	private Set<SafeString> getSlaves() {
+		return getAdminDatabase().getOrDefault(SLAVES_KEY, EMPTY_SET).getValue();
+	}
+
 	private String createCommands() {
 		Response response = new Response();
 		response.addArray(asList(PING_COMMAND));
-		for (RedisArray array : server.getCommands()) {
+		for (List<RedisToken> array : server.getCommands()) {
 			RedisToken currentDB = array.remove(0);
 			response.addArray(safeAsList(SELECT_COMMAND, valueOf(currentDB.<Integer>getValue())));
 			response.addArray(toList(array));
@@ -92,15 +101,15 @@ public class MasterReplication implements Runnable {
 		return response.toString();
 	}
 
-	private Set<SafeString> getSlaves() {
-		return server.getAdminDatabase().getOrDefault(SLAVES_KEY, EMPTY_SET).getValue();
-	}
-
-	private List<SafeString> toList(RedisArray request) {
+	private List<SafeString> toList(List<RedisToken> request) {
 		List<SafeString> cmd = new LinkedList<>();
 		for (RedisToken token : request) {
 			cmd.add(token.getValue());
 		}
 		return cmd;
+	}
+
+	private RedisServerState getServerState() {
+		return server.getValue("state");
 	}
 }
