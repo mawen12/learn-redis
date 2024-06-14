@@ -37,7 +37,7 @@ public class SubscribeCommand implements ICommand {
 		IDatabase admin = request.getServerContext().getAdminDatabase();
 		int i = 1;
 		for (SafeString channel : request.getParams()) {
-			admin.merge(safeKey(SUBSCRIPTIONS_PREFIX + channel), set(safeString(request.getSession().getId())), (oldValue, newValue) -> {
+			admin.merge(safeKey(safeString(SUBSCRIPTIONS_PREFIX + channel)), set(safeString(request.getSession().getId())), (oldValue, newValue) -> {
 				Set<SafeString> merge = new HashSet<>();
 				merge.addAll(oldValue.getValue());
 				merge.add(safeString(request.getSession().getId()));

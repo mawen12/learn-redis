@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
+import static com.mawen.learn.redis.basic.DatabaseKeyMatchers.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;

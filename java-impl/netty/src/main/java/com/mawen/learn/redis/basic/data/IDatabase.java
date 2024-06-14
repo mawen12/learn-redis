@@ -11,4 +11,8 @@ public interface IDatabase extends Map<DatabaseKey, DatabaseValue> {
 	boolean rename(DatabaseKey from, DatabaseKey to);
 
 	boolean isType(DatabaseKey key, DataType type);
+
+	DatabaseKey overrideKey(DatabaseKey key);
+
+	DatabaseKey getKey(DatabaseKey key);
 }

@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.entry;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -26,7 +27,7 @@ public class HashKeysCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key",hash(entry("a","1"), entry("b","1")))
+		rule.withData("key", hash(entry("a", "1"), entry("b", "1")))
 				.withParams("key", "a")
 				.execute()
 				.verify().addArray(captor.capture());

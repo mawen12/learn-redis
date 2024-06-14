@@ -27,6 +27,8 @@ import static com.mawen.learn.redis.basic.redis.SafeString.*;
  */
 public class RDBInputStream {
 
+	private static final int TO_MILLIS = 1000;
+
 	private static final SafeString REDIS_PREAMBLE = safeString("REDIS");
 
 	private static final int TWO_BYTES_LENGTH = 0x4000;
@@ -63,40 +65,46 @@ public class RDBInputStream {
 			throw new IOException("invalid version: " + version);
 		}
 
+		Long expireTime = null;
 		IDatabase db = null;
 		for (boolean end = false; !end; ) {
 			int read = in.read();
 			switch (read) {
 				case SELECT:
-					// select db
 					db = new Database();
-					databases.put(parseLength(), db);
+					databases.put(readLength(), db);
 					break;
 				case TTL_SECONDS:
-					// TODO: TTL in seconds
+					expireTime = parseTimeSeconds();
 					break;
 				case TTL_MILISECONDS:
-					// TODO: TTL in miliseconds
+					expireTime = parseTimeMillis();
 					break;
 				case STRING:
-					parseString(db);
+					ensure(db, readKey(expireTime), readString());
+					expireTime = null;
 					break;
 				case LIST:
-					parseList(db);
+					ensure(db, readKey(expireTime), readList());
+					expireTime = null;
 					break;
 				case SET:
-					parseSet(db);
+					ensure(db, readKey(expireTime), readSet());
+					expireTime = null;
 					break;
 				case SORTED_SET:
-					parseSortedSet(db);
+					ensure(db, readKey(expireTime), readSortedSet());
+					expireTime = null;
 					break;
 				case HASH:
-					parseHash(db);
+					ensure(db, readKey(expireTime), readHash());
+					expireTime = null;
 					break;
 				case END_OF_STREAM:
 					// end of stream
 					end = true;
 					db = null;
+					expireTime = null;
 					break;
 				default:
 					throw new IOException("not supported: " + read);
@@ -106,6 +114,16 @@ public class RDBInputStream {
 		verifyChecksum();
 
 		return databases;
+	}
+
+	private long parseTimeSeconds() throws IOException {
+		byte[] seconds = read(Integer.BYTES);
+		return ByteUtils.byteArrayToInt(seconds) * TO_MILLIS;
+	}
+
+	private long parseTimeMillis() throws IOException {
+		byte[] millis = read(Long.BYTES);
+		return ByteUtils.byteArrayToInt(millis);
 	}
 
 	private void verifyChecksum() throws IOException {
@@ -138,77 +156,73 @@ public class RDBInputStream {
 		return Integer.parseInt(sb.toString());
 	}
 
-	private void parseString(IDatabase db) throws IOException {
-		DatabaseKey key = parseKey();
-		SafeString value = parseString();
-		ensure(db, key, string(value));
+	private DatabaseValue readString() throws IOException {
+		return string(readSafeString());
 	}
 
-	private void parseList(IDatabase db) throws IOException {
-		DatabaseKey key = parseKey();
-		int size = parseLength();
+	private DatabaseValue readList() throws IOException {
+		int size = readLength();
 		List<SafeString> list = new LinkedList<>();
 		for (int i = 0; i < size; i++) {
-			list.add(parseString());
+			list.add(readSafeString());
 		}
-		ensure(db, key, list(list));
+		return list(list);
 	}
 
-	private void parseSet(IDatabase db) throws IOException {
-		DatabaseKey key = parseKey();
-		int size = parseLength();
+	private DatabaseValue readSet() throws IOException {
+		int size = readLength();
 		Set<SafeString> set = new HashSet<>();
 		for (int i = 0; i < size; i++) {
-			set.add(parseString());
+			set.add(readSafeString());
 		}
-		ensure(db, key, set(set));
+		return set(set);
 	}
 
-	private void parseSortedSet(IDatabase db) throws IOException {
-		DatabaseKey key = parseKey();
-		int size = parseLength();
+	private DatabaseValue readSortedSet() throws IOException {
+		int size = readLength();
 		Set<Map.Entry<Double, SafeString>> entries = new LinkedHashSet<>();
 		for (int i = 0; i < size; i++) {
-			SafeString value = parseString();
-			Double score = parseDouble();
+			SafeString value = readSafeString();
+			Double score = readDouble();
 			entries.add(score(score, value));
 		}
-		ensure(db, key, zset(entries));
+		return zset(entries);
 	}
 
-	private void parseHash(IDatabase db) throws IOException {
-		DatabaseKey key = parseKey();
-		int size = parseLength();
+	private DatabaseValue readHash() throws IOException {
+		int size = readLength();
 		Set<Map.Entry<SafeString, SafeString>> entries = new HashSet<>();
 		for (int i = 0; i < size; i++) {
-			entries.add(entry(parseString(), parseString()));
+			entries.add(entry(readSafeString(), readSafeString()));
 		}
-		ensure(db, key, hash(entries));
+		return hash(entries);
 	}
 
 	private void ensure(IDatabase db, DatabaseKey key, DatabaseValue value) throws IOException {
 		if (db != null) {
-			db.put(key, value);
+			if (!key.isExpired()) {
+				db.put(key, value);
+			}
 		}
 		else {
 			throw new IOException("no database selected");
 		}
 	}
 
-	private Double parseDouble() throws IOException {
-		return Double.parseDouble(parseString().toString());
-	}
-
-	private SafeString parseString() throws IOException {
-		int length = parseLength();
+	private SafeString readSafeString() throws IOException {
+		int length = readLength();
 		return new SafeString(read(length));
 	}
 
-	private DatabaseKey parseKey() throws IOException {
-		return DatabaseKey.safeKey(parseString());
+	private DatabaseKey readKey(Long expireTime) throws IOException {
+		return new DatabaseKey(readSafeString(), expireTime);
 	}
 
-	private int parseLength() throws IOException {
+	private Double readDouble() throws IOException {
+		return Double.parseDouble(readSafeString().toString());
+	}
+
+	private int readLength() throws IOException {
 		int length = in.read();
 		if (length < ONE_BYTE_LENGTH) {
 			// 1 byte: 00XXXXXX
@@ -217,7 +231,7 @@ public class RDBInputStream {
 		else if (length < TWO_BYTES_LENGTH) {
 			// 2 bytes: 01XXXXXX XXXXXXXX
 			int next = in.read();
-			return parseLength(length, next);
+			return readLength(length, next);
 		}
 		else {
 			// 5 bytes: 10...... XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
@@ -225,7 +239,7 @@ public class RDBInputStream {
 		}
 	}
 
-	private int parseLength(int length, int next) throws IOException {
+	private int readLength(int length, int next) throws IOException {
 		return ((length & 0x3F) << 8) | (next & 0xFF);
 	}
 

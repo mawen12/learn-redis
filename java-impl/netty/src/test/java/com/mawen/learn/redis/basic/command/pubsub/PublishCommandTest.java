@@ -7,7 +7,8 @@ import com.mawen.learn.redis.basic.command.IServerContext;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.*;
+
 
 @CommandUnderTest(PublishCommand.class)
 public class PublishCommandTest {
@@ -17,7 +18,7 @@ public class PublishCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("subscriptions:test", setFromString("localhost:12345"))
+		rule.withData("subscriptions:test", set("localhost:12345"))
 				.withParams("test", "Hello World!")
 				.execute();
 

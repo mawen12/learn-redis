@@ -5,8 +5,7 @@ import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static org.hamcrest.CoreMatchers.*;
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.*;
 
 @CommandUnderTest(LeftPushCommand.class)
 public class LeftPushCommandTest {
@@ -18,12 +17,12 @@ public class LeftPushCommandTest {
 	public void testExecute() {
 		rule.withParams("key", "a", "b", "c")
 				.execute()
-				.assertThat("key", is(listFromString("a", "b", "c")))
+				.assertValue("key", isList("a", "b", "c"))
 				.verify().addInt(3);
 
 		rule.withParams("key", "d")
 				.execute()
-				.assertThat("key", is(listFromString("d", "a", "b", "c")))
+				.assertValue("key", isList("d", "a", "b", "c"))
 				.verify().addInt(4);
 	}
 

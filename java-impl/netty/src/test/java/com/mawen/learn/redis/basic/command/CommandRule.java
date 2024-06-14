@@ -3,6 +3,7 @@ package com.mawen.learn.redis.basic.command;
 import java.util.Optional;
 
 import com.mawen.learn.redis.basic.data.Database;
+import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.redis.SafeString;
@@ -16,7 +17,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
+import static com.mawen.learn.redis.basic.DatabaseKeyMatchers.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.mockito.Mockito.*;
 
@@ -118,8 +119,13 @@ public class CommandRule implements TestRule {
 		return this;
 	}
 
-	public CommandRule assertThat(String key, Matcher<DatabaseValue> matcher) {
+	public CommandRule assertValue(String key, Matcher<DatabaseValue> matcher) {
 		Assert.assertThat(database.get(safeKey(key)), matcher);
+		return this;
+	}
+
+	public CommandRule assertKey(String key, Matcher<DatabaseKey> matcher) {
+		Assert.assertThat(database.getKey(safeKey(key)), matcher);
 		return this;
 	}
 

@@ -16,8 +16,11 @@ import com.mawen.learn.redis.basic.command.hash.HashSetCommand;
 import com.mawen.learn.redis.basic.command.hash.HashValuesCommand;
 import com.mawen.learn.redis.basic.command.key.DeleteCommand;
 import com.mawen.learn.redis.basic.command.key.ExistsCommand;
+import com.mawen.learn.redis.basic.command.key.ExpireCommand;
 import com.mawen.learn.redis.basic.command.key.KeysCommand;
+import com.mawen.learn.redis.basic.command.key.PersistCommand;
 import com.mawen.learn.redis.basic.command.key.RenameCommand;
+import com.mawen.learn.redis.basic.command.key.TimeToLiveCommand;
 import com.mawen.learn.redis.basic.command.key.TypeCommand;
 import com.mawen.learn.redis.basic.command.list.LeftPopCommand;
 import com.mawen.learn.redis.basic.command.list.LeftPushCommand;
@@ -55,6 +58,7 @@ import com.mawen.learn.redis.basic.command.string.IncrementByCommand;
 import com.mawen.learn.redis.basic.command.string.IncrementCommand;
 import com.mawen.learn.redis.basic.command.string.MultiSetCommand;
 import com.mawen.learn.redis.basic.command.string.SetCommand;
+import com.mawen.learn.redis.basic.command.string.SetExpiredCommand;
 import com.mawen.learn.redis.basic.command.string.StringLengthCommand;
 import com.mawen.learn.redis.basic.command.zset.SortedSetAddCommand;
 import com.mawen.learn.redis.basic.command.zset.SortedSetCardinalityCommand;
@@ -97,6 +101,7 @@ public class CommandSuite {
 		addCommand(DecrementByCommand.class);
 		addCommand(DecrementCommand.class);
 		addCommand(StringLengthCommand.class);
+		addCommand(SetExpiredCommand.class);
 
 		// keys
 		addCommand(DeleteCommand.class);
@@ -104,6 +109,9 @@ public class CommandSuite {
 		addCommand(TypeCommand.class);
 		addCommand(RenameCommand.class);
 		addCommand(KeysCommand.class);
+		addCommand(ExpireCommand.class);
+		addCommand(PersistCommand.class);
+		addCommand(TimeToLiveCommand.class);
 
 		// hash
 		addCommand(HashSetCommand.class);

@@ -34,7 +34,6 @@ import static java.util.stream.Collectors.*;
 @ParamType(DataType.ZSET)
 public class SortedSetRangeByScoreCommand implements ICommand {
 
-	private static final String EMPTY_STRING = "";
 	private static final String EXCLUSIVE = "(";
 	private static final String MINUS_INFINITY = "-inf";
 	private static final String INFINITY = "+inf";
@@ -53,8 +52,8 @@ public class SortedSetRangeByScoreCommand implements ICommand {
 			Options options = parseOptions(request);
 
 			Set<Map.Entry<Double, SafeString>> range = set.subSet(
-					score(from, EMPTY_STRING), inclusive(request.getParam(1)),
-					score(to, EMPTY_STRING), inclusive(request.getParam(2)));
+					score(from, SafeString.EMPTY_STRING), inclusive(request.getParam(1)),
+					score(to, SafeString.EMPTY_STRING), inclusive(request.getParam(2)));
 
 			List<Object> result = Collections.emptyList();
 			if (from <= to) {
@@ -66,7 +65,7 @@ public class SortedSetRangeByScoreCommand implements ICommand {
 				}
 
 				if (options.withLimit) {
-					result = result.stream().skip(options.offset).limit(options.count).collect(toList());;
+					result = result.stream().skip(options.offset).limit(options.count).collect(toList()); ;
 				}
 			}
 			response.addArray(result);

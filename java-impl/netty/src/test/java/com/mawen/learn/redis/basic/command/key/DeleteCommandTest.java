@@ -16,11 +16,10 @@ public class DeleteCommandTest {
 
 	@Test
 	public void testExecute() throws Exception {
-
-		rule.withData("test",string("value"))
+		rule.withData("test", string("value"))
 				.withParams("test")
 				.execute()
-				.assertThat("test",is(nullValue()))
+				.assertValue("test", is(nullValue()))
 				.verify().addInt(1);
 	}
 }

@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -26,8 +26,8 @@ public class SetDifferenceCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("a", setFromString("1", "2", "3"))
-				.withData("b", setFromString("3", "4"))
+		rule.withData("a", set("1", "2", "3"))
+				.withData("b", set("3", "4"))
 				.withParams("a", "b")
 				.execute()
 				.verify().addArray(captor.capture());
@@ -42,7 +42,7 @@ public class SetDifferenceCommandTest {
 
 	@Test
 	public void testExecuteNotExists() {
-		rule.withData("a", setFromString("1", "2", "3"))
+		rule.withData("a", set("1", "2", "3"))
 				.withParams("a", "b")
 				.execute()
 				.verify().addArray(captor.capture());

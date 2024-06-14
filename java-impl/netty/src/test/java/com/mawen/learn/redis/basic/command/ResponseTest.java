@@ -7,6 +7,9 @@ import com.mawen.learn.redis.basic.data.DatabaseValue;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.entry;
+import static com.mawen.learn.redis.basic.data.DatabaseValue.list;
+import static com.mawen.learn.redis.basic.data.DatabaseValue.set;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -33,12 +36,12 @@ public class ResponseTest {
 
 	@Test
 	public void testAddValueList() {
-		assertThat(response.addValue(listFromString("a", "b", "c")).toString(), is("*3\r\n$1\r\na\r\n$1\r\nb\r\n$1\r\nc\r\n"));
+		assertThat(response.addValue(list(safeAsList("a", "b", "c"))).toString(), is("*3\r\n$1\r\na\r\n$1\r\nb\r\n$1\r\nc\r\n"));
 	}
 
 	@Test
 	public void testAddValueSet() {
-		assertThat(response.addValue(setFromString("a", "b", "c")).toString(), is("*3\r\n$1\r\na\r\n$1\r\nb\r\n$1\r\nc\r\n"));
+		assertThat(response.addValue(set(safeAsList("a", "b", "c"))).toString(), is("*3\r\n$1\r\na\r\n$1\r\nb\r\n$1\r\nc\r\n"));
 	}
 
 	@Test
@@ -64,6 +67,11 @@ public class ResponseTest {
 	@Test
 	public void testAddIntInt() {
 		assertThat(response.addInt(1).toString(), is(":1\r\n"));
+	}
+
+	@Test
+	public void testAddIntLong() {
+		assertThat(response.addInt(1L).toString(), is(":1\r\n"));
 	}
 
 	@Test

@@ -25,6 +25,8 @@ public interface IResponse {
 
 	IResponse addInt(int value);
 
+	IResponse addInt(long value);
+
 	IResponse addInt(boolean value);
 
 	IResponse addError(String str);

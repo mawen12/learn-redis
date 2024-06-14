@@ -5,8 +5,7 @@ import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static org.hamcrest.CoreMatchers.*;
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.*;
 import static org.mockito.Matchers.*;
 
 @CommandUnderTest(ListSetCommand.class)
@@ -17,28 +16,28 @@ public class ListSetCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key", listFromString("a", "b", "c"))
+		rule.withData("key", list("a", "b", "c"))
 				.withParams("key", "0", "A")
 				.execute()
-				.assertThat("key", is(listFromString("A", "b", "c")))
+				.assertValue("key", isList("A", "b", "c"))
 				.verify().addSimpleStr("OK");
 
-		rule.withData("key", listFromString("a", "b", "c"))
+		rule.withData("key", list("a", "b", "c"))
 				.withParams("key", "-1", "C")
 				.execute()
-				.assertThat("key", is(listFromString("a", "b", "C")))
+				.assertValue("key", isList("a", "b", "C"))
 				.verify().addSimpleStr("OK");
 
-		rule.withData("key", listFromString("a", "b", "c"))
+		rule.withData("key", list("a", "b", "c"))
 				.withParams("key", "z", "C")
 				.execute()
-				.assertThat("key", is(listFromString("a", "b", "c")))
+				.assertValue("key", isList("a", "b", "c"))
 				.verify().addError(startsWith("ERR"));
 
-		rule.withData("key", listFromString("a", "b", "c"))
+		rule.withData("key", list("a", "b", "c"))
 				.withParams("key", "99", "C")
 				.execute()
-				.assertThat("key", is(listFromString("a", "b", "c")))
+				.assertValue("key", isList("a", "b", "c"))
 				.verify().addError(startsWith("ERR"));
 	}
 

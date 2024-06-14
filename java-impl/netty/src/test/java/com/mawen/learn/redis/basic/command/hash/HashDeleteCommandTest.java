@@ -5,7 +5,9 @@ import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.entry;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+
 
 @CommandUnderTest(HashDeleteCommand.class)
 public class HashDeleteCommandTest {
@@ -15,10 +17,10 @@ public class HashDeleteCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key",hash(entry("a","1")))
+		rule.withData("key", hash(entry("a", "1")))
 				.withParams("key", "a", "b", "c")
 				.execute()
 				.verify().addInt(true);
 	}
-  
+
 }

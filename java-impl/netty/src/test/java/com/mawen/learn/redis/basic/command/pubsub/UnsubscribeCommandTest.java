@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -28,10 +28,10 @@ public class UnsubscribeCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("subscriptions:test", setFromString("localhost:12345"))
+		rule.withData("subscriptions:test", set("localhost:12345"))
 				.withParams("test")
 				.execute()
-				.assertThat("subscriptions:test", is(set()));
+				.assertValue("subscriptions:test", isSet());
 
 		rule.verify(ISession.class).removeSubscription(safeString("test"));
 

@@ -176,7 +176,7 @@ public class TinyDB implements ITinyDB, IServerContext {
 
 		logger.fine(() -> "client connected: " + sourceKey);
 
-		clients.put(sourceKey, new Session(sourceKey, ctx));
+		getSession(sourceKey, ctx);
 	}
 
 	/**
@@ -212,10 +212,16 @@ public class TinyDB implements ITinyDB, IServerContext {
 
 		logger.finest(() -> "message received: " + sourceKey);
 
-		IRequest request = parseMessage(sourceKey, message);
+		IRequest request = parseMessage(sourceKey, message, getSession(sourceKey, ctx));
 		if (request != null) {
 			processCommand(request);
 		}
+	}
+
+	private ISession getSession(String sourceKey, ChannelHandlerContext ctx) {
+		ISession session = clients.getOrDefault(sourceKey, new Session(sourceKey, ctx));
+		clients.putIfAbsent(sourceKey, session);
+		return session;
 	}
 
 	@Override
@@ -294,32 +300,32 @@ public class TinyDB implements ITinyDB, IServerContext {
 		return master;
 	}
 
-	private IRequest parseMessage(String sourceKey, RedisToken message) {
+	private IRequest parseMessage(String sourceKey, RedisToken message, ISession session) {
 		IRequest request = null;
 
 		if (message.getType() == RedisTokenType.ARRAY) {
-			request = parseArray(sourceKey, message);
+			request = parseArray(sourceKey, message, session);
 		}
 		else if (message.getType() == RedisTokenType.UNKNOWN) {
-			request = parseLine(sourceKey, message);
+			request = parseLine(sourceKey, message, session);
 		}
 		return request;
 	}
 
-	private Request parseLine(String sourceKey, RedisToken message) {
+	private Request parseLine(String sourceKey, RedisToken message, ISession session) {
 		String command = message.getValue();
 		String[] params = command.split(" ");
 		String[] array = new String[params.length - 1];
 		System.arraycopy(params, 1, array, 0, array.length);
-		return new Request(this, clients.get(sourceKey), safeString(params[0]), safeAsList(array));
+		return new Request(this, session, safeString(params[0]), safeAsList(array));
 	}
 
-	private Request parseArray(String sourceKey, RedisToken message) {
+	private Request parseArray(String sourceKey, RedisToken message, ISession session) {
 		List<SafeString> params = new LinkedList<>();
 		for (RedisToken token : message.<RedisArray>getValue()) {
 			params.add(token.getValue());
 		}
-		return new Request(this, clients.get(sourceKey), params.remove(0), params);
+		return new Request(this, session, params.remove(0), params);
 	}
 
 	private void processCommand(IRequest request) {

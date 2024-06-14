@@ -1,25 +1,24 @@
-package com.mawen.learn.redis.basic.command.hash;
+package com.mawen.learn.redis.basic.command.key;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.mawen.learn.redis.basic.DatabaseValueMatchers.entry;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 
-@CommandUnderTest(HashLengthCommand.class)
-public class HashLengthCommandTest {
+@CommandUnderTest(TimeToLiveCommand.class)
+public class TimeToLiveCommandTest {
 
 	@Rule
 	public final CommandRule rule = new CommandRule(this);
 
 	@Test
 	public void testExecute() {
-		rule.withData("key", hash(entry("a", "1"), entry("b", "2")))
-				.withParams("key", "a")
+		rule.withData("test", string("value"))
+				.withParams("test")
 				.execute()
-				.verify().addInt(2);
+				.verify().addInt(0L);
 	}
 
 }

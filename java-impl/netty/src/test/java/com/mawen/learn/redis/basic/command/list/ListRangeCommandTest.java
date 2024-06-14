@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -26,7 +26,7 @@ public class ListRangeCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key", listFromString("a", "b", "c"))
+		rule.withData("key", list("a", "b", "c"))
 				.withParams("key", "0", "-1")
 				.execute()
 				.verify().addArray(captor.capture());

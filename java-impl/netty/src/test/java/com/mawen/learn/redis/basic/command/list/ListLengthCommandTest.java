@@ -5,7 +5,8 @@ import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.*;
+
 
 @CommandUnderTest(ListLengthCommand.class)
 public class ListLengthCommandTest {
@@ -15,7 +16,7 @@ public class ListLengthCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key", listFromString("a", "b", "c"))
+		rule.withData("key", list("a", "b", "c"))
 				.withParams("key")
 				.execute()
 				.verify().addInt(3);

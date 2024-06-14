@@ -9,8 +9,8 @@ import com.mawen.learn.redis.basic.redis.SafeString;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
-import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.DatabaseKeyMatchers.*;
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
@@ -23,7 +23,7 @@ public class SetPopCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key", setFromString("a", "b", "c"))
+		rule.withData("key", set("a", "b", "c"))
 				.withParams("key")
 				.execute()
 				.verify().addBulkStr(notNull(SafeString.class));

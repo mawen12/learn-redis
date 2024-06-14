@@ -2,20 +2,24 @@ package com.mawen.learn.redis.basic.data;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.*;
+import static com.mawen.learn.redis.basic.DatabaseKeyMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class DatabaseKeyTest {
 
 	@Test
 	public void testExpired() throws InterruptedException {
-		DatabaseKey nonExpiredKey = DatabaseKey.safeKey("hola");
+		DatabaseKey nonExpiredKey = safeKey("hola");
 		assertThat(nonExpiredKey.isExpired(), is(false));
+		assertThat(nonExpiredKey.timeToLive(), is(-1L));
 
-		DatabaseKey expiredKey = DatabaseKey.ttlKey("hola", 500);
+		DatabaseKey expiredKey = safeKey("hola", 1);
 		assertThat(expiredKey.isExpired(), is(false));
-		Thread.sleep(1000);
+		assertThat(expiredKey.timeToLive(), is(greaterThan(0L)));
+		Thread.sleep(1100);
 		assertThat(expiredKey.isExpired(), is(true));
+		assertThat(expiredKey.timeToLive(), is(-2L));
 	}
 
 }

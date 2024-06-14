@@ -5,8 +5,7 @@ import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static org.hamcrest.CoreMatchers.*;
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.*;
 
 @CommandUnderTest(SetAddCommand.class)
 public class SetAddCommandTest {
@@ -18,7 +17,7 @@ public class SetAddCommandTest {
 	public void testExecute() throws Exception {
 		rule.withParams("key", "value")
 				.execute()
-				.assertThat("key",is(setFromString("value")))
+				.assertValue("key", isSet("value"))
 				.verify().addInt(1);
 	}
 

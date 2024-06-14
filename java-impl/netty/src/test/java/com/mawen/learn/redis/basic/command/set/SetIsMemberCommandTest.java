@@ -5,7 +5,7 @@ import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.*;
 
 @CommandUnderTest(SetIsMemberCommand.class)
 public class SetIsMemberCommandTest {
@@ -15,7 +15,7 @@ public class SetIsMemberCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("key", setFromString("a", "b", "c"))
+		rule.withData("key", set("a", "b", "c"))
 				.withParams("key", "a")
 				.execute()
 				.verify().addInt(true);

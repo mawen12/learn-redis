@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -30,7 +30,7 @@ public class SubscribeCommandTest {
 	public void testExecute() {
 		rule.withParams("test")
 				.execute()
-				.assertThat("subscriptions:test", is(setFromString("localhost:12345")));
+				.assertValue("subscriptions:test", isSet("localhost:12345"));
 
 		rule.verify(ISession.class).addSubscription(safeString("test"));
 
@@ -38,13 +38,13 @@ public class SubscribeCommandTest {
 
 		Collection<?> response = captor.getValue();
 
-		assertThat(response.size(),is(3));
+		assertThat(response.size(), is(3));
 
 		Iterator<?> iter = response.iterator();
 
-		assertThat(iter.next(),is(safeString("subscribe")));
-		assertThat(iter.next(),is(safeString("test")));
-		assertThat(iter.next(),is(1));
+		assertThat(iter.next(), is(safeString("subscribe")));
+		assertThat(iter.next(), is(safeString("test")));
+		assertThat(iter.next(), is(1));
 	}
 
 }

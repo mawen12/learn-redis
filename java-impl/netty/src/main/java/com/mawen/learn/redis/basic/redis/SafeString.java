@@ -107,7 +107,7 @@ public class SafeString implements Comparable<SafeString> {
 		Objects.requireNonNull(strA);
 		Objects.requireNonNull(strB);
 
-		ByteBuffer byteBuffer = ByteBuffer.allocate(strA.length() + strB.length()).put(strA.getBytes());
+		ByteBuffer byteBuffer = ByteBuffer.allocate(strA.length() + strB.length());
 		byteBuffer.put(strA.getBytes());
 		byteBuffer.put(strB.getBytes());
 		byteBuffer.rewind();

@@ -32,7 +32,7 @@ public class PublishCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		IDatabase admin = request.getServerContext().getAdminDatabase();
-		DatabaseValue value = admin.getOrDefault(safeKey(SUBSCRIPTIONS_PREFIX + request.getParam(0)), EMPTY_SET);
+		DatabaseValue value = admin.getOrDefault(safeKey(safeString(SUBSCRIPTIONS_PREFIX + request.getParam(0))), EMPTY_SET);
 
 		Set<SafeString> subscribers = value.getValue();
 		for (SafeString subscriber : subscribers) {

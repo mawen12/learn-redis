@@ -1,6 +1,7 @@
 package com.mawen.learn.redis.basic.data;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import com.mawen.learn.redis.basic.redis.SafeString;
 
@@ -10,19 +11,14 @@ import com.mawen.learn.redis.basic.redis.SafeString;
  */
 public class DatabaseKey implements Comparable<DatabaseKey> {
 
-	private Long expiredAt;
-	private SafeString value;
+	private final Long expiredAt;
 
-	public DatabaseKey(SafeString value) {
-		this(value, 0);
-	}
+	private final SafeString value;
 
-	public DatabaseKey(SafeString value, long ttl) {
+	public DatabaseKey(SafeString value, Long expiredAt) {
 		super();
 		this.value = value;
-		if (ttl > 0) {
-			this.expiredAt = System.currentTimeMillis() + ttl;
-		}
+		this.expiredAt = expiredAt;
 	}
 
 	public SafeString getValue() {
@@ -35,6 +31,18 @@ public class DatabaseKey implements Comparable<DatabaseKey> {
 			return now > expiredAt;
 		}
 		return false;
+	}
+
+	public long timeToLive() {
+		if (expiredAt != null) {
+			long ttl = expiredAt - System.currentTimeMillis();
+			return ttl < 0 ? -2 : ttl;
+		}
+		return -1;
+	}
+
+	public Long expiredAt() {
+		return expiredAt;
 	}
 
 	@Override
@@ -66,18 +74,14 @@ public class DatabaseKey implements Comparable<DatabaseKey> {
 	}
 
 	public static DatabaseKey safeKey(SafeString str) {
-		return new DatabaseKey(str);
+		return new DatabaseKey(str, null);
 	}
 
-	public static DatabaseKey ttlKey(SafeString str, long ttl) {
-		return new DatabaseKey(str, ttl);
+	public static DatabaseKey safeKey(SafeString str, long ttlMillis) {
+		return new DatabaseKey(str, System.currentTimeMillis() + ttlMillis);
 	}
 
-	public static DatabaseKey safeKey(String str) {
-		return new DatabaseKey(SafeString.safeString(str));
-	}
-
-	public static DatabaseKey ttlKey(String str, long ttl) {
-		return new DatabaseKey(SafeString.safeString(str), ttl);
+	public static DatabaseKey safeKey(SafeString str, int ttlSeconds) {
+		return safeKey(str, TimeUnit.SECONDS.toMillis(ttlSeconds));
 	}
 }

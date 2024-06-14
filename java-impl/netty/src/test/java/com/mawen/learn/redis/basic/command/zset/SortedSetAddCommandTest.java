@@ -5,6 +5,7 @@ import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.score;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static org.hamcrest.CoreMatchers.*;
 
@@ -18,17 +19,17 @@ public class SortedSetAddCommandTest {
 	public void testExecute() {
 		rule.withParams("key", "1", "one")
 				.execute()
-				.assertThat("key", is(zset(score(1.0F, "one"))))
+				.assertValue("key", is(zset(score(1.0, "one"))))
 				.verify().addInt(1);
 
 		rule.withParams("key", "2", "two")
 				.execute()
-				.assertThat("key", is(zset(score(1.0F, "one"), score(2.0F, "two"))))
+				.assertValue("key", is(zset(score(1.0, "one"), score(2.0, "two"))))
 				.verify().addInt(1);
 
 		rule.withParams("key", "1", "one")
 				.execute()
-				.assertThat("key", is(zset(score(1.0F, "one"), score(2.0F, "two"))))
+				.assertValue("key", is(zset(score(1.0, "one"), score(2.0, "two"))))
 				.verify().addInt(0);
 	}
 

@@ -5,6 +5,7 @@ import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.entry;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 
@@ -16,7 +17,7 @@ public class HashGetCommandTest {
 
 	@Test
 	public void testExecute() throws Exception {
-		rule.withData("a",hash(entry("key", "value")))
+		rule.withData("a", hash(entry("key", "value")))
 				.withParams("a", "key")
 				.execute()
 				.verify().addBulkStr(safeString("value"));

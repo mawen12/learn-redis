@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import static com.mawen.learn.redis.basic.DatabaseValueMatchers.score;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -45,7 +46,7 @@ public class SortedSetRangeCommandTest {
 
 	@Test
 	public void testExecuteWithScores() {
-		rule.withData("key",zset(score(1,"a"), score(2,"b"), score(3,"c")))
+		rule.withData("key", zset(score(1, "a"), score(2, "b"), score(3, "c")))
 				.withParams("key", "0", "-1", "WITHSCORES")
 				.execute()
 				.verify().addArray(captor.capture());
@@ -66,7 +67,7 @@ public class SortedSetRangeCommandTest {
 
 	@Test
 	public void testExecuteHead() {
-		rule.withData("key",zset(score(1,"a"), score(2,"b"), score(3,"c")))
+		rule.withData("key", zset(score(1, "a"), score(2, "b"), score(3, "c")))
 				.withParams("key", "0", "1")
 				.execute()
 				.verify().addArray(captor.capture());
@@ -111,7 +112,7 @@ public class SortedSetRangeCommandTest {
 
 	@Test
 	public void testExecuteFromOrder() {
-		rule.withData("key", zset(score(1,"a"), score(2, "b"), score(3, "c")))
+		rule.withData("key", zset(score(1, "a"), score(2, "b"), score(3, "c")))
 				.withParams("key", "-1", "0")
 				.execute()
 				.verify().addArray(captor.capture());
@@ -123,7 +124,7 @@ public class SortedSetRangeCommandTest {
 
 	@Test
 	public void testExecuteOne() {
-		rule.withData("key", zset(score(1,"a"), score(2, "b"), score(3, "c")))
+		rule.withData("key", zset(score(1, "a"), score(2, "b"), score(3, "c")))
 				.withParams("key", "0", "0")
 				.execute()
 				.verify().addArray(captor.capture());
