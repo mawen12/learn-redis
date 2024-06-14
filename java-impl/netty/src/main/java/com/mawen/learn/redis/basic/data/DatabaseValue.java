@@ -1,12 +1,13 @@
 package com.mawen.learn.redis.basic.data;
 
-import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
@@ -16,6 +17,7 @@ import static com.mawen.learn.redis.basic.redis.SafeString.*;
 import static java.util.Collections.*;
 import static java.util.Map.*;
 import static java.util.stream.Collectors.*;
+import static tonivade.equalizer.Equalizer.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -53,37 +55,15 @@ public class DatabaseValue {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		return result;
+		return Objects.hash(type, value);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		DatabaseValue other = (DatabaseValue) obj;
-		if (type != other.type) {
-			return false;
-		}
-		if (value == null) {
-			if (other.value != null) {
-				return false;
-			}
-		}
-		else if (!value.equals(other.value)) {
-			return false;
-		}
-		return true;
+		return equalizer(this)
+				.append((one, other) -> Objects.equals(one.type, other.type))
+				.append((one, other) -> Objects.equals(one.value, other.getValue()))
+				.applyTo(obj);
 	}
 
 	@Override
@@ -132,11 +112,11 @@ public class DatabaseValue {
 	}
 
 	public static Map.Entry<SafeString, SafeString> entry(SafeString key, SafeString value) {
-		return new AbstractMap.SimpleEntry<>(key, value);
+		return new SimpleEntry<>(key, value);
 	}
 
 	public static Entry<Double, SafeString> score(double score, SafeString value) {
-		return new AbstractMap.SimpleEntry<>(score, value);
+		return new SimpleEntry<>(score, value);
 	}
 
 	private static Collector<SafeString, ?, LinkedList<SafeString>> toList() {

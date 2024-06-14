@@ -32,18 +32,24 @@
             <version>4.9</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.tonivade</groupId>
+            <artifactId>equalizer</artifactId>
+            <version>0.2.0</version>
+        </dependency>
+
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.10</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>1.9.5</version>
+            <version>1.10.19</version>
             <scope>test</scope>
         </dependency>
 

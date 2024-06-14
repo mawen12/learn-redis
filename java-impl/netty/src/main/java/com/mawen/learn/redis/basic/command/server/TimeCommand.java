@@ -1,7 +1,6 @@
 package com.mawen.learn.redis.basic.command.server;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.mawen.learn.redis.basic.command.ICommand;
@@ -10,6 +9,8 @@ import com.mawen.learn.redis.basic.command.IResponse;
 import com.mawen.learn.redis.basic.command.annotation.Command;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.IDatabase;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -24,8 +25,7 @@ public class TimeCommand implements ICommand {
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
 		long currentTimeMillis = System.currentTimeMillis();
-		List<String> result = Stream.of(seconds(currentTimeMillis), microseconds(currentTimeMillis))
-				.collect(Collectors.toList());
+		List<String> result = Stream.of(seconds(currentTimeMillis), microseconds(currentTimeMillis)).collect(toList());
 		response.addArray(result);
 	}
 

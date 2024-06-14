@@ -5,6 +5,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.mawen.learn.redis.basic.redis.SafeString;
 
+import static tonivade.equalizer.Equalizer.*;
+
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/13
@@ -52,20 +54,14 @@ public class DatabaseKey implements Comparable<DatabaseKey> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null || getClass() != obj.getClass())
-			return false;
-		DatabaseKey that = (DatabaseKey) obj;
-		return Objects.equals(value, that.value);
+		return equalizer(this)
+				.append((one, other) -> Objects.equals(one.value, other.value))
+				.applyTo(obj);
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		return result;
+		return Objects.hash(value);
 	}
 
 	@Override

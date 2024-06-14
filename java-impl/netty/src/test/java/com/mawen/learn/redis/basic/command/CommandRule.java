@@ -6,7 +6,6 @@ import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
-import com.mawen.learn.redis.basic.redis.SafeString;
 import org.hamcrest.Matcher;
 import org.junit.Assert;
 import org.junit.rules.TestRule;
@@ -14,8 +13,6 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static com.mawen.learn.redis.basic.DatabaseKeyMatchers.*;
 import static com.mawen.learn.redis.basic.redis.SafeString.*;
@@ -100,15 +97,12 @@ public class CommandRule implements TestRule {
 				when(request.getParam(i++)).thenReturn(safeString(param));
 			}
 			when(request.getLength()).thenReturn(params.length);
-			when(request.getOptionalParam(anyInt())).thenAnswer(new Answer<Optional<SafeString>>() {
-				@Override
-				public Optional<SafeString> answer(InvocationOnMock invocation) throws Throwable {
-					Integer i = (Integer) invocation.getArguments()[0];
-					if (i < params.length) {
-						return Optional.of(safeString(params[i]));
-					}
-					return Optional.empty();
+			when(request.getOptionalParam(anyInt())).thenAnswer(invocation -> {
+				Integer param = (Integer) invocation.getArguments()[0];
+				if (param < params.length) {
+					return Optional.of(safeString(params[param]));
 				}
+				return Optional.empty();
 			});
 		}
 		return this;

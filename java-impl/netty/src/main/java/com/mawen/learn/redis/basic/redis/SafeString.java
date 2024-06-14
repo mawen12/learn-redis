@@ -4,10 +4,12 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static java.util.Objects.*;
 import static java.util.stream.Collectors.*;
+import static tonivade.equalizer.Equalizer.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -62,28 +64,14 @@ public class SafeString implements Comparable<SafeString> {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + buffer.hashCode();
-		return result;
+		return Objects.hash(buffer);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		SafeString other = (SafeString) obj;
-		if (!buffer.equals(other.buffer)) {
-			return false;
-		}
-		return true;
+		return equalizer(this)
+				.append((one, other) -> Objects.equals(one.buffer, other.buffer))
+				.applyTo(obj);
 	}
 
 	@Override
