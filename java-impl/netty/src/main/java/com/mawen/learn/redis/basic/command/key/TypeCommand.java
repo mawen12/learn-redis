@@ -1,6 +1,6 @@
 package com.mawen.learn.redis.basic.command.key;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
@@ -19,7 +19,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 @ReadOnly
 @Command("type")
 @ParamLength(1)
-public class TypeCommand implements IRedisCommand {
+public class TypeCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

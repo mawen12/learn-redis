@@ -3,7 +3,7 @@ package com.mawen.learn.redis.basic.command.list;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
@@ -25,7 +25,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 @Command("lrange")
 @ParamLength(3)
 @ParamType(DataType.LIST)
-public class ListRangeCommand implements IRedisCommand {
+public class ListRangeCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

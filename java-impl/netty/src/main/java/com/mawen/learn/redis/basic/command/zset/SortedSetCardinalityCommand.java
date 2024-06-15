@@ -3,7 +3,7 @@ package com.mawen.learn.redis.basic.command.zset;
 import java.util.Map;
 import java.util.Set;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
@@ -25,7 +25,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 @Command("zcard")
 @ParamLength(1)
 @ParamType(DataType.ZSET)
-public class SortedSetCardinalityCommand implements IRedisCommand {
+public class SortedSetCardinalityCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

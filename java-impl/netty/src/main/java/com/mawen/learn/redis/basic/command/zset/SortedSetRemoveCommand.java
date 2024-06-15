@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.IDatabase;
@@ -27,7 +27,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 @Command("zrem")
 @ParamLength(2)
 @ParamType(DataType.ZSET)
-public class SortedSetRemoveCommand implements IRedisCommand {
+public class SortedSetRemoveCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

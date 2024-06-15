@@ -3,7 +3,7 @@ package com.mawen.learn.redis.basic.command.set;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
@@ -24,7 +24,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 @Command("sadd")
 @ParamLength(2)
 @ParamType(DataType.SET)
-public class SetAddCommand implements IRedisCommand {
+public class SetAddCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

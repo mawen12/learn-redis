@@ -1,6 +1,6 @@
 package com.mawen.learn.redis.basic.command.string;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
@@ -23,7 +23,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 @Command("strlen")
 @ParamLength(1)
 @ParamType(DataType.STRING)
-public class StringLengthCommand implements IRedisCommand {
+public class StringLengthCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

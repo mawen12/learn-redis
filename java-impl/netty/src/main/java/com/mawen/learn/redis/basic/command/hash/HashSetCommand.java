@@ -3,7 +3,7 @@ package com.mawen.learn.redis.basic.command.hash;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
@@ -24,7 +24,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 @Command("hset")
 @ParamLength(3)
 @ParamType(DataType.HASH)
-public class HashSetCommand implements IRedisCommand {
+public class HashSetCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

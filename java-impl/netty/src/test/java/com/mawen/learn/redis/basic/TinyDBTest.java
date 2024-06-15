@@ -2,8 +2,6 @@ package com.mawen.learn.redis.basic;
 
 import java.util.Iterator;
 
-import org.hamcrest.number.OrderingComparison;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;

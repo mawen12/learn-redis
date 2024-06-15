@@ -2,7 +2,7 @@ package com.mawen.learn.redis.basic.command.key;
 
 import java.util.concurrent.TimeUnit;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.resp.annotation.Command;
@@ -16,7 +16,7 @@ import com.mawen.learn.redis.resp.command.IResponse;
  */
 @Command("ttl")
 @ParamLength(1)
-public class TimeToLiveCommand implements IRedisCommand {
+public class TimeToLiveCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

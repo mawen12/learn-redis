@@ -3,7 +3,7 @@ package com.mawen.learn.redis.basic.command.pubsub;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.PubSubAllowed;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.IDatabase;
@@ -26,7 +26,7 @@ import static java.util.Arrays.*;
 @Command("subscribe")
 @ParamLength(1)
 @PubSubAllowed
-public class SubscribeCommand implements IRedisCommand {
+public class SubscribeCommand implements ITinyDBCommand {
 
 	private static final SafeString SUBSCRIBE = safeString("subscribe");
 

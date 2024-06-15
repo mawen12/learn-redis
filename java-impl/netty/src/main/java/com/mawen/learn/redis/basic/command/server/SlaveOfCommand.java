@@ -1,6 +1,6 @@
 package com.mawen.learn.redis.basic.command.server;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.replication.SlaveReplication;
@@ -16,7 +16,7 @@ import com.mawen.learn.redis.resp.command.IResponse;
 @ReadOnly
 @Command("slaveof")
 @ParamLength(2)
-public class SlaveOfCommand implements IRedisCommand {
+public class SlaveOfCommand implements ITinyDBCommand {
 
 	private SlaveReplication slave;
 

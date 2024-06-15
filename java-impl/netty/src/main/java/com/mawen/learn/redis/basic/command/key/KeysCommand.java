@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.IDatabase;
@@ -22,7 +22,7 @@ import com.mawen.learn.redis.resp.protocol.SafeString;
 @ReadOnly
 @Command("keys")
 @ParamLength(1)
-public class KeysCommand implements IRedisCommand {
+public class KeysCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

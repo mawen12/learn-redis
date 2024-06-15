@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
@@ -28,7 +28,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 @Command("srandmember")
 @ParamLength(1)
 @ParamType(DataType.SET)
-public class SetRandomMemberCommand implements IRedisCommand {
+public class SetRandomMemberCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

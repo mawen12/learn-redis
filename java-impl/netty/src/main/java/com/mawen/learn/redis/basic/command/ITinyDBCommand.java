@@ -13,7 +13,7 @@ import com.mawen.learn.redis.resp.command.ISession;
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/14
  */
-public interface IRedisCommand {
+public interface ITinyDBCommand {
 
 	void execute(IDatabase db, IRequest request, IResponse response);
 

@@ -2,7 +2,7 @@ package com.mawen.learn.redis.basic.command.pubsub;
 
 import java.util.Set;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
@@ -24,7 +24,7 @@ import static java.util.Arrays.*;
  */
 @Command("publish")
 @ParamLength(2)
-public class PublishCommand implements IRedisCommand {
+public class PublishCommand implements ITinyDBCommand {
 
 	private static final SafeString MESSAGE = safeString("message");
 

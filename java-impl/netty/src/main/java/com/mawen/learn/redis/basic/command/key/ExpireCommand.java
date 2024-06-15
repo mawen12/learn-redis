@@ -1,7 +1,7 @@
 package com.mawen.learn.redis.basic.command.key;
 
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.resp.annotation.Command;
@@ -18,7 +18,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
  */
 @Command("expire")
 @ParamLength(2)
-public class ExpireCommand implements IRedisCommand {
+public class ExpireCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

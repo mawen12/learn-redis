@@ -41,7 +41,7 @@ public class CommandRule implements TestRule {
 
 	private final Object target;
 
-	private IRedisCommand command;
+	private ITinyDBCommand command;
 
 	private final TinyDBServerState serverState = new TinyDBServerState(1);
 
@@ -62,6 +62,14 @@ public class CommandRule implements TestRule {
 
 	public IDatabase getDatabase() {
 		return serverState.getDatabase(0);
+	}
+
+	public ISession getSession() {
+		return session;
+	}
+
+	public ITinyDB getServer() {
+		return server;
 	}
 
 	public IDatabase getAdminDatabase() {
@@ -113,7 +121,7 @@ public class CommandRule implements TestRule {
 
 	public CommandRule execute() {
 		reset(response);
-		new RedisCommandWrapper(command).execute(request, response);
+		new TinyDBCommandWrapper(command).execute(request, response);
 		return this;
 	}
 
@@ -146,18 +154,18 @@ public class CommandRule implements TestRule {
 		return this;
 	}
 
-	public CommandRule assertKey(String key, Matcher<DatabaseValue> matcher) {
+	public CommandRule assertKey(String key, Matcher<DatabaseKey> matcher) {
 		assertKey(getDatabase(), safeKey(key), matcher);
 		return this;
 	}
 
-	public CommandRule assertAdminKey(String key, Matcher<DatabaseValue> matcher) {
+	public CommandRule assertAdminKey(String key, Matcher<DatabaseKey> matcher) {
 		assertKey(getAdminDatabase(), safeKey(key), matcher);
 		return this;
 	}
 
-	private void assertKey(IDatabase database, DatabaseKey key, Matcher<DatabaseValue> matcher) {
-		Assert.assertThat(database.get(key), matcher);
+	private void assertKey(IDatabase database, DatabaseKey key, Matcher<DatabaseKey> matcher) {
+		Assert.assertThat(database.getKey(key), matcher);
 	}
 
 	private void assertValue(IDatabase database, DatabaseKey key, Matcher<DatabaseValue> matcher) {

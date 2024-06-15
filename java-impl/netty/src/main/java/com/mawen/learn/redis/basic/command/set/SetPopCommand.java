@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.IDatabase;
@@ -26,7 +26,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 @Command("spop")
 @ParamLength(1)
 @ParamType(DataType.SET)
-public class SetPopCommand implements IRedisCommand {
+public class SetPopCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

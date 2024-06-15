@@ -7,7 +7,9 @@ import com.mawen.learn.redis.basic.command.annotation.PubSubAllowed;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.TransactionState;
 import com.mawen.learn.redis.resp.annotation.ParamLength;
+import com.mawen.learn.redis.basic.command.annotation.TxIgnore;
 import com.mawen.learn.redis.resp.command.ICommand;
 import com.mawen.learn.redis.resp.command.IRequest;
 import com.mawen.learn.redis.resp.command.IResponse;
@@ -18,7 +20,7 @@ import com.mawen.learn.redis.resp.command.ISession;
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/14
  */
-public class RedisCommandWrapper implements ICommand {
+public class TinyDBCommandWrapper implements ICommand {
 
 	private int params;
 
@@ -26,9 +28,11 @@ public class RedisCommandWrapper implements ICommand {
 
 	private final boolean pubSubAllowed;
 
-	private final IRedisCommand command;
+	private final boolean txIgnore;
 
-	public RedisCommandWrapper(IRedisCommand command) {
+	private final Object command;
+
+	public TinyDBCommandWrapper(Object command) {
 		this.command = command;
 		ParamLength length = command.getClass().getAnnotation(ParamLength.class);
 		if (length != null) {
@@ -40,6 +44,7 @@ public class RedisCommandWrapper implements ICommand {
 			this.dataType = type.value();
 		}
 
+		this.txIgnore = command.getClass().isAnnotationPresent(TxIgnore.class);
 		this.pubSubAllowed = command.getClass().isAnnotationPresent(PubSubAllowed.class);
 	}
 
@@ -55,9 +60,38 @@ public class RedisCommandWrapper implements ICommand {
 		else if (isSubscribed(request) && !pubSubAllowed) {
 			response.addError("ERR only (P)SUBSCRIBE / (P)UNSUBSCRIBE / QUIT allowed in this context");
 		}
-		else {
-			command.execute(db, request, response);
+		else if (isTxActive(request) && !txIgnore) {
+			enqueueRequest(request);
+			response.addSimpleStr("QUEUED");
 		}
+		else {
+			if (command instanceof ITinyDBCommand) {
+				executeTinyDBCommand(db,request,response);
+			}
+			else if (command instanceof ICommand) {
+				executeCommand(request, response);
+			}
+		}
+	}
+
+	private void executeCommand(IRequest request, IResponse response) {
+		((ICommand) command).execute(request, response);
+	}
+
+	private void executeTinyDBCommand(IDatabase db, IRequest request, IResponse response) {
+		((ITinyDBCommand)command).execute(db, request, response);
+	}
+
+	private void enqueueRequest(IRequest request) {
+		getTransactionState(request.getSession()).enqueue(request);
+	}
+
+	private boolean isTxActive(IRequest request) {
+		return getTransactionState(request.getSession()) != null;
+	}
+
+	private TransactionState getTransactionState(ISession session) {
+		return session.getValue("tx");
 	}
 
 	private IDatabase getCurrentDB(IRequest request) {

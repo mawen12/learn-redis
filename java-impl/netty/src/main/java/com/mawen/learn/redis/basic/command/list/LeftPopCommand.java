@@ -3,7 +3,7 @@ package com.mawen.learn.redis.basic.command.list;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.IDatabase;
@@ -23,7 +23,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 @Command("lpop")
 @ParamLength(1)
 @ParamType(DataType.LIST)
-public class LeftPopCommand implements IRedisCommand {
+public class LeftPopCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

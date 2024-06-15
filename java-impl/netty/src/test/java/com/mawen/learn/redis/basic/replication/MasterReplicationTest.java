@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mawen.learn.redis.basic.ITinyDB;
-import com.mawen.learn.redis.basic.TinyDBServerState;
+import com.mawen.learn.redis.basic.data.Database;
+import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.resp.protocol.RedisToken;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,12 +26,12 @@ public class MasterReplicationTest {
 	@InjectMocks
 	private MasterReplication master;
 
-	private final TinyDBServerState serverState = new TinyDBServerState(1);
+	private final IDatabase db = new Database();
 
 	@Test
 	public void testReplication() {
 		when(server.getCommands()).thenReturn(asList(request()));
-		when(server.getValue("state")).thenReturn(serverState);
+		when(server.getAdminDatabase()).thenReturn(db);
 
 		master.addSlave("slave:1");
 		master.addSlave("slave:2");

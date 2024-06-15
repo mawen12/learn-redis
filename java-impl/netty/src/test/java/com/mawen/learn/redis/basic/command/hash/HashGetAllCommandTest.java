@@ -40,10 +40,10 @@ public class HashGetAllCommandTest {
 
 		assertThat(iter.next(), is(safeString("key1")));
 		assertThat(iter.next(), is(safeString("value1")));
-		assertThat(iter.next(), is(safeString("key2")));
-		assertThat(iter.next(), is(safeString("value2")));
 		assertThat(iter.next(), is(safeString("key3")));
 		assertThat(iter.next(), is(safeString("value3")));
+		assertThat(iter.next(), is(safeString("key2")));
+		assertThat(iter.next(), is(safeString("value2")));
 	}
 
 	@Test

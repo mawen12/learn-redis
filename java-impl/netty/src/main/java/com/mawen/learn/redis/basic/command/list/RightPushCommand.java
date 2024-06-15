@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
@@ -25,7 +25,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 @Command("rpush")
 @ParamLength(2)
 @ParamType(DataType.LIST)
-public class RightPushCommand implements IRedisCommand {
+public class RightPushCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

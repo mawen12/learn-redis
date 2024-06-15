@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
@@ -29,7 +29,7 @@ import static java.util.Arrays.*;
  */
 @ReadOnly
 @Command("info")
-public class InfoCommand implements IRedisCommand {
+public class InfoCommand implements ITinyDBCommand {
 
 	private static final String SHARP = "#";
 	private static final String SEPARATOR = ":";

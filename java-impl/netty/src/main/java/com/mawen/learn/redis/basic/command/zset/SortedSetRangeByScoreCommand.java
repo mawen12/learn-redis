@@ -7,7 +7,7 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
@@ -32,7 +32,7 @@ import static java.util.stream.Collectors.*;
 @Command("zrangebyscore")
 @ParamLength(3)
 @ParamType(DataType.ZSET)
-public class SortedSetRangeByScoreCommand implements IRedisCommand {
+public class SortedSetRangeByScoreCommand implements ITinyDBCommand {
 
 	private static final String EXCLUSIVE = "(";
 	private static final String MINUS_INFINITY = "-inf";

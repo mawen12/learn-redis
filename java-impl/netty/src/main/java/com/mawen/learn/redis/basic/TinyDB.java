@@ -12,7 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.mawen.learn.redis.basic.command.RedisCommandSuite;
+import com.mawen.learn.redis.basic.command.TinyDBCommandSuite;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.persistence.PersistenceManager;
@@ -50,7 +50,7 @@ public class TinyDB extends RedisServer implements ITinyDB {
 	}
 
 	public TinyDB(String host, int port, TinyDBConfig config) {
-		super(host, port, new RedisCommandSuite());
+		super(host, port, new TinyDBCommandSuite());
 		if (config.isPersistenceActive()) {
 			this.persistence = Optional.of(new PersistenceManager(this, config));
 		}

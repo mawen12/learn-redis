@@ -18,7 +18,7 @@ public class PublishCommandTest {
 
 	@Test
 	public void testExecute() {
-		rule.withData("subscriptions:test", set("localhost:12345"))
+		rule.withAdminData("subscriptions:test", set("localhost:12345"))
 				.withParams("test", "Hello World!")
 				.execute();
 

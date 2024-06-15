@@ -2,7 +2,7 @@ package com.mawen.learn.redis.basic.command.hash;
 
 import java.util.Map;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
@@ -25,7 +25,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 @Command("hexists")
 @ParamLength(2)
 @ParamType(DataType.HASH)
-public class HashExistsCommand implements IRedisCommand {
+public class HashExistsCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

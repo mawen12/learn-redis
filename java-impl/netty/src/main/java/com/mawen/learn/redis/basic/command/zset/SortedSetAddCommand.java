@@ -3,7 +3,7 @@ package com.mawen.learn.redis.basic.command.zset;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
@@ -27,7 +27,7 @@ import static java.util.stream.Collectors.*;
 @Command("zadd")
 @ParamLength(3)
 @ParamType(DataType.ZSET)
-public class SortedSetAddCommand implements IRedisCommand {
+public class SortedSetAddCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

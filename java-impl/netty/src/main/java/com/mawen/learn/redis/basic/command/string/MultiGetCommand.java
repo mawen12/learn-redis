@@ -3,7 +3,7 @@ package com.mawen.learn.redis.basic.command.string;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.RedisResponse;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
@@ -23,7 +23,7 @@ import static java.util.stream.Collectors.*;
 @ReadOnly
 @Command("mget")
 @ParamLength(1)
-public class MultiGetCommand implements IRedisCommand {
+public class MultiGetCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

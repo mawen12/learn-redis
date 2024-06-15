@@ -1,6 +1,6 @@
 package com.mawen.learn.redis.basic.command.hash;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.RedisResponse;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
@@ -22,7 +22,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 @Command("hgetall")
 @ParamLength(1)
 @ParamType(DataType.HASH)
-public class HashGetAllCommand implements IRedisCommand {
+public class HashGetAllCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

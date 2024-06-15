@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.PubSubAllowed;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.IDatabase;
@@ -27,7 +27,7 @@ import static java.util.Arrays.*;
 @Command("unsubscribe")
 @ParamLength(1)
 @PubSubAllowed
-public class UnsubscribeCommand implements IRedisCommand {
+public class UnsubscribeCommand implements ITinyDBCommand {
 
 	private static final SafeString UNSUBSCRIBE = safeString("unsubscribe");
 	private static final String SUBSCRIPTIONS_PREFIX = "subscriptions:";

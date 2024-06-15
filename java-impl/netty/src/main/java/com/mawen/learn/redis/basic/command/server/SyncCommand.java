@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import com.mawen.learn.redis.basic.ITinyDB;
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.replication.MasterReplication;
@@ -19,7 +19,7 @@ import com.mawen.learn.redis.resp.protocol.SafeString;
  */
 @ReadOnly
 @Command("sync")
-public class SyncCommand implements IRedisCommand {
+public class SyncCommand implements ITinyDBCommand {
 
 	private MasterReplication master;
 

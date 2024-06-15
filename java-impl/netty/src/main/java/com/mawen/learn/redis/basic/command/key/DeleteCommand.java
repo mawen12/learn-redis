@@ -1,6 +1,6 @@
 package com.mawen.learn.redis.basic.command.key;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.resp.annotation.Command;
@@ -17,7 +17,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
  */
 @Command("del")
 @ParamLength(1)
-public class DeleteCommand implements IRedisCommand {
+public class DeleteCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

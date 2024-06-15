@@ -1,6 +1,6 @@
 package com.mawen.learn.redis.basic.command.string;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.IDatabase;
@@ -19,7 +19,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 @Command("set")
 @ParamLength(2)
 @ParamType(DataType.STRING)
-public class SetCommand implements IRedisCommand {
+public class SetCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

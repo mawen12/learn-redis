@@ -2,7 +2,7 @@ package com.mawen.learn.redis.basic.command.set;
 
 import java.util.Set;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
@@ -25,7 +25,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 @Command("sismember")
 @ParamLength(2)
 @ParamType(DataType.SET)
-public class SetIsMemberCommand implements IRedisCommand {
+public class SetIsMemberCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {

@@ -61,7 +61,7 @@ public class CommandWrapperTest {
 
 	@Test
 	public void testExecute() {
-		RedisCommandWrapper wrapper = new RedisCommandWrapper(new SomeCommand());
+		TinyDBCommandWrapper wrapper = new TinyDBCommandWrapper(new SomeCommand());
 
 		wrapper.execute(request, response);
 
@@ -72,7 +72,7 @@ public class CommandWrapperTest {
 	public void testLengthOK() {
 		when(request.getLength()).thenReturn(3);
 
-		RedisCommandWrapper wrapper = new RedisCommandWrapper(new LengthCommand());
+		TinyDBCommandWrapper wrapper = new TinyDBCommandWrapper(new LengthCommand());
 
 		wrapper.execute(request, response);
 
@@ -83,7 +83,7 @@ public class CommandWrapperTest {
 	public void testLengthKO() {
 		when(request.getLength()).thenReturn(1);
 
-		RedisCommandWrapper wrapper = new RedisCommandWrapper(new LengthCommand());
+		TinyDBCommandWrapper wrapper = new TinyDBCommandWrapper(new LengthCommand());
 
 		wrapper.execute(request, response);
 
@@ -97,7 +97,7 @@ public class CommandWrapperTest {
 		when(db.isType(any(DatabaseKey.class), eq(DataType.STRING))).thenReturn(true);
 		when(request.getParam(0)).thenReturn(safeString("test"));
 
-		RedisCommandWrapper wrapper = new RedisCommandWrapper(new TypeCommand());
+		TinyDBCommandWrapper wrapper = new TinyDBCommandWrapper(new TypeCommand());
 
 		wrapper.execute(request, response);
 
@@ -109,7 +109,7 @@ public class CommandWrapperTest {
 		when(db.isType(any(DatabaseKey.class), eq(DataType.STRING))).thenReturn(false);
 		when(request.getParam(0)).thenReturn(safeString("test"));
 
-		RedisCommandWrapper wrapper = new RedisCommandWrapper(new TypeCommand());
+		TinyDBCommandWrapper wrapper = new TinyDBCommandWrapper(new TypeCommand());
 
 		wrapper.execute(request, response);
 
@@ -119,7 +119,7 @@ public class CommandWrapperTest {
 	}
 
 
-	private static class SomeCommand implements IRedisCommand {
+	private static class SomeCommand implements ITinyDBCommand {
 
 		@Override
 		public void execute(IDatabase db, IRequest request, IResponse response) {
@@ -128,7 +128,7 @@ public class CommandWrapperTest {
 	}
 
 	@ParamLength(2)
-	private static class LengthCommand implements IRedisCommand {
+	private static class LengthCommand implements ITinyDBCommand {
 		@Override
 		public void execute(IDatabase db, IRequest request, IResponse response) {
 			response.addSimpleStr(RESULT_OK);
@@ -136,7 +136,7 @@ public class CommandWrapperTest {
 	}
 
 	@ParamType(DataType.STRING)
-	private static class TypeCommand implements IRedisCommand {
+	private static class TypeCommand implements ITinyDBCommand {
 		@Override
 		public void execute(IDatabase db, IRequest request, IResponse response) {
 			response.addSimpleStr(RESULT_OK);

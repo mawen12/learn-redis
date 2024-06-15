@@ -51,6 +51,8 @@ import com.mawen.learn.redis.basic.command.string.MultiSetCommand;
 import com.mawen.learn.redis.basic.command.string.SetCommand;
 import com.mawen.learn.redis.basic.command.string.SetExpiredCommand;
 import com.mawen.learn.redis.basic.command.string.StringLengthCommand;
+import com.mawen.learn.redis.basic.command.transaction.ExecCommand;
+import com.mawen.learn.redis.basic.command.transaction.MultiCommand;
 import com.mawen.learn.redis.basic.command.zset.SortedSetAddCommand;
 import com.mawen.learn.redis.basic.command.zset.SortedSetCardinalityCommand;
 import com.mawen.learn.redis.basic.command.zset.SortedSetRangeByScoreCommand;
@@ -64,9 +66,9 @@ import com.mawen.learn.redis.resp.command.ICommand;
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/14
  */
-public class RedisCommandSuite extends CommandSuite {
+public class TinyDBCommandSuite extends CommandSuite {
 
-	public RedisCommandSuite() {
+	public TinyDBCommandSuite() {
 		// connection
 		addCommand(SelectCommand.class);
 		addCommand(SyncCommand.class);
@@ -141,13 +143,14 @@ public class RedisCommandSuite extends CommandSuite {
 		addCommand(PublishCommand.class);
 		addCommand(SubscribeCommand.class);
 		addCommand(UnsubscribeCommand.class);
+
+		// transactions
+		addCommand(MultiCommand.class);
+		addCommand(ExecCommand.class);
 	}
 
 	@Override
 	protected ICommand wrap(Object command) {
-		if (command instanceof IRedisCommand) {
-			return new RedisCommandWrapper((IRedisCommand)command);
-		}
-		return super.wrap(command);
+		return new TinyDBCommandWrapper(command);
 	}
 }

@@ -1,6 +1,6 @@
 package com.mawen.learn.redis.basic.command.key;
 
-import com.mawen.learn.redis.basic.command.IRedisCommand;
+import com.mawen.learn.redis.basic.command.ITinyDBCommand;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.resp.annotation.Command;
@@ -17,7 +17,7 @@ import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 @ReadOnly
 @Command("exists")
 @ParamLength(1)
-public class ExistsCommand implements IRedisCommand {
+public class ExistsCommand implements ITinyDBCommand {
 
 	@Override
 	public void execute(IDatabase db, IRequest request, IResponse response) {
