@@ -66,7 +66,7 @@ public class RedisServer implements IRedis, IServerContext {
 
 	protected final Map<String, Object> state = new HashMap<>();
 
-	protected final Map<String, ISession> clients = new HashMap<>();
+	protected final ThreadSafeCache<String, ISession> clients = new ThreadSafeCache<>();
 
 	protected final CommandSuite commands;
 
@@ -170,9 +170,7 @@ public class RedisServer implements IRedis, IServerContext {
 	}
 
 	private ISession getSession(String sourceKey, ChannelHandlerContext ctx) {
-		ISession session = clients.getOrDefault(sourceKey, new Session(sourceKey, ctx));
-		clients.putIfAbsent(sourceKey, session);
-		return session;
+		return clients.get(sourceKey, key -> new Session(key, ctx), this::createSession);
 	}
 
 	protected void createSession(ISession session) {
@@ -274,5 +272,11 @@ public class RedisServer implements IRedis, IServerContext {
 	@Override
 	public void putValue(String key, Object value) {
 		state.put(key, value);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T> T removeValue(String key) {
+		return (T) state.remove(key);
 	}
 }

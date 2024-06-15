@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 import com.mawen.learn.redis.resp.protocol.SafeString;
+import io.netty.buffer.ByteBuf;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -19,7 +20,7 @@ public class Response implements IResponse {
 	private static final byte SIMPLE_STRING = '+';
 	private static final byte BULK_STRING = '$';
 
-	private static final byte[] DELIMITER = new byte[]{'\r', '\n'};
+	private static final byte[] DELIMITER = new byte[] {'\r', '\n'};
 
 	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
@@ -88,6 +89,9 @@ public class Response implements IResponse {
 				}
 				else if (value instanceof String) {
 					addSimpleStr((String) value);
+				}
+				else if (value instanceof byte[]) {
+					builder.append((byte[]) value);
 				}
 			}
 		}
@@ -163,8 +167,13 @@ public class Response implements IResponse {
 
 		private void ensureCapacity(int len) {
 			if (buffer.remaining() < len) {
-				buffer = ByteBuffer.allocate(buffer.capacity() + Math.max(len, INITIAL_CAPACITY)).put(build());
+				growBuffer(len);
 			}
+		}
+
+		private void growBuffer(int len) {
+			int capacity = buffer.capacity() + Math.max(len, INITIAL_CAPACITY);
+			buffer = ByteBuffer.allocate(capacity).put(build());
 		}
 
 		public byte[] build() {

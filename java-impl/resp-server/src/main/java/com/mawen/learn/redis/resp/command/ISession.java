@@ -17,4 +17,6 @@ public interface ISession {
 	<T> T getValue(String key);
 
 	void putValue(String key, Object value);
+
+	<T> T removeValue(String key);
 }

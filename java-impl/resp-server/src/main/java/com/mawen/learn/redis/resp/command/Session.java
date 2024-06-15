@@ -47,4 +47,10 @@ public class Session implements ISession {
 	public void putValue(String key, Object value) {
 		state.put(key, value);
 	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T> T removeValue(String key) {
+		return (T) state.remove(key);
+	}
 }
