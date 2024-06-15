@@ -24,7 +24,7 @@ import static java.util.Objects.*;
  */
 public class RedisClient implements IRedis {
 
-	private static final Logger logger = Logger.getLogger(TinyDBClient.class.getName());
+	private static final Logger logger = Logger.getLogger(RedisClient.class.getName());
 
 	private static final int BUFFER_SIZE = 1024 * 1024;
 	private static final int MAX_FRAME_SIZE = BUFFER_SIZE * 100;
@@ -37,16 +37,23 @@ public class RedisClient implements IRedis {
 
 	private ChannelFuture future;
 
-	private ChannelHandlerContext ctx;
+	private ChannelHandlerContext context;
 	private RedisInitializerHandler acceptHandler;
 	private RedisConnectionHandler connectionHandler;
 
 	private final IRedisCallback callback;
 
 	public RedisClient(String host, int port, IRedisCallback callback) {
-		this.host = host;
-		this.port = port;
+		this.host = requireNonNull(host);
+		this.port = requireRange(port, 1024, 65535);
 		this.callback = requireNonNull(callback);
+	}
+
+	private int requireRange(int value, int min, int max) {
+		if (value <= min || value > max) {
+			throw new IllegalArgumentException(min + " <= " + value + " < " + max);
+		}
+		return value;
 	}
 
 	public void start() {
@@ -103,7 +110,7 @@ public class RedisClient implements IRedis {
 	public void connected(ChannelHandlerContext ctx) {
 		logger.info(() -> "channel active");
 
-		this.ctx = ctx;
+		this.context = ctx;
 
 		callback.onConnect();
 	}
@@ -112,16 +119,16 @@ public class RedisClient implements IRedis {
 	public void disconnected(ChannelHandlerContext ctx) {
 		logger.info(() -> "client disconnected from server: " + host + ":" + port);
 
-		if (this.ctx != null) {
+		if (this.context != null) {
 			callback.onDisconnect();
 
-			this.ctx = null;
+			this.context = null;
 		}
 	}
 
 	public void send(String message) {
-		if (this.ctx != null) {
-			this.ctx.writeAndFlush(message);
+		if (this.context != null) {
+			this.context.writeAndFlush(message);
 		}
 	}
 

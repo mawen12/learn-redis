@@ -21,6 +21,8 @@ public class CommandSuite {
 
 	private final Map<String, ICommand> commands = new HashMap<>();
 
+	private final NullCommand nullCommand = new NullCommand();
+
 	public CommandSuite() {
 		addCommand(PingCommand.class);
 		addCommand(EchoCommand.class);
@@ -54,6 +56,6 @@ public class CommandSuite {
 	}
 
 	public ICommand getCommand(String name) {
-		return commands.get(name.toLowerCase());
+		return commands.getOrDefault(name.toLowerCase(), nullCommand);
 	}
 }

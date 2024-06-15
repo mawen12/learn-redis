@@ -72,9 +72,16 @@ public class RedisServer implements IRedis, IServerContext {
 
 
 	public RedisServer(String host, int port, CommandSuite commands) {
-		this.port = port;
-		this.host = host;
+		this.host = requireNonNull(host);
+		this.port = requireRange(port, 1024, 65535);
 		this.commands = requireNonNull(commands);
+	}
+
+	private int requireRange(int value, int min, int max) {
+		if (value <= min || value > max) {
+			throw new IllegalArgumentException(min + " <= " + value + " < " + max);
+		}
+		return value;
 	}
 
 	public void start() {
@@ -204,19 +211,13 @@ public class RedisServer implements IRedis, IServerContext {
 		logger.fine(() -> "received command: " + request);
 
 		IResponse response = new Response();
-		ISession session = request.getSession();
 		ICommand command = commands.getCommand(request.getCommand());
 
-		if (command != null) {
-			try {
-				executeCommand(command, request, response);
-			}
-			catch (RuntimeException e) {
-				logger.log(Level.SEVERE, "error executing command: " + request, e);
-			}
+		try {
+			executeCommand(command, request, response);
 		}
-		else {
-			writeResponse(session, response.addError("ERR unknown command '" + request.getCommand() + "'"));
+		catch (RuntimeException e) {
+			logger.log(Level.SEVERE, "error executing command: " + request, e);
 		}
 	}
 
@@ -234,7 +235,7 @@ public class RedisServer implements IRedis, IServerContext {
 	}
 
 	private ByteBuf responseToBuffer(ISession session, IResponse response) {
-		byte[] array = ((Response)response).getBytes();
+		byte[] array = ((Response) response).getBytes();
 		return bytesToBuffer(session, array);
 	}
 

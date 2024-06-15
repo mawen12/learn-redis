@@ -18,3 +18,4 @@ public class QuitCommand implements ICommand {
 		response.addSimpleStr(IResponse.RESULT_OK).exit();
 	}
 }
+
