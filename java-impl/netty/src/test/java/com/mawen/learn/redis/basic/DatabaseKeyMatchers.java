@@ -5,7 +5,8 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
+
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>

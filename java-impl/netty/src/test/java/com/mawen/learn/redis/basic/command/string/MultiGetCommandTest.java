@@ -5,14 +5,14 @@ import java.util.Iterator;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
-import com.mawen.learn.redis.basic.data.DatabaseValue;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -23,7 +23,7 @@ public class MultiGetCommandTest {
 	public final CommandRule rule = new CommandRule(this);
 
 	@Captor
-	private ArgumentCaptor<Collection<DatabaseValue>> captor;
+	private ArgumentCaptor<Collection<SafeString>> captor;
 
 	@Test
 	public void testExecute() {
@@ -31,18 +31,15 @@ public class MultiGetCommandTest {
 				.withData("c",string("2"))
 				.withParams("a", "b", "c")
 				.execute()
-				.verify().addArrayValue(captor.capture());
+				.verify().addArray(captor.capture());
 
-		Collection<DatabaseValue> result = captor.getValue();
+		Collection<SafeString> result = captor.getValue();
 
-		Iterator<DatabaseValue> iterator = result.iterator();
-		DatabaseValue a = iterator.next();
-		DatabaseValue b = iterator.next();
-		DatabaseValue c = iterator.next();
+		Iterator<SafeString> iterator = result.iterator();
 
-		assertThat(a.getValue(), is(safeString("1")));
-		assertThat(b, is(nullValue()));
-		assertThat(c.getValue(), is(safeString("2")));
+		assertThat(iterator.next(), is(safeString("1")));
+		assertThat(iterator.next(), is(nullValue()));
+		assertThat(iterator.next(), is(safeString("2")));
 	}
 
 }

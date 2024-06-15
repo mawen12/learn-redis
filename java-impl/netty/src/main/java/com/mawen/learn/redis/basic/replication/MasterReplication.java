@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import com.mawen.learn.redis.basic.ITinyDB;
-import com.mawen.learn.redis.basic.RedisServerState;
+import com.mawen.learn.redis.basic.TinyDBServerState;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.resp.command.Response;
@@ -109,7 +109,7 @@ public class MasterReplication implements Runnable {
 		return cmd;
 	}
 
-	private RedisServerState getServerState() {
+	private TinyDBServerState getServerState() {
 		return server.getValue("state");
 	}
 }

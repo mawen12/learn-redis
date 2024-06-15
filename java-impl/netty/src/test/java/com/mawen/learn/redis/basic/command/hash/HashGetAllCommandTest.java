@@ -1,11 +1,11 @@
 package com.mawen.learn.redis.basic.command.hash;
 
-import java.util.Map;
+import java.util.Collection;
+import java.util.Iterator;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
-import com.mawen.learn.redis.basic.data.DatabaseValue;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -13,7 +13,7 @@ import org.mockito.Captor;
 
 import static com.mawen.learn.redis.basic.DatabaseValueMatchers.entry;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
@@ -25,22 +25,25 @@ public class HashGetAllCommandTest {
 	public final CommandRule rule = new CommandRule(this);
 
 	@Captor
-	private ArgumentCaptor<DatabaseValue> captor;
+	private ArgumentCaptor<Collection<SafeString>> captor;
 
 	@Test
 	public void testExecute() {
 		rule.withData("a", hash(entry("key1", "value1"), entry("key2", "value2"), entry("key3", "value3")))
 				.withParams("a")
 				.execute()
-				.verify().addValue(captor.capture());
+				.verify().addArray(captor.capture());
 
-		DatabaseValue value = captor.getValue();
+		Collection<SafeString> value = captor.getValue();
 
-		Map<SafeString, SafeString> map = value.getValue();
+		Iterator<SafeString> iter = value.iterator();
 
-		assertThat(map.get(safeString("key1")), is(safeString("value1")));
-		assertThat(map.get(safeString("key2")), is(safeString("value2")));
-		assertThat(map.get(safeString("key3")), is(safeString("value3")));
+		assertThat(iter.next(), is(safeString("key1")));
+		assertThat(iter.next(), is(safeString("value1")));
+		assertThat(iter.next(), is(safeString("key2")));
+		assertThat(iter.next(), is(safeString("value2")));
+		assertThat(iter.next(), is(safeString("key3")));
+		assertThat(iter.next(), is(safeString("value3")));
 	}
 
 	@Test

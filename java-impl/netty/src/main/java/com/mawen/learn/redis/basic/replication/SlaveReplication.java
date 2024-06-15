@@ -8,55 +8,51 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.mawen.learn.redis.basic.ITinyDBCallback;
-import com.mawen.learn.redis.basic.TinyDBClient;
-import com.mawen.learn.redis.basic.command.ICommand;
-import com.mawen.learn.redis.basic.command.IServerContext;
-import com.mawen.learn.redis.basic.command.ISession;
-import com.mawen.learn.redis.basic.command.Request;
-import com.mawen.learn.redis.basic.command.Response;
-import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.ITinyDB;
 import com.mawen.learn.redis.basic.persistence.ByteBufferInputStream;
-import com.mawen.learn.redis.basic.redis.RedisArray;
-import com.mawen.learn.redis.basic.redis.RedisToken;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.IRedisCallback;
+import com.mawen.learn.redis.resp.RedisClient;
+import com.mawen.learn.redis.resp.command.ICommand;
+import com.mawen.learn.redis.resp.command.ISession;
+import com.mawen.learn.redis.resp.command.Request;
+import com.mawen.learn.redis.resp.command.Response;
+import com.mawen.learn.redis.resp.protocol.RedisToken;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/12
  */
-public class SlaveReplication implements ITinyDBCallback {
+public class SlaveReplication implements IRedisCallback {
 
 	private static final Logger logger = Logger.getLogger(SlaveReplication.class.getName());
 
-	private static final String SYNC_COMMAND = "SYNC\r\n";
+	private final RedisClient client;
 
-	private final TinyDBClient client;
-
-	private final IServerContext server;
+	private final ITinyDB server;
 
 	private final ISession session;
 
-	public SlaveReplication(IServerContext server, ISession session, String host, int port) {
+	public SlaveReplication(ITinyDB server, ISession session, String host, int port) {
 		this.server = server;
 		this.session = session;
-		this.client = new TinyDBClient(host, port, this);
+		this.client = new RedisClient(host, port, this);
 	}
 
 	public void start() {
-		this.client.start();
+		client.start();
 		server.setMaster(false);
 	}
 
 	public void stop() {
-		this.client.stop();
+		client.stop();
 		server.setMaster(true);
 	}
 
 	@Override
 	public void onConnect() {
 		logger.info(() -> "Connected with master");
-		this.client.send(SYNC_COMMAND);
+
 	}
 
 	@Override
@@ -79,7 +75,7 @@ public class SlaveReplication implements ITinyDBCallback {
 	}
 
 	private void processCommand(RedisToken token) {
-		RedisArray array = token.<RedisArray>getValue();
+		List<RedisToken> array = token.getValue();
 
 		RedisToken commandToken = array.remove(0);
 
@@ -88,16 +84,15 @@ public class SlaveReplication implements ITinyDBCallback {
 		ICommand command = server.getCommand(commandToken.getValue().toString());
 
 		if (command != null) {
-			IDatabase current = server.getDatabase(session.getCurrentDB());
-			command.execute(current, request(commandToken, array), new Response());
+			command.execute(request(commandToken,array),new Response());
 		}
 	}
 
-	private Request request(RedisToken commandToken, RedisArray array) {
+	private Request request(RedisToken commandToken, List<RedisToken> array) {
 		return new Request(server, session, commandToken.getValue(), arrayToList(array));
 	}
 
-	private List<SafeString> arrayToList(RedisArray request) {
+	private List<SafeString> arrayToList(List<RedisToken> request) {
 		List<SafeString> cmd = new LinkedList<>();
 		for (RedisToken token : request) {
 			cmd.add(token.getValue());

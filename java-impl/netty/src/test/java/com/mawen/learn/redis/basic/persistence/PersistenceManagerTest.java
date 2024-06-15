@@ -5,13 +5,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
-import com.mawen.learn.redis.basic.command.ICommand;
-import com.mawen.learn.redis.basic.command.IServerContext;
+import com.mawen.learn.redis.basic.ITinyDB;
 import com.mawen.learn.redis.basic.data.IDatabase;
-import com.mawen.learn.redis.basic.redis.RedisArray;
-import com.mawen.learn.redis.basic.redis.RedisToken;
+import com.mawen.learn.redis.resp.command.ICommand;
+import com.mawen.learn.redis.resp.protocol.RedisToken;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +23,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import static com.mawen.learn.redis.basic.TinyDBConfig.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.any;
@@ -36,7 +37,7 @@ public class PersistenceManagerTest {
 	private static final String DUMP_FILE = "dump.rdb";
 
 	@Mock
-	private IServerContext server;
+	private ITinyDB server;
 
 	private PersistenceManager manager;
 
@@ -89,7 +90,7 @@ public class PersistenceManagerTest {
 		manager.start();
 
 		verify(server).importRDB(any());
-		verify(cmd).execute(any(), any(), any());
+		verify(cmd).execute(any(), any());
 
 		assertThat(new File(REDO_FILE).exists(), is(true));
 	}
@@ -119,8 +120,8 @@ public class PersistenceManagerTest {
 		return str;
 	}
 
-	private RedisArray array() {
-		RedisArray array = new RedisArray();
+	private List<RedisToken> array() {
+		List<RedisToken> array = new LinkedList<>();
 		array.add(token("PING"));
 		return array;
 	}

@@ -8,27 +8,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.crypto.Data;
-
 import com.mawen.learn.redis.basic.data.Database;
+import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.persistence.RDBInputStream;
 import com.mawen.learn.redis.basic.persistence.RDBOutputStream;
 
+import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
+
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/14
  */
-public class RedisServerState {
+public class TinyDBServerState {
 
-	private static final String SLAVES_KEY = "slaves";
+	private static final int RDB_VERSION = 6;
+
+	private static final DatabaseKey SLAVES_KEY = safeKey(safeString("slaves"));
 
 	private boolean master;
 	private final List<IDatabase> databases = new ArrayList<>();
 	private final IDatabase admin = new Database();
 
-	public RedisServerState(int numDatabases) {
+	public TinyDBServerState(int numDatabases) {
 		this.master = true;
 		for (int i = 0; i < numDatabases; i++) {
 			databases.add(new Database());
@@ -56,13 +60,14 @@ public class RedisServerState {
 	}
 
 	public boolean hasSlaves() {
-		return !admin.getOrDefault(SLAVES_KEY, DatabaseValue.EMPTY_SET).<Set<String>>getValue().isEmpty();
+		DatabaseValue slaves = admin.getOrDefault(SLAVES_KEY, DatabaseValue.EMPTY_SET);
+		return !slaves.<Set<String>>getValue().isEmpty();
 	}
 
 	public void exportRDB(OutputStream output) throws IOException {
 		RDBOutputStream rdb = new RDBOutputStream(output);
 
-		 rdb.preamble(6);
+		rdb.preamble(RDB_VERSION);
 		for (int i = 0; i < databases.size(); i++) {
 			IDatabase db = databases.get(i);
 			if (!db.isEmpty()) {
@@ -76,8 +81,6 @@ public class RedisServerState {
 	public void importRDB(InputStream input) throws IOException {
 		RDBInputStream rdb = new RDBInputStream(input);
 
-		for (Map.Entry<Integer, IDatabase> entry : rdb.parse().entrySet()) {
-			databases.set(entry.getKey(), entry.getValue());
-		}
+		rdb.parse().forEach(this.databases::set);
 	}
 }

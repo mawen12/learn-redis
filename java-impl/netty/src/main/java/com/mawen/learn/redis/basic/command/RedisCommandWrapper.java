@@ -1,7 +1,7 @@
 package com.mawen.learn.redis.basic.command;
 
-import com.mawen.learn.redis.basic.RedisServerState;
-import com.mawen.learn.redis.basic.RedisSessionState;
+import com.mawen.learn.redis.basic.TinyDBServerState;
+import com.mawen.learn.redis.basic.TinyDBSessionState;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.command.annotation.PubSubAllowed;
 import com.mawen.learn.redis.basic.data.DataType;
@@ -11,6 +11,8 @@ import com.mawen.learn.redis.resp.annotation.ParamLength;
 import com.mawen.learn.redis.resp.command.ICommand;
 import com.mawen.learn.redis.resp.command.IRequest;
 import com.mawen.learn.redis.resp.command.IResponse;
+import com.mawen.learn.redis.resp.command.IServerContext;
+import com.mawen.learn.redis.resp.command.ISession;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -59,20 +61,20 @@ public class RedisCommandWrapper implements ICommand {
 	}
 
 	private IDatabase getCurrentDB(IRequest request) {
-		RedisServerState serverState = getServerState(request);
-		RedisSessionState sessionState = getSessionState(request);
+		TinyDBServerState serverState = getServerState(request.getServerContext());
+		TinyDBSessionState sessionState = getSessionState(request.getSession());
 		return serverState.getDatabase(sessionState.getCurrentDB());
 	}
 
-	private RedisSessionState getSessionState(IRequest request) {
-		return request.getSession().getValue("state");
+	private TinyDBSessionState getSessionState(ISession session) {
+		return session.getValue("state");
 	}
 
-	private RedisServerState getServerState(IRequest request) {
-		return request.getServerContext().getValue("state");
+	private TinyDBServerState getServerState(IServerContext server) {
+		return server.getValue("state");
 	}
 
 	private boolean isSubscribed(IRequest request) {
-		return !getSessionState(request).getSubscriptions().isEmpty();
+		return !getSessionState(request.getSession()).getSubscriptions().isEmpty();
 	}
 }

@@ -1,12 +1,16 @@
 package com.mawen.learn.redis.basic.command;
 
-import java.util.Collections;
-
-import com.mawen.learn.redis.basic.command.annotation.ParamLength;
+import com.mawen.learn.redis.basic.ITinyDB;
+import com.mawen.learn.redis.basic.TinyDBServerState;
+import com.mawen.learn.redis.basic.TinyDBSessionState;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.resp.annotation.ParamLength;
+import com.mawen.learn.redis.resp.command.IRequest;
+import com.mawen.learn.redis.resp.command.IResponse;
+import com.mawen.learn.redis.resp.command.ISession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,8 +18,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.mawen.learn.redis.basic.command.ICommand.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.command.IResponse.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,17 +40,30 @@ public class CommandWrapperTest {
 	@Mock
 	private ISession session;
 
+	@Mock
+	private ITinyDB server;
+
+	@Mock
+	private TinyDBSessionState sessionState;
+
+	@Mock
+	private TinyDBServerState serverState;
+
 	@Before
 	public void setUp() {
 		when(request.getSession()).thenReturn(session);
-		when(session.getSubscriptions()).thenReturn(Collections.emptySet());
+		when(request.getServerContext()).thenReturn(server);
+		when(session.getValue("state")).thenReturn(sessionState);
+		when(server.getValue("state")).thenReturn(serverState);
+		when(sessionState.getCurrentDB()).thenReturn(1);
+		when(serverState.getDatabase(1)).thenReturn(db);
 	}
 
 	@Test
 	public void testExecute() {
-		CommandWrapper wrapper = new CommandWrapper(command);
+		RedisCommandWrapper wrapper = new RedisCommandWrapper(new SomeCommand());
 
-		wrapper.execute(db, request, response);
+		wrapper.execute(request, response);
 
 		verify(response).addSimpleStr(RESULT_OK);
 	}
@@ -55,9 +72,9 @@ public class CommandWrapperTest {
 	public void testLengthOK() {
 		when(request.getLength()).thenReturn(3);
 
-		CommandWrapper wrapper = new CommandWrapper(new LengthCommand());
+		RedisCommandWrapper wrapper = new RedisCommandWrapper(new LengthCommand());
 
-		wrapper.execute(db, request, response);
+		wrapper.execute(request, response);
 
 		verify(response).addSimpleStr(RESULT_OK);
 	}
@@ -66,9 +83,9 @@ public class CommandWrapperTest {
 	public void testLengthKO() {
 		when(request.getLength()).thenReturn(1);
 
-		CommandWrapper wrapper = new CommandWrapper(new LengthCommand());
+		RedisCommandWrapper wrapper = new RedisCommandWrapper(new LengthCommand());
 
-		wrapper.execute(db, request, response);
+		wrapper.execute(request, response);
 
 		verify(response, times(0)).addSimpleStr(RESULT_OK);
 
@@ -80,9 +97,9 @@ public class CommandWrapperTest {
 		when(db.isType(any(DatabaseKey.class), eq(DataType.STRING))).thenReturn(true);
 		when(request.getParam(0)).thenReturn(safeString("test"));
 
-		CommandWrapper wrapper = new CommandWrapper(new TypeCommand());
+		RedisCommandWrapper wrapper = new RedisCommandWrapper(new TypeCommand());
 
-		wrapper.execute(db, request, response);
+		wrapper.execute(request, response);
 
 		verify(response).addSimpleStr(RESULT_OK);
 	}
@@ -92,9 +109,9 @@ public class CommandWrapperTest {
 		when(db.isType(any(DatabaseKey.class), eq(DataType.STRING))).thenReturn(false);
 		when(request.getParam(0)).thenReturn(safeString("test"));
 
-		CommandWrapper wrapper = new CommandWrapper(new TypeCommand());
+		RedisCommandWrapper wrapper = new RedisCommandWrapper(new TypeCommand());
 
-		wrapper.execute(db, request, response);
+		wrapper.execute(request, response);
 
 		verify(response, times(0)).addSimpleStr(RESULT_OK);
 
@@ -102,7 +119,7 @@ public class CommandWrapperTest {
 	}
 
 
-	private static class SomeCommand implements ICommand {
+	private static class SomeCommand implements IRedisCommand {
 
 		@Override
 		public void execute(IDatabase db, IRequest request, IResponse response) {
@@ -111,7 +128,7 @@ public class CommandWrapperTest {
 	}
 
 	@ParamLength(2)
-	private static class LengthCommand implements ICommand {
+	private static class LengthCommand implements IRedisCommand {
 		@Override
 		public void execute(IDatabase db, IRequest request, IResponse response) {
 			response.addSimpleStr(RESULT_OK);
@@ -119,7 +136,7 @@ public class CommandWrapperTest {
 	}
 
 	@ParamType(DataType.STRING)
-	private static class TypeCommand implements ICommand {
+	private static class TypeCommand implements IRedisCommand {
 		@Override
 		public void execute(IDatabase db, IRequest request, IResponse response) {
 			response.addSimpleStr(RESULT_OK);

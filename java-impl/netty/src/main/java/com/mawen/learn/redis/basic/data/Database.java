@@ -1,6 +1,6 @@
 package com.mawen.learn.redis.basic.data;
 
-import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -198,7 +198,7 @@ public class Database implements IDatabase, Runnable {
 	public Set<Entry<DatabaseKey, DatabaseValue>> entrySet() {
 		long stamp = lock.readLock();
 		try {
-			return cache.entrySet().stream().map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue())).collect(toSet());
+			return cache.entrySet().stream().map(entry -> new SimpleEntry<>(entry.getKey(), entry.getValue())).collect(toSet());
 		}
 		finally {
 			lock.unlockRead(stamp);

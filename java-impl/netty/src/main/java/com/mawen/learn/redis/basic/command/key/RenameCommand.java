@@ -4,7 +4,6 @@ import com.mawen.learn.redis.basic.command.IRedisCommand;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.resp.annotation.Command;
 import com.mawen.learn.redis.resp.annotation.ParamLength;
-import com.mawen.learn.redis.resp.command.ICommand;
 import com.mawen.learn.redis.resp.command.IRequest;
 import com.mawen.learn.redis.resp.command.IResponse;
 

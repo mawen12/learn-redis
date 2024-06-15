@@ -5,7 +5,7 @@ import com.mawen.learn.redis.basic.command.CommandUnderTest;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 
 @CommandUnderTest(DecrementCommand.class)
 public class DecrementCommandTest {

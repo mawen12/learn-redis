@@ -5,16 +5,15 @@ import java.util.Iterator;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
-import com.mawen.learn.redis.basic.command.ISession;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
 import static com.mawen.learn.redis.basic.DatabaseValueMatchers.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
-import static org.hamcrest.CoreMatchers.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 @CommandUnderTest(SubscribeCommand.class)
@@ -32,7 +31,7 @@ public class SubscribeCommandTest {
 				.execute()
 				.assertValue("subscriptions:test", isSet("localhost:12345"));
 
-		rule.verify(ISession.class).addSubscription(safeString("test"));
+		assertThat(rule.getSessionState().getSubscriptions(), contains(safeString("test")));
 
 		rule.verify().addArray(captor.capture());
 

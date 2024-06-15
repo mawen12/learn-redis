@@ -74,7 +74,6 @@ public class Client implements IRedisCallback {
 			RedisClient client = new RedisClient(optionHost, optionPort, callback);
 			client.start();
 
-
 			prompt();
 			try (Scanner scanner = new Scanner(System.in, CHARSET_NAME)) {
 				for (boolean quit = false; !quit && scanner.hasNextLine(); prompt()) {

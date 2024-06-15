@@ -3,12 +3,13 @@ package com.mawen.learn.redis.basic;
 import java.util.Map;
 
 import com.mawen.learn.redis.basic.data.DatabaseValue;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsNull;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -33,14 +34,22 @@ public class DatabaseValueMatchers {
 	}
 
 	public static Matcher<DatabaseValue> isString(String expected) {
-		return new IsEqual<>(string(expected));
+		return IsEqual.equalTo(string(expected));
 	}
 
 	public static Matcher<DatabaseValue> isList(String... expected) {
-		return new IsEqual<>(list(expected));
+		return IsEqual.equalTo(list(expected));
 	}
 
 	public static Matcher<DatabaseValue> isSet(String... expected) {
-		return new IsEqual<>(set(expected));
+		return IsEqual.equalTo(set(expected));
+	}
+
+	public static Matcher<DatabaseValue> notNullValue() {
+		return IsNull.notNullValue(DatabaseValue.class);
+	}
+
+	public static Matcher<DatabaseValue> nullValue() {
+		return IsNull.nullValue(DatabaseValue.class);
 	}
 }

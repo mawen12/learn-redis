@@ -2,7 +2,7 @@ package com.mawen.learn.redis.basic.command.server;
 
 import com.mawen.learn.redis.basic.command.CommandRule;
 import com.mawen.learn.redis.basic.command.CommandUnderTest;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 import org.junit.Rule;
 import org.junit.Test;
 

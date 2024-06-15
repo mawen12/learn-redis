@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.DatabaseKeyMatchers.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.*;

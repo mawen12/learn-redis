@@ -11,7 +11,7 @@ import com.mawen.learn.redis.resp.protocol.SafeString;
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
  * @since 2024/6/14
  */
-public class RedisSessionState {
+public class TinyDBSessionState {
 
 	private int db;
 
@@ -40,7 +40,15 @@ public class RedisSessionState {
 	}
 
 	public void enqueue(Runnable task) {
-		executor.submit(task);
+		executor.execute(task);
+	}
+
+	public boolean isSubscribed() {
+		return !subscriptions.isEmpty();
+	}
+
+	public void destroy() {
+		executor.shutdown();
 	}
 
 }

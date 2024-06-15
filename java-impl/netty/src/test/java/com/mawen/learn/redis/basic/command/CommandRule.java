@@ -2,11 +2,16 @@ package com.mawen.learn.redis.basic.command;
 
 import java.util.Optional;
 
-import com.mawen.learn.redis.basic.data.Database;
+import com.mawen.learn.redis.basic.ITinyDB;
+import com.mawen.learn.redis.basic.TinyDBServerState;
+import com.mawen.learn.redis.basic.TinyDBSessionState;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
-import com.mawen.learn.redis.basic.redis.SafeString;
+import com.mawen.learn.redis.resp.command.IRequest;
+import com.mawen.learn.redis.resp.command.IResponse;
+import com.mawen.learn.redis.resp.command.IServerContext;
+import com.mawen.learn.redis.resp.command.ISession;
 import org.hamcrest.Matcher;
 import org.junit.Assert;
 import org.junit.rules.TestRule;
@@ -14,11 +19,10 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import static com.mawen.learn.redis.basic.DatabaseKeyMatchers.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -31,15 +35,17 @@ public class CommandRule implements TestRule {
 
 	private IResponse response;
 
-	private IDatabase database;
-
-	private IServerContext server;
+	private ITinyDB server;
 
 	private ISession session;
 
 	private final Object target;
 
-	private ICommand command;
+	private IRedisCommand command;
+
+	private final TinyDBServerState serverState = new TinyDBServerState(1);
+
+	private final TinyDBSessionState sessionState = new TinyDBSessionState();
 
 	public CommandRule(Object target) {
 		super();
@@ -55,7 +61,11 @@ public class CommandRule implements TestRule {
 	}
 
 	public IDatabase getDatabase() {
-		return database;
+		return serverState.getDatabase(0);
+	}
+
+	public IDatabase getAdminDatabase() {
+		return serverState.getAdminDatabase();
 	}
 
 	@Override
@@ -63,17 +73,18 @@ public class CommandRule implements TestRule {
 		return new Statement() {
 			@Override
 			public void evaluate() throws Throwable {
-				server = mock(IServerContext.class);
+				server = mock(ITinyDB.class);
 				request = mock(IRequest.class);
-				response = mock(IResponse.class);
+				response = mock(IResponse.class, (Answer<IResponse>) invocation -> (IResponse) invocation.getMock());
 				session = mock(ISession.class);
-				database = new Database();
 
 				when(request.getServerContext()).thenReturn(server);
 				when(request.getSession()).thenReturn(session);
 				when(session.getId()).thenReturn("localhost:12345");
-				when(server.getAdminDatabase()).thenReturn(database);
+				when(session.getValue("state")).thenReturn(sessionState);
+				when(server.getAdminDatabase()).thenReturn(serverState.getAdminDatabase());
 				when(server.isMaster()).thenReturn(true);
+				when(server.getValue("state")).thenReturn(serverState);
 
 				MockitoAnnotations.initMocks(target);
 
@@ -81,14 +92,28 @@ public class CommandRule implements TestRule {
 
 				base.evaluate();
 
-				database.clear();
+				getDatabase().clear();
 			}
 		};
 	}
 
+	public CommandRule withData(String key, DatabaseValue value) {
+		withData(getDatabase(), safeKey(key), value);
+		return this;
+	}
+
+	public CommandRule withAdminData(String key, DatabaseValue value) {
+		withData(getAdminDatabase(), safeKey(key), value);
+		return this;
+	}
+
+	private void withData(IDatabase database, DatabaseKey key, DatabaseValue value) {
+		database.put(key, value);
+	}
+
 	public CommandRule execute() {
 		reset(response);
-		new CommandWrapper(command).execute(database,request,  response);
+		new RedisCommandWrapper(command).execute(request, response);
 		return this;
 	}
 
@@ -111,19 +136,32 @@ public class CommandRule implements TestRule {
 		return this;
 	}
 
-	public CommandRule withData(String key, DatabaseValue value) {
-		database.put(safeKey(key), value);
-		return this;
-	}
-
 	public CommandRule assertValue(String key, Matcher<DatabaseValue> matcher) {
-		Assert.assertThat(database.get(safeKey(key)), matcher);
+		assertValue(getDatabase(), safeKey(key), matcher);
 		return this;
 	}
 
-	public CommandRule assertKey(String key, Matcher<DatabaseKey> matcher) {
-		Assert.assertThat(database.getKey(safeKey(key)), matcher);
+	public CommandRule assertAdminValue(String key, Matcher<DatabaseValue> matcher) {
+		assertValue(getAdminDatabase(), safeKey(key), matcher);
 		return this;
+	}
+
+	public CommandRule assertKey(String key, Matcher<DatabaseValue> matcher) {
+		assertKey(getDatabase(), safeKey(key), matcher);
+		return this;
+	}
+
+	public CommandRule assertAdminKey(String key, Matcher<DatabaseValue> matcher) {
+		assertKey(getAdminDatabase(), safeKey(key), matcher);
+		return this;
+	}
+
+	private void assertKey(IDatabase database, DatabaseKey key, Matcher<DatabaseValue> matcher) {
+		Assert.assertThat(database.get(key), matcher);
+	}
+
+	private void assertValue(IDatabase database, DatabaseKey key, Matcher<DatabaseValue> matcher) {
+		Assert.assertThat(database.get(key), matcher);
 	}
 
 	public IResponse verify() {
@@ -135,11 +173,20 @@ public class CommandRule implements TestRule {
 		if (type.equals(IServerContext.class)) {
 			return (T) Mockito.verify(server);
 		}
+		else if (type.equals(ITinyDB.class)) {
+			return (T) Mockito.verify(server);
+		}
 		else if (type.equals(ISession.class)) {
 			return (T) Mockito.verify(session);
 		}
-		else {
-			return (T) verify();
-		}
+		return (T) verify();
+	}
+
+	public TinyDBServerState getServerState() {
+		return serverState;
+	}
+
+	public TinyDBSessionState getSessionState() {
+		return sessionState;
 	}
 }

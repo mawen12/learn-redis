@@ -1,6 +1,5 @@
 package com.mawen.learn.redis.basic.command.server;
 
-import com.mawen.learn.redis.basic.TinyDB;
 import com.mawen.learn.redis.basic.command.IRedisCommand;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.IDatabase;
@@ -45,7 +44,7 @@ public class SlaveOfCommand implements IRedisCommand {
 	}
 
 	private void startReplication(IRequest request, String host, String port) {
-		slave = new SlaveReplication((TinyDB)request.getServerContext(), request.getSession(), host, Integer.parseInt(port));
+		slave = new SlaveReplication(getTinyDB(request.getServerContext()), request.getSession(), host, Integer.parseInt(port));
 		slave.start();
 	}
 }

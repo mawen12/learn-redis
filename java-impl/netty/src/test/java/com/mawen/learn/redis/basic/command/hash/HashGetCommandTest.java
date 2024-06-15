@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.DatabaseValueMatchers.entry;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 
 @CommandUnderTest(HashGetCommand.class)
 public class HashGetCommandTest {

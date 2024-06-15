@@ -3,15 +3,10 @@ package com.mawen.learn.redis.basic;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
@@ -19,37 +14,18 @@ import java.util.logging.Logger;
 
 import com.mawen.learn.redis.basic.command.RedisCommandSuite;
 import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
-import com.mawen.learn.redis.basic.data.Database;
-import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.basic.persistence.PersistenceManager;
-import com.mawen.learn.redis.basic.persistence.RDBInputStream;
-import com.mawen.learn.redis.basic.persistence.RDBOutputStream;
 import com.mawen.learn.redis.resp.RedisServer;
 import com.mawen.learn.redis.resp.command.ICommand;
 import com.mawen.learn.redis.resp.command.IRequest;
 import com.mawen.learn.redis.resp.command.IResponse;
 import com.mawen.learn.redis.resp.command.ISession;
-import com.mawen.learn.redis.resp.command.Request;
 import com.mawen.learn.redis.resp.protocol.RedisToken;
 import com.mawen.learn.redis.resp.protocol.SafeString;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.string.StringEncoder;
-import io.netty.util.CharsetUtil;
-
 
 import static com.mawen.learn.redis.resp.protocol.SafeString.*;
-import static java.util.Collections.*;
 
 /**
  * Java Redis Implementation
@@ -63,7 +39,7 @@ public class TinyDB extends RedisServer implements ITinyDB {
 
 	private final BlockingQueue<List<RedisToken>> queue = new LinkedBlockingQueue<>();
 
-	private Optional<PersistenceManager> persistence;
+	private final Optional<PersistenceManager> persistence;
 
 	public TinyDB() {
 		this(DEFAULT_HOST, DEFAULT_PORT);
@@ -81,7 +57,7 @@ public class TinyDB extends RedisServer implements ITinyDB {
 		else {
 			this.persistence = Optional.empty();
 		}
-		state.put("state", new RedisServerState(config.getNumDatabases()));
+		state.put("state", new TinyDBServerState(config.getNumDatabases()));
 	}
 
 	public void start() {
@@ -98,13 +74,13 @@ public class TinyDB extends RedisServer implements ITinyDB {
 
 	@Override
 	protected void createSession(ISession session) {
-		session.putValue("state", new RedisSessionState());
+		session.putValue("state", new TinyDBSessionState());
 	}
 
 	@Override
 	protected void cleanSession(ISession session) {
 		try {
-			processCommand(new Request(this, session, safeString("unsubscribe"), emptyList()));
+			getSessionState(session).destroy();
 		}
 		finally {
 			session.destroy();
@@ -114,7 +90,7 @@ public class TinyDB extends RedisServer implements ITinyDB {
 	@Override
 	protected void executeCommand(ICommand command, IRequest request, IResponse response) {
 		ISession session = request.getSession();
-		RedisSessionState sessionState = getSessionState(session);
+		TinyDBSessionState sessionState = getSessionState(session);
 		if (!isReadOnly(command)) {
 			sessionState.enqueue(() -> {
 				try {
@@ -168,7 +144,7 @@ public class TinyDB extends RedisServer implements ITinyDB {
 		return array;
 	}
 
-	private RedisSessionState getSessionState(ISession session) {
+	private TinyDBSessionState getSessionState(ISession session) {
 		return session.getValue("state");
 	}
 
@@ -213,7 +189,7 @@ public class TinyDB extends RedisServer implements ITinyDB {
 		getState().setMaster(master);
 	}
 
-	private RedisServerState getState() {
+	private TinyDBServerState getState() {
 		return getValue("state");
 	}
 

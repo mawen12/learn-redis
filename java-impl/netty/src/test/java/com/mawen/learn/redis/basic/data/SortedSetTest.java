@@ -3,7 +3,7 @@ package com.mawen.learn.redis.basic.data;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static java.util.Collections.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;

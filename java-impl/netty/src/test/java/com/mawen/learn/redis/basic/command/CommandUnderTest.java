@@ -13,5 +13,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface CommandUnderTest {
 
-	Class<? extends ICommand> value();
+	Class<? extends IRedisCommand> value();
 }

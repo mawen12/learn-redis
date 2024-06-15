@@ -14,6 +14,7 @@ import static com.mawen.learn.redis.basic.DatabaseValueMatchers.list;
 import static com.mawen.learn.redis.basic.DatabaseValueMatchers.score;
 import static com.mawen.learn.redis.basic.DatabaseValueMatchers.set;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 

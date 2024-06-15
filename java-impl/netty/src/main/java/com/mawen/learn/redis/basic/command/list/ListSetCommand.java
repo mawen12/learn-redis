@@ -3,7 +3,6 @@ package com.mawen.learn.redis.basic.command.list;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import com.mawen.learn.redis.basic.command.IRedisCommand;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.data.DataType;

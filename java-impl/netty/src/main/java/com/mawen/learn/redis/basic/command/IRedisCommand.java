@@ -1,8 +1,8 @@
 package com.mawen.learn.redis.basic.command;
 
 import com.mawen.learn.redis.basic.ITinyDB;
-import com.mawen.learn.redis.basic.RedisServerState;
-import com.mawen.learn.redis.basic.RedisSessionState;
+import com.mawen.learn.redis.basic.TinyDBServerState;
+import com.mawen.learn.redis.basic.TinyDBSessionState;
 import com.mawen.learn.redis.basic.data.IDatabase;
 import com.mawen.learn.redis.resp.command.IRequest;
 import com.mawen.learn.redis.resp.command.IResponse;
@@ -25,11 +25,11 @@ public interface IRedisCommand {
 		return getServerState(server).getAdminDatabase();
 	}
 
-	default RedisServerState getServerState(IServerContext server) {
+	default TinyDBServerState getServerState(IServerContext server) {
 		return server.getValue("state");
 	}
 
-	default RedisSessionState getSessionState(ISession session) {
+	default TinyDBSessionState getSessionState(ISession session) {
 		return session.getValue("state");
 	}
 }

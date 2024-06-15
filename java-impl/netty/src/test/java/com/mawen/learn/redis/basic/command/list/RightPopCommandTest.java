@@ -6,7 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static com.mawen.learn.redis.basic.DatabaseValueMatchers.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 
 @CommandUnderTest(RightPopCommand.class)
 public class RightPopCommandTest {

@@ -5,8 +5,7 @@ import java.io.InputStream;
 
 import com.mawen.learn.redis.basic.ITinyDB;
 import com.mawen.learn.redis.basic.TinyDBRule;
-import com.mawen.learn.redis.basic.command.IServerContext;
-import com.mawen.learn.redis.basic.command.ISession;
+import com.mawen.learn.redis.resp.command.ISession;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +26,7 @@ public class SlaveReplicationTest {
 	public final TinyDBRule rule = new TinyDBRule();
 
 	@Mock
-	private IServerContext context;
+	private ITinyDB context;
 
 	@Mock
 	private ISession session;

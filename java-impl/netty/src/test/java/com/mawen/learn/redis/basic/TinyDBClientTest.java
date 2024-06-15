@@ -1,7 +1,9 @@
 package com.mawen.learn.redis.basic;
 
-import com.mawen.learn.redis.basic.redis.RedisToken;
-import com.mawen.learn.redis.basic.redis.RedisTokenType;
+import com.mawen.learn.redis.resp.IRedisCallback;
+import com.mawen.learn.redis.resp.RedisClient;
+import com.mawen.learn.redis.resp.protocol.RedisToken;
+import com.mawen.learn.redis.resp.protocol.RedisTokenType;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -19,8 +21,8 @@ public class TinyDBClientTest {
 	public void testClient() {
 		ArgumentCaptor<RedisToken> captor = ArgumentCaptor.forClass(RedisToken.class);
 
-		ITinyDBCallback callback = mock(ITinyDBCallback.class);
-		TinyDBClient client = new TinyDBClient(callback);
+		IRedisCallback callback = mock(IRedisCallback.class);
+		RedisClient client = new RedisClient(ITinyDB.DEFAULT_HOST, ITinyDB.DEFAULT_PORT, callback);
 
 		client.start();
 

@@ -1,13 +1,11 @@
 package com.mawen.learn.redis.basic.command;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.resp.command.IResponse;
 import com.mawen.learn.redis.resp.protocol.SafeString;
@@ -57,7 +55,10 @@ public class RedisResponse {
 
 	public RedisResponse addArrayValue(Collection<DatabaseValue> array) {
 		if (array != null) {
-			response.addArray(array.stream().map(DatabaseValue::getValue).collect(toList()));
+			response.addArray(array.stream()
+					.map(Optional::ofNullable)
+					.map(op -> op.isPresent() ? op.get().getValue() : null)
+					.collect(toList()));
 		}
 		else {
 			response.addArray(null);

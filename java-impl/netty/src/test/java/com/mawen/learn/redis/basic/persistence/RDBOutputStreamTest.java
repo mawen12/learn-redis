@@ -16,7 +16,7 @@ import static com.mawen.learn.redis.basic.DatabaseValueMatchers.score;
 import static com.mawen.learn.redis.basic.DatabaseValueMatchers.set;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
 import static com.mawen.learn.redis.basic.persistence.HexUtil.*;
-import static com.mawen.learn.redis.basic.redis.SafeString.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
