@@ -30,9 +30,9 @@ public class CommandSuite {
 		addCommand(QuitCommand.class);
 	}
 
-	protected void addCommand(Class<? extends ICommand> clazz) {
+	protected void addCommand(Class<?> clazz) {
 		try {
-			ICommand command = clazz.newInstance();
+			Object command = clazz.newInstance();
 
 			Command annotation = clazz.getAnnotation(Command.class);
 

@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 import com.mawen.learn.redis.resp.protocol.SafeString;
-import io.netty.buffer.ByteBuf;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
