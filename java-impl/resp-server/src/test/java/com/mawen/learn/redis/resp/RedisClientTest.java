@@ -7,6 +7,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import static com.mawen.learn.redis.resp.protocol.RedisToken.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -24,7 +25,7 @@ public class RedisClientTest {
 
 	private RedisClient redisClient;
 
-	private IRedisCallback callback = mock(IRedisCallback.class);
+	private final IRedisCallback callback = mock(IRedisCallback.class);
 
 	@Before
 	public void setUp() throws Exception {
@@ -43,7 +44,7 @@ public class RedisClientTest {
 		redisClient.start();
 		verify(callback, timeout(TIMEOUT)).onConnect();
 
-		redisClient.send("PING\r\n");
+		redisClient.send(array(string("PING\r\n")));
 
 		ArgumentCaptor<RedisToken> captor = ArgumentCaptor.forClass(RedisToken.class);
 

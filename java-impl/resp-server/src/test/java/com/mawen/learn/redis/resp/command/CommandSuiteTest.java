@@ -7,13 +7,13 @@ import static org.junit.Assert.*;
 
 public class CommandSuiteTest {
 
-	private CommandSuite commandSuite = new CommandSuite();
+	private final CommandSuite commandSuite = new CommandSuite();
 
 	@Test
 	public void getCommandNull() {
 		ICommand command = commandSuite.getCommand("notExists");
 
-		assertThat(command, is(NullCommand.class));
+		assertThat(command, is(instanceOf(NullCommand.class)));
 	}
 
 }

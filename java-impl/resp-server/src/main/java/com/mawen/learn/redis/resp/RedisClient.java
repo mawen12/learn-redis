@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import com.mawen.learn.redis.resp.protocol.RedisToken;
 import com.mawen.learn.redis.resp.protocol.RequestDecoder;
+import com.mawen.learn.redis.resp.protocol.RequestEncoder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -25,6 +26,8 @@ import static java.util.Objects.*;
 public class RedisClient implements IRedis {
 
 	private static final Logger logger = Logger.getLogger(RedisClient.class.getName());
+
+	private static final String DELIMITER = "\r\n";
 
 	private static final int BUFFER_SIZE = 1024 * 1024;
 	private static final int MAX_FRAME_SIZE = BUFFER_SIZE * 100;
@@ -101,6 +104,7 @@ public class RedisClient implements IRedis {
 	public void channel(SocketChannel channel) {
 		logger.info(() -> "connected to server: " + host + ":" + port);
 
+		channel.pipeline().addLast("redisEncoder", new RequestEncoder());
 		channel.pipeline().addLast("stringEncoder", new StringEncoder(CharsetUtil.UTF_8));
 		channel.pipeline().addLast("linDelimiter", new RequestDecoder(MAX_FRAME_SIZE));
 		channel.pipeline().addLast(connectionHandler);
@@ -127,8 +131,16 @@ public class RedisClient implements IRedis {
 	}
 
 	public void send(String message) {
-		if (this.context != null) {
-			this.context.writeAndFlush(message);
+		writeAndFlush(message + DELIMITER);
+	}
+
+	public void send(RedisToken message) {
+		writeAndFlush(message);
+	}
+
+	private void writeAndFlush(Object message) {
+		if (context != null) {
+			context.writeAndFlush(message);
 		}
 	}
 

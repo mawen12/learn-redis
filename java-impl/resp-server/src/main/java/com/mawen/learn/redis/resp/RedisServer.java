@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,6 +21,7 @@ import com.mawen.learn.redis.resp.command.Session;
 import com.mawen.learn.redis.resp.protocol.RedisToken;
 import com.mawen.learn.redis.resp.protocol.RedisTokenType;
 import com.mawen.learn.redis.resp.protocol.RequestDecoder;
+import com.mawen.learn.redis.resp.protocol.RequestEncoder;
 import com.mawen.learn.redis.resp.protocol.SafeString;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -32,6 +34,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import rx.Observable;
+import rx.Scheduler;
+import rx.schedulers.Schedulers;
 
 import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static java.util.Objects.*;
@@ -49,8 +54,6 @@ public class RedisServer implements IRedis, IServerContext {
 	private static final int BUFFER_SIZE = 1024 * 1024;
 	private static final int MAX_FRAME_SIZE = BUFFER_SIZE * 100;
 
-	private static final int DEFAULT_DATABASES = 10;
-
 	private final int port;
 	private final String host;
 
@@ -64,11 +67,13 @@ public class RedisServer implements IRedis, IServerContext {
 
 	private ChannelFuture future;
 
-	protected final Map<String, Object> state = new HashMap<>();
+	private final Map<String, Object> state = new HashMap<>();
 
-	protected final ThreadSafeCache<String, ISession> clients = new ThreadSafeCache<>();
+	private final ThreadSafeCache<String, ISession> clients = new ThreadSafeCache<>();
 
-	protected final CommandSuite commands;
+	private final CommandSuite commands;
+
+	private final Scheduler scheduler = Schedulers.from(Executors.newSingleThreadScheduledExecutor());
 
 
 	public RedisServer(String host, int port, CommandSuite commands) {
@@ -128,6 +133,7 @@ public class RedisServer implements IRedis, IServerContext {
 	public void channel(SocketChannel channel) {
 		logger.fine(() -> "new channel: " + sourceKey(channel));
 
+		channel.pipeline().addLast("redisEncoder", new RequestEncoder());
 		channel.pipeline().addLast("linDelimiter", new RequestDecoder(MAX_FRAME_SIZE));
 		channel.pipeline().addLast(connectionHandler);
 	}
@@ -208,28 +214,35 @@ public class RedisServer implements IRedis, IServerContext {
 	protected void processCommand(IRequest request) {
 		logger.fine(() -> "received command: " + request);
 
+		ISession session = request.getSession();
 		IResponse response = new Response();
 		ICommand command = commands.getCommand(request.getCommand());
 
 		try {
-			executeCommand(command, request, response);
+			execute(command, request, response).observeOn(scheduler).subscribe(buffer -> {
+				session.getContext().write(buffer);
+				if (response.isExit()) {
+					session.getContext().close();
+				}
+			});
 		}
 		catch (RuntimeException e) {
 			logger.log(Level.SEVERE, "error executing command: " + request, e);
 		}
 	}
 
-	protected void executeCommand(ICommand command, IRequest request, IResponse response) {
-		ISession session = request.getSession();
-		command.execute(request, response);
-		writeResponse(session, response);
-		if (response.isExit()) {
-			session.getContext().close();
-		}
+	private Observable<ByteBuf> execute(ICommand command, IRequest request, IResponse response) {
+		return Observable.create(observer -> {
+			executeCommand(command, request, response);
+
+			observer.onNext(responseToBuffer(request.getSession(), response));
+
+			observer.onCompleted();
+		});
 	}
 
-	protected void writeResponse(ISession session, IResponse response) {
-		session.getContext().writeAndFlush(responseToBuffer(session, response));
+	protected void executeCommand(ICommand command, IRequest request, IResponse response) {
+		command.execute(request, response);
 	}
 
 	private ByteBuf responseToBuffer(ISession session, IResponse response) {
@@ -278,5 +291,13 @@ public class RedisServer implements IRedis, IServerContext {
 	@SuppressWarnings("unchecked")
 	public <T> T removeValue(String key) {
 		return (T) state.remove(key);
+	}
+
+	public ISession getSession(String key) {
+		return clients.get(key);
+	}
+
+	public CommandSuite getCommands() {
+		return commands;
 	}
 }
