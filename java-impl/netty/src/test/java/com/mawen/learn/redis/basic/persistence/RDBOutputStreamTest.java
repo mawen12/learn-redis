@@ -2,10 +2,10 @@ package com.mawen.learn.redis.basic.persistence;
 
 import java.io.IOException;
 
-import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.data.SimpleDatabase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -110,7 +110,7 @@ public class RDBOutputStreamTest {
 
 	private static class DatabaseBuilder {
 
-		private final IDatabase db = new Database();
+		private final IDatabase db = new SimpleDatabase();
 
 		public DatabaseBuilder add(DatabaseKey key, DatabaseValue value) {
 			db.put(key, value);

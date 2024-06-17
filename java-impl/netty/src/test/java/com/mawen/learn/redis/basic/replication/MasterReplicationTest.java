@@ -30,7 +30,7 @@ public class MasterReplicationTest {
 
 	@Test
 	public void testReplication() {
-		when(server.getCommands()).thenReturn(asList(request()));
+		when(server.getCommandsToReplicate()).thenReturn(asList(request()));
 		when(server.getAdminDatabase()).thenReturn(db);
 
 		master.addSlave("slave:1");

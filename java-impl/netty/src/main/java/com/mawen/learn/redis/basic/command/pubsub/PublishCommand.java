@@ -10,7 +10,7 @@ import com.mawen.learn.redis.resp.annotation.Command;
 import com.mawen.learn.redis.resp.annotation.ParamLength;
 import com.mawen.learn.redis.resp.command.IRequest;
 import com.mawen.learn.redis.resp.command.IResponse;
-import com.mawen.learn.redis.resp.command.Response;
+import com.mawen.learn.redis.resp.protocol.RedisToken;
 import com.mawen.learn.redis.resp.protocol.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
@@ -52,9 +52,11 @@ public class PublishCommand implements ITinyDBCommand {
 		return admin.getOrDefault(subscriptorsKey, EMPTY_SET);
 	}
 
-	private String message(IRequest request) {
-		Response stream = new Response();
-		stream.addArray(asList(MESSAGE, request.getParam(0), request.getParam(1)));
-		return stream.toString();
+	private RedisToken.ArrayRedisToken message(IRequest request) {
+		return new RedisToken.ArrayRedisToken(asList(
+				new RedisToken.StringRedisToken(MESSAGE),
+				new RedisToken.StringRedisToken(request.getParam(0)),
+				new RedisToken.StringRedisToken(request.getParam(1))
+		));
 	}
 }

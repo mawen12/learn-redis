@@ -4,6 +4,7 @@ import com.mawen.learn.redis.basic.TinyDBServerState;
 import com.mawen.learn.redis.basic.TinyDBSessionState;
 import com.mawen.learn.redis.basic.command.annotation.ParamType;
 import com.mawen.learn.redis.basic.command.annotation.PubSubAllowed;
+import com.mawen.learn.redis.basic.command.annotation.ReadOnly;
 import com.mawen.learn.redis.basic.data.DataType;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.IDatabase;
@@ -30,6 +31,8 @@ public class TinyDBCommandWrapper implements ICommand {
 
 	private final boolean txIgnore;
 
+	private final boolean readOnly;
+
 	private final Object command;
 
 	public TinyDBCommandWrapper(Object command) {
@@ -44,8 +47,21 @@ public class TinyDBCommandWrapper implements ICommand {
 			this.dataType = type.value();
 		}
 
+		this.readOnly = command.getClass().isAnnotationPresent(ReadOnly.class);
 		this.txIgnore = command.getClass().isAnnotationPresent(TxIgnore.class);
 		this.pubSubAllowed = command.getClass().isAnnotationPresent(PubSubAllowed.class);
+	}
+
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+
+	public boolean isTxIgnore() {
+		return txIgnore;
+	}
+
+	public boolean isPubSubAllowed() {
+		return pubSubAllowed;
 	}
 
 	@Override

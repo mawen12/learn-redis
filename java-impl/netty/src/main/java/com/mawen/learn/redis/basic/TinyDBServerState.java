@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.data.SimpleDatabase;
 import com.mawen.learn.redis.basic.persistence.RDBInputStream;
 import com.mawen.learn.redis.basic.persistence.RDBOutputStream;
 
@@ -29,12 +29,12 @@ public class TinyDBServerState {
 
 	private boolean master;
 	private final List<IDatabase> databases = new ArrayList<>();
-	private final IDatabase admin = new Database();
+	private final IDatabase admin = new SimpleDatabase();
 
 	public TinyDBServerState(int numDatabases) {
 		this.master = true;
 		for (int i = 0; i < numDatabases; i++) {
-			databases.add(new Database());
+			databases.add(new SimpleDatabase());
 		}
 	}
 

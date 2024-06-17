@@ -17,8 +17,6 @@ public class TinyDBSessionState {
 
 	private final Set<SafeString> subscriptions = new HashSet<>();
 
-	private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
 	public int getCurrentDB() {
 		return db;
 	}
@@ -39,16 +37,8 @@ public class TinyDBSessionState {
 		subscriptions.remove(channel);
 	}
 
-	public void enqueue(Runnable task) {
-		executor.execute(task);
-	}
-
 	public boolean isSubscribed() {
 		return !subscriptions.isEmpty();
-	}
-
-	public void destroy() {
-		executor.shutdown();
 	}
 
 }

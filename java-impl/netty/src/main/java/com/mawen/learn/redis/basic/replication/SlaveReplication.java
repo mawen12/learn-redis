@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import com.mawen.learn.redis.basic.ITinyDB;
 import com.mawen.learn.redis.basic.persistence.ByteBufferInputStream;
@@ -77,7 +78,7 @@ public class SlaveReplication implements IRedisCallback {
 	private void processCommand(RedisToken token) {
 		List<RedisToken> array = token.getValue();
 
-		RedisToken commandToken = array.remove(0);
+		RedisToken commandToken = array.get(0);
 
 		logger.fine(() -> "command received from master: " + commandToken.getValue());
 
@@ -93,11 +94,7 @@ public class SlaveReplication implements IRedisCallback {
 	}
 
 	private List<SafeString> arrayToList(List<RedisToken> request) {
-		List<SafeString> cmd = new LinkedList<>();
-		for (RedisToken token : request) {
-			cmd.add(token.getValue());
-		}
-		return cmd;
+		return request.stream().skip(1).map(RedisToken::<SafeString>getValue).collect(Collectors.toList());
 	}
 
 	private void processRDB(RedisToken token) {

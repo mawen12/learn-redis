@@ -11,10 +11,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.CheckedInputStream;
 
-import com.mawen.learn.redis.basic.data.Database;
 import com.mawen.learn.redis.basic.data.DatabaseKey;
 import com.mawen.learn.redis.basic.data.DatabaseValue;
 import com.mawen.learn.redis.basic.data.IDatabase;
+import com.mawen.learn.redis.basic.data.SimpleDatabase;
 import com.mawen.learn.redis.resp.protocol.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
@@ -72,7 +72,7 @@ public class RDBInputStream {
 			int read = in.read();
 			switch (read) {
 				case SELECT:
-					db = new Database();
+					db = new SimpleDatabase();
 					databases.put(readLength(), db);
 					break;
 				case TTL_SECONDS:
