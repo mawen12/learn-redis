@@ -31,7 +31,7 @@ public class IncrementByCommand implements ITinyDBCommand {
 				return string(String.valueOf(current + increment));
 			});
 
-			response.addInt(value.getValue());
+			response.addInt(Integer.parseInt(value.getValue().toString()));
 		}
 		catch (NumberFormatException e) {
 			response.addError("ERR value is not an integer or out of range");

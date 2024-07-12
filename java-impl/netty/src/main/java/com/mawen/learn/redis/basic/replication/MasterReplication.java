@@ -18,8 +18,8 @@ import com.mawen.learn.redis.resp.protocol.SafeString;
 
 import static com.mawen.learn.redis.basic.data.DatabaseKey.*;
 import static com.mawen.learn.redis.basic.data.DatabaseValue.*;
+import static com.mawen.learn.redis.resp.protocol.RedisToken.*;
 import static com.mawen.learn.redis.resp.protocol.SafeString.*;
-import static java.util.Arrays.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -74,10 +74,10 @@ public class MasterReplication implements Runnable {
 
 	@Override
 	public void run() {
-		List<RedisToken.ArrayRedisToken> commands = createCommands();
+		List<RedisToken> commands = createCommands();
 
 		for (SafeString slave : getSlaves()) {
-			for (RedisToken.ArrayRedisToken command : commands) {
+			for (RedisToken command : commands) {
 				server.publish(slave.toString(), command);
 			}
 		}
@@ -91,29 +91,29 @@ public class MasterReplication implements Runnable {
 		return getAdminDatabase().getOrDefault(SLAVES_KEY, EMPTY_SET).getValue();
 	}
 
-	private List<RedisToken.ArrayRedisToken> createCommands() {
-		List<RedisToken.ArrayRedisToken> commands = new LinkedList<>();
+	private List<RedisToken> createCommands() {
+		List<RedisToken> commands = new LinkedList<>();
 		commands.add(pingCommand());
 		commands.addAll(commandsToReplicate());
 		return commands;
 	}
 
-	private List<RedisToken.ArrayRedisToken> commandsToReplicate() {
-		List<RedisToken.ArrayRedisToken> commands = new LinkedList<>();
+	private List<RedisToken> commandsToReplicate() {
+		List<RedisToken> commands = new LinkedList<>();
 
 		for (List<RedisToken> command : server.getCommandsToReplicate()) {
 			commands.add(selectCommand(command.get(0)));
-			commands.add(new RedisToken.ArrayRedisToken(command.stream().skip(1).collect(Collectors.toList())));
+			commands.add(array(command.stream().skip(1).collect(Collectors.toList())));
 		}
 		return commands;
 	}
 
-	private RedisToken.ArrayRedisToken selectCommand(RedisToken database) {
-		return new RedisToken.ArrayRedisToken(asList(new RedisToken.StringRedisToken(safeString(SELECT_COMMAND)), database));
+	private RedisToken selectCommand(RedisToken database) {
+		return array(RedisToken.string(SELECT_COMMAND), database);
 	}
 
-	private RedisToken.ArrayRedisToken pingCommand() {
-		return new RedisToken.ArrayRedisToken(asList(new RedisToken.StringRedisToken(safeString(PING_COMMAND))));
+	private RedisToken pingCommand() {
+		return array(RedisToken.string(PING_COMMAND));
 	}
 
 	private TinyDBServerState getServerState() {

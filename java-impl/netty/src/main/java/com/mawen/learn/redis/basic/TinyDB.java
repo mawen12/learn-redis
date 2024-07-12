@@ -23,8 +23,6 @@ import com.mawen.learn.redis.resp.command.IRequest;
 import com.mawen.learn.redis.resp.command.IResponse;
 import com.mawen.learn.redis.resp.command.ISession;
 import com.mawen.learn.redis.resp.protocol.RedisToken;
-import com.mawen.learn.redis.resp.protocol.SafeString;
-import io.netty.buffer.ByteBuf;
 
 import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 
@@ -126,16 +124,20 @@ public class TinyDB extends RedisServer implements ITinyDB {
 		return array;
 	}
 
-	private RedisToken.StringRedisToken commandToken(IRequest request) {
-		return new RedisToken.StringRedisToken(safeString(request.getCommand()));
+	private RedisToken commandToken(IRequest request) {
+		return RedisToken.string(safeString(request.getCommand()));
 	}
 
-	private RedisToken.IntegerRedisToken currentDbToken(IRequest request) {
-		return new RedisToken.IntegerRedisToken(getSessionState(request.getSession()).getCurrentDB());
+	private RedisToken currentDbToken(IRequest request) {
+		return RedisToken.string(String.valueOf(getCurrentDB(request)));
 	}
 
-	private List<RedisToken.StringRedisToken> paramTokens(IRequest request) {
-		return request.getParams().stream().map(RedisToken.StringRedisToken::new).collect(Collectors.toList());
+	private int getCurrentDB(IRequest request) {
+		return getSessionState(request.getSession()).getCurrentDB();
+	}
+
+	private List<RedisToken> paramTokens(IRequest request) {
+		return request.getParams().stream().map(RedisToken::string).collect(Collectors.toList());
 	}
 
 	private TinyDBSessionState getSessionState(ISession session) {

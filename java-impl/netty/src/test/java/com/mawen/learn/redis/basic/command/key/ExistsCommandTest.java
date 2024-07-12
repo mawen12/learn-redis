@@ -21,4 +21,11 @@ public class ExistsCommandTest {
 				.verify().addInt(true);
 	}
 
+	@Test
+	public void testExecuteNotExists() {
+		rule.withParams("test")
+				.execute()
+				.verify().addInt(false);
+	}
+
 }
