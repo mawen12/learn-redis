@@ -3,6 +3,7 @@ package com.mawen.learn.redis.resp.command;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.mawen.learn.redis.resp.protocol.RedisToken;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -29,8 +30,13 @@ public class Session implements ISession {
 	}
 
 	@Override
-	public ChannelHandlerContext getContext() {
-		return ctx;
+	public void publish(RedisToken msg) {
+		ctx.writeAndFlush(msg);
+	}
+
+	@Override
+	public void close() {
+		ctx.close();
 	}
 
 	@Override

@@ -3,8 +3,12 @@ package com.mawen.learn.redis.resp.command;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
+import com.mawen.learn.redis.resp.protocol.RedisToken;
 import com.mawen.learn.redis.resp.protocol.SafeString;
 
 /**
@@ -13,91 +17,73 @@ import com.mawen.learn.redis.resp.protocol.SafeString;
  */
 public class Response implements IResponse {
 
-	private static final byte ARRAY = '*';
-	private static final byte ERROR = '-';
-	private static final byte INTEGER = ':';
-	private static final byte SIMPLE_STRING = '+';
-	private static final byte BULK_STRING = '$';
-
-	private static final byte[] DELIMITER = new byte[] {'\r', '\n'};
-
-	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-
 	private boolean exit;
 
-	private final ByteBufferBuilder builder = new ByteBufferBuilder();
+	private RedisToken token;
 
 	@Override
 	public IResponse addBulkStr(SafeString str) {
-		if (str != null) {
-			builder.append(BULK_STRING).append(str.length()).append(DELIMITER).append(str);
-		}
-		else {
-			builder.append(BULK_STRING).append(-1);
-		}
-		builder.append(DELIMITER);
+		token = RedisToken.string(str);
 		return this;
 	}
 
 	@Override
 	public IResponse addSimpleStr(String str) {
-		builder.append(SIMPLE_STRING).append(str).append(DELIMITER);
-		return this;
-	}
-
-	@Override
-	public IResponse addInt(SafeString str) {
-		builder.append(INTEGER).append(str).append(DELIMITER);
+		token = RedisToken.status(str);
 		return this;
 	}
 
 	@Override
 	public IResponse addInt(int value) {
-		builder.append(INTEGER).append(value).append(DELIMITER);
-		return this;
-	}
-
-	@Override
-	public IResponse addInt(long value) {
-		builder.append(INTEGER).append(value).append(DELIMITER);
+		token = RedisToken.integer(value);
 		return this;
 	}
 
 	@Override
 	public IResponse addInt(boolean value) {
-		builder.append(INTEGER).append(value ? "1" : "0").append(DELIMITER);
+		token = RedisToken.integer(value ? 1 : 0);
 		return this;
 	}
 
 	@Override
 	public IResponse addError(String str) {
-		builder.append(ERROR).append(str).append(DELIMITER);
+		token = RedisToken.error(str);
 		return this;
 	}
 
 	@Override
 	public IResponse addArray(Collection<?> array) {
-		if (array != null) {
-			builder.append(ARRAY).append(array.size()).append(DELIMITER);
-			for (Object value : array) {
-				if (value instanceof Integer) {
-					addInt((Integer) value);
-				}
-				else if (value instanceof SafeString) {
-					addBulkStr((SafeString) value);
-				}
-				else if (value instanceof String) {
-					addSimpleStr((String) value);
-				}
-				else if (value instanceof byte[]) {
-					builder.append((byte[]) value);
-				}
-			}
+		if (array == null) {
+			token = RedisToken.array();
 		}
 		else {
-			builder.append(ARRAY).append(0).append(DELIMITER);
+			List<RedisToken> tokens = new ArrayList<>(array.size());
+			for (Object value : array) {
+				if (value instanceof Integer) {
+					tokens.add(RedisToken.integer((Integer) value));
+				}
+				else if (value instanceof Boolean){
+					Boolean b = (Boolean) value;
+					tokens.add(RedisToken.integer(b ? 1 : 0));
+				}
+				else if (value instanceof String) {
+					tokens.add(RedisToken.string((String) value));
+				}
+				else if (value instanceof SafeString) {
+					tokens.add(RedisToken.string((SafeString) value));
+				}
+				else if (value instanceof RedisToken) {
+					tokens.add((RedisToken) value);
+				}
+			}
+			token = RedisToken.array(tokens);
 		}
 		return this;
+	}
+
+	@Override
+	public RedisToken build() {
+		return token;
 	}
 
 	@Override
@@ -110,76 +96,8 @@ public class Response implements IResponse {
 		return exit;
 	}
 
-	public byte[] getBytes() {
-		return builder.build();
-	}
-
 	@Override
 	public String toString() {
-		return new String(getBytes(), DEFAULT_CHARSET);
-	}
-
-	private static class ByteBufferBuilder {
-
-		private static final int INITIAL_CAPACITY = 1024;
-
-		private ByteBuffer buffer = ByteBuffer.allocate(INITIAL_CAPACITY);
-
-		public ByteBufferBuilder append(int i) {
-			append(String.valueOf(i));
-			return this;
-		}
-
-		private ByteBufferBuilder append(long l) {
-			append(String.valueOf(l));
-			return this;
-		}
-
-		public ByteBufferBuilder append(byte b) {
-			ensureCapacity(1);
-			buffer.put(b);
-			return this;
-		}
-
-		public ByteBufferBuilder append(byte[] buf) {
-			ensureCapacity(buf.length);
-			buffer.put(buf);
-			return this;
-		}
-
-		public ByteBufferBuilder append(String str) {
-			append(DEFAULT_CHARSET.encode(str));
-			return this;
-		}
-
-		public ByteBufferBuilder append(SafeString str) {
-			append(str.getBuffer());
-			return this;
-		}
-
-		public ByteBufferBuilder append(ByteBuffer b) {
-			byte[] array = new byte[b.remaining()];
-			b.get(array);
-			append(array);
-			return this;
-		}
-
-		private void ensureCapacity(int len) {
-			if (buffer.remaining() < len) {
-				growBuffer(len);
-			}
-		}
-
-		private void growBuffer(int len) {
-			int capacity = buffer.capacity() + Math.max(len, INITIAL_CAPACITY);
-			buffer = ByteBuffer.allocate(capacity).put(build());
-		}
-
-		public byte[] build() {
-			byte[] array = new byte[buffer.position()];
-			buffer.rewind();
-			buffer.get(array);
-			return array;
-		}
+		return Objects.toString(token);
 	}
 }

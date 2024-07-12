@@ -25,7 +25,7 @@ public abstract class RedisToken {
 
 	public RedisToken(RedisTokenType type, Object value) {
 		this.type = requireNonNull(type);
-		this.value = requireNonNull(value);
+		this.value = value;
 	}
 
 	public RedisTokenType getType() {
@@ -78,7 +78,7 @@ public abstract class RedisToken {
 		return new ArrayRedisToken(asList(values));
 	}
 
-	public static RedisToken array(List<RedisToken> values) {
+	public static RedisToken array(Collection<RedisToken> values) {
 		return new ArrayRedisToken(values);
 	}
 

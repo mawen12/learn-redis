@@ -2,6 +2,7 @@ package com.mawen.learn.redis.resp.command;
 
 import java.util.Collection;
 
+import com.mawen.learn.redis.resp.protocol.RedisToken;
 import com.mawen.learn.redis.resp.protocol.SafeString;
 
 /**
@@ -19,15 +20,13 @@ public interface IResponse {
 
 	IResponse addSimpleStr(String str);
 
-	IResponse addInt(SafeString str);
-
 	IResponse addInt(int value);
-
-	IResponse addInt(long value);
 
 	IResponse addInt(boolean value);
 
 	IResponse addError(String str);
+
+	RedisToken build();
 
 	void exit();
 

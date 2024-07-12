@@ -18,13 +18,12 @@ import com.mawen.learn.redis.resp.command.ISession;
 import com.mawen.learn.redis.resp.command.Request;
 import com.mawen.learn.redis.resp.command.Response;
 import com.mawen.learn.redis.resp.command.Session;
+import com.mawen.learn.redis.resp.protocol.RedisDecoder;
+import com.mawen.learn.redis.resp.protocol.RedisEncoder;
 import com.mawen.learn.redis.resp.protocol.RedisToken;
 import com.mawen.learn.redis.resp.protocol.RedisTokenType;
-import com.mawen.learn.redis.resp.protocol.RequestDecoder;
-import com.mawen.learn.redis.resp.protocol.RequestEncoder;
 import com.mawen.learn.redis.resp.protocol.SafeString;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -82,13 +81,6 @@ public class RedisServer implements IRedis, IServerContext {
 		this.commands = requireNonNull(commands);
 	}
 
-	private int requireRange(int value, int min, int max) {
-		if (value <= min || value > max) {
-			throw new IllegalArgumentException(min + " <= " + value + " < " + max);
-		}
-		return value;
-	}
-
 	public void start() {
 		bossGroup = new NioEventLoopGroup();
 		workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
@@ -133,8 +125,8 @@ public class RedisServer implements IRedis, IServerContext {
 	public void channel(SocketChannel channel) {
 		logger.fine(() -> "new channel: " + sourceKey(channel));
 
-		channel.pipeline().addLast("redisEncoder", new RequestEncoder());
-		channel.pipeline().addLast("linDelimiter", new RequestDecoder(MAX_FRAME_SIZE));
+		channel.pipeline().addLast("redisEncoder", new RedisEncoder());
+		channel.pipeline().addLast("linDelimiter", new RedisDecoder(MAX_FRAME_SIZE));
 		channel.pipeline().addLast(connectionHandler);
 	}
 
@@ -211,7 +203,7 @@ public class RedisServer implements IRedis, IServerContext {
 		return new Request(this, session, params.remove(0), params);
 	}
 
-	protected void processCommand(IRequest request) {
+	private void processCommand(IRequest request) {
 		logger.fine(() -> "received command: " + request);
 
 		ISession session = request.getSession();
@@ -219,10 +211,10 @@ public class RedisServer implements IRedis, IServerContext {
 		ICommand command = commands.getCommand(request.getCommand());
 
 		try {
-			execute(command, request, response).observeOn(scheduler).subscribe(buffer -> {
-				session.getContext().write(buffer);
+			execute(command, request, response).observeOn(scheduler).subscribe(token -> {
+				session.publish(token);
 				if (response.isExit()) {
-					session.getContext().close();
+					session.close();
 				}
 			});
 		}
@@ -231,11 +223,11 @@ public class RedisServer implements IRedis, IServerContext {
 		}
 	}
 
-	private Observable<ByteBuf> execute(ICommand command, IRequest request, IResponse response) {
+	private Observable<RedisToken> execute(ICommand command, IRequest request, IResponse response) {
 		return Observable.create(observer -> {
 			executeCommand(command, request, response);
 
-			observer.onNext(responseToBuffer(request.getSession(), response));
+			observer.onNext(response.build());
 
 			observer.onCompleted();
 		});
@@ -243,17 +235,6 @@ public class RedisServer implements IRedis, IServerContext {
 
 	protected void executeCommand(ICommand command, IRequest request, IResponse response) {
 		command.execute(request, response);
-	}
-
-	private ByteBuf responseToBuffer(ISession session, IResponse response) {
-		byte[] array = ((Response) response).getBytes();
-		return bytesToBuffer(session, array);
-	}
-
-	private ByteBuf bytesToBuffer(ISession session, byte[] array) {
-		ByteBuf buffer = session.getContext().alloc().buffer(array.length);
-		buffer.writeBytes(array);
-		return buffer;
 	}
 
 	private String sourceKey(Channel channel) {
@@ -299,5 +280,12 @@ public class RedisServer implements IRedis, IServerContext {
 
 	public CommandSuite getCommands() {
 		return commands;
+	}
+
+	private int requireRange(int value, int min, int max) {
+		if (value <= min || value > max) {
+			throw new IllegalArgumentException(min + " <= " + value + " < " + max);
+		}
+		return value;
 	}
 }

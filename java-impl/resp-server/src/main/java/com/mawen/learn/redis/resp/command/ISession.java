@@ -1,5 +1,6 @@
 package com.mawen.learn.redis.resp.command;
 
+import com.mawen.learn.redis.resp.protocol.RedisToken;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -10,7 +11,9 @@ public interface ISession {
 
 	String getId();
 
-	ChannelHandlerContext getContext();
+	void publish(RedisToken msg);
+
+	void close();
 
 	void destroy();
 

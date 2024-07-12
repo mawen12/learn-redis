@@ -1,14 +1,15 @@
 package com.mawen.learn.redis.resp.command.server;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 import com.mawen.learn.redis.resp.annotation.Command;
 import com.mawen.learn.redis.resp.command.ICommand;
 import com.mawen.learn.redis.resp.command.IRequest;
 import com.mawen.learn.redis.resp.command.IResponse;
+import com.mawen.learn.redis.resp.protocol.RedisToken;
 
-import static java.util.stream.Collectors.*;
+import static com.mawen.learn.redis.resp.protocol.RedisToken.*;
+import static java.util.Arrays.*;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>
@@ -22,7 +23,7 @@ public class TimeCommand implements ICommand {
 	@Override
 	public void execute(IRequest request, IResponse response) {
 		long currentTimeMillis = System.currentTimeMillis();
-		List<String> result = Stream.of(seconds(currentTimeMillis), microseconds(currentTimeMillis)).collect(toList());
+		List<RedisToken> result = asList(string(seconds(currentTimeMillis)), string(microseconds(currentTimeMillis)));
 		response.addArray(result);
 	}
 
