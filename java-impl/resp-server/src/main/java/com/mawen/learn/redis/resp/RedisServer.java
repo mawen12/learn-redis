@@ -188,8 +188,8 @@ public class RedisServer implements IRedis, IServerContext {
 	}
 
 	private Request parseLine(String sourceKey, RedisToken message, ISession session) {
-		String command = message.getValue();
-		String[] params = command.split(" ");
+		SafeString command = message.getValue();
+		String[] params = command.toString().split(" ");
 		String[] array = new String[params.length - 1];
 		System.arraycopy(params, 1, array, 0, array.length);
 		return new Request(this, session, safeString(params[0]), safeAsList(array));

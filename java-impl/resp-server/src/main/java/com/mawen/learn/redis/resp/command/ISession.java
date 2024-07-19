@@ -1,7 +1,6 @@
 package com.mawen.learn.redis.resp.command;
 
 import com.mawen.learn.redis.resp.protocol.RedisToken;
-import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @author <a href="1181963012mw@gmail.com">mawen12</a>

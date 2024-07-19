@@ -2,12 +2,14 @@ package com.mawen.learn.redis.resp;
 
 import com.mawen.learn.redis.resp.protocol.RedisToken;
 import com.mawen.learn.redis.resp.protocol.RedisTokenType;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import static com.mawen.learn.redis.resp.protocol.RedisToken.*;
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -52,7 +54,30 @@ public class RedisClientTest {
 
 		RedisToken token = captor.getValue();
 		assertThat(token.getType(), equalTo(RedisTokenType.STATUS));
-		assertThat(token.getValue(), equalTo("PONG"));
+		assertThat(token.<SafeString>getValue(), equalTo(safeString("PONG")));
+	}
+
+	@Test
+	public void onBigMessage() {
+		redisClient.start();
+		verify(callback, timeout(TIMEOUT)).onConnect();
+
+		redisClient.send(array(string("PING"), string(readBigFile())));
+
+		ArgumentCaptor<RedisToken> captor = ArgumentCaptor.forClass(RedisToken.class);
+
+		verify(callback, timeout(TIMEOUT)).onMessage(captor.capture());
+
+		RedisToken token = captor.getValue();
+		assertThat(token.getType(), equalTo(RedisTokenType.STRING));
+	}
+
+	private String readBigFile() {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < 10000; i++) {
+			sb.append("lkjsdfkjaskjflskjf");
+		}
+		return sb.toString();
 	}
 
 	@Test

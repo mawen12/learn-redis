@@ -3,11 +3,13 @@ package com.mawen.learn.redis.resp;
 import com.mawen.learn.redis.resp.command.CommandSuite;
 import com.mawen.learn.redis.resp.protocol.RedisToken;
 import com.mawen.learn.redis.resp.protocol.RedisTokenType;
+import com.mawen.learn.redis.resp.protocol.SafeString;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -39,7 +41,7 @@ public class RedisServerTest {
 	public void serverRespond() {
 		RedisClient client = createClient();
 
-		client.send("PING\r\n");
+		client.send(RedisToken.array(RedisToken.string("PING\r\n")));
 
 		verifyResponse("PONG");
 	}
@@ -98,6 +100,6 @@ public class RedisServerTest {
 
 		RedisToken token = captor.getValue();
 		assertThat(token.getType(), equalTo(RedisTokenType.STATUS));
-		assertThat(token.getValue(), equalTo(response));
+		assertThat(token.<SafeString>getValue(), equalTo(safeString(response)));
 	}
 }

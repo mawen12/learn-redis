@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.Test;
 
+import static com.mawen.learn.redis.resp.protocol.SafeString.*;
 import static org.hamcrest.core.IsEqual.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -20,19 +21,17 @@ public class RedisParserTest {
 
 	private final RedisParser parser = new RedisParser(100000, source);
 
-	private final Charset utf8 = StandardCharsets.UTF_8;
-
 	private final RedisToken intToken = RedisToken.integer(1);
 	private final RedisToken abcString = RedisToken.string("abc");
 	private final RedisToken pongString = RedisToken.status("pong");
 	private final RedisToken errorString = RedisToken.error("ERR");
 	private final RedisToken arrayToken = RedisToken.array(intToken, abcString);
-	private final RedisToken unknownString = new RedisToken.UnknownRedisToken("what?");
+	private final RedisToken unknownString = new RedisToken.UnknownRedisToken(safeString("what?"));
 
 	@Test
 	public void testBulkString() {
-		when(source.readLine()).thenReturn("$3");
-		when(source.readBytes(3)).thenReturn(ByteBuffer.wrap("abc".getBytes(utf8)));
+		when(source.readLine()).thenReturn(safeString("$3"));
+		when(source.readString(3)).thenReturn(safeString("abc"));
 
 		RedisToken token = parser.parse();
 
@@ -41,7 +40,7 @@ public class RedisParserTest {
 
 	@Test
 	public void testSimpleString() {
-		when(source.readLine()).thenReturn("+pong");
+		when(source.readLine()).thenReturn(safeString("+pong"));
 
 		RedisToken token = parser.parse();
 
@@ -50,7 +49,7 @@ public class RedisParserTest {
 
 	@Test
 	public void testInteger() {
-		when(source.readLine()).thenReturn(":1");
+		when(source.readLine()).thenReturn(safeString(":1"));
 
 		RedisToken token = parser.parse();
 
@@ -59,7 +58,7 @@ public class RedisParserTest {
 
 	@Test
 	public void testErrorString() {
-		when(source.readLine()).thenReturn("-ERR");
+		when(source.readLine()).thenReturn(safeString("-ERR"));
 
 		RedisToken token = parser.parse();
 
@@ -68,7 +67,7 @@ public class RedisParserTest {
 
 	@Test
 	public void testUnknownString() {
-		when(source.readLine()).thenReturn("what?");
+		when(source.readLine()).thenReturn(safeString("what?"));
 
 		RedisToken token = parser.parse();
 
@@ -77,8 +76,8 @@ public class RedisParserTest {
 
 	@Test
 	public void testArray() {
-		when(source.readLine()).thenReturn("*2", ":1", "$3");
-		when(source.readBytes(3)).thenReturn(ByteBuffer.wrap("abc".getBytes(utf8)));
+		when(source.readLine()).thenReturn(safeString("*2"), safeString(":1"), safeString("$3"));
+		when(source.readString(3)).thenReturn(safeString("abc"));
 
 		RedisToken token = parser.parse();
 

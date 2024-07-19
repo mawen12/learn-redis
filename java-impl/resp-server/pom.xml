@@ -16,7 +16,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.0.33.Final</version>
+            <version>4.0.37.Final</version>
         </dependency>
 
         <dependency>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>io.reactivex</groupId>
             <artifactId>rxjava</artifactId>
-            <version>1.1.0</version>
+            <version>1.1.5</version>
         </dependency>
 
 
