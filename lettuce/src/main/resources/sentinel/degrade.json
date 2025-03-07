@@ -1,0 +1,31 @@
+[
+  {
+    "resource": "abc",
+    "limitApp": "default",
+    "count": 1000.0,
+    "timeWindow": 3,
+    "grade": 0,
+    "minRequestAmount": 5,
+    "slowRatioThreshold": 0.5,
+    "statIntervalMs": 1000
+  },
+  {
+    "resource": "cde",
+    "limitApp": "default",
+    "count": 0.5,
+    "timeWindow": 3,
+    "grade": 1,
+    "minRequestAmount": 5,
+    "statIntervalMs": 1000
+  },
+  {
+    "resource": "efg",
+    "limitApp": "default",
+    "count": 5.0,
+    "timeWindow": 3,
+    "grade": 2,
+    "minRequestAmount": 5,
+    "slowRatioThreshold": 1.0,
+    "statIntervalMs": 1000
+  }
+]

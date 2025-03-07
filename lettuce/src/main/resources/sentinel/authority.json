@@ -1,0 +1,12 @@
+[
+  {
+    "resource": "abc",
+    "limitApp": "ast,model",
+    "strategy": 0
+  },
+  {
+    "resource": "abcd",
+    "limitApp": "model,quality",
+    "strategy": 1
+  }
+]

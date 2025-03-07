@@ -1,0 +1,73 @@
+[
+  {
+    "limitApp": "default",
+    "resource": "a",
+    "grade": 1,
+    "count": 10.0,
+    "strategy": 0,
+    "controlBehavior": 0,
+    "warmUpPeriodSec": 10,
+    "maxQueueingTimeMs": 500,
+    "clusterMode": false
+  },
+  {
+    "limitApp": "default",
+    "resource": "b",
+    "grade": 0,
+    "count": 20.0,
+    "strategy": 0,
+    "refResource": null,
+    "controlBehavior": 0,
+    "warmUpPeriodSec": 10,
+    "maxQueueingTimeMs": 500,
+    "clusterMode": false
+  },
+  {
+    "limitApp": "default",
+    "resource": "c",
+    "grade": 1,
+    "count": 30.0,
+    "strategy": 1,
+    "refResource": "a",
+    "controlBehavior": 1,
+    "warmUpPeriodSec": 10,
+    "maxQueueingTimeMs": 500,
+    "clusterMode": false
+  },
+  {
+    "limitApp": "default",
+    "resource": "d",
+    "grade": 1,
+    "count": 40.0,
+    "strategy": 2,
+    "refResource": "b",
+    "controlBehavior": 2,
+    "warmUpPeriodSec": 10,
+    "maxQueueingTimeMs": 1000,
+    "clusterMode": false
+  },
+  {
+    "limitApp": "default",
+    "resource": "e",
+    "grade": 1,
+    "count": 50.0,
+    "strategy": 0,
+    "refResource": null,
+    "controlBehavior": 0,
+    "warmUpPeriodSec": 10,
+    "maxQueueingTimeMs": 500,
+    "clusterMode": true,
+    "clusterConfig": {
+      "flowId": 29,
+      "thresholdType": 1,
+      "fallbackToLocalWhenFail": true,
+      "strategy": 0,
+      "sampleCount": 10,
+      "windowIntervalMs": 1000,
+      "resourceTimeout": 2000,
+      "resourceTimeoutStrategy": 0,
+      "acquireRefuseStrategy": 0,
+      "clientOfflineTime": 2000
+    }
+  }
+]

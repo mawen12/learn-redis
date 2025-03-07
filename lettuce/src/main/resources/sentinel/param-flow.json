@@ -1,0 +1,69 @@
+[
+  {
+    "resource": "a",
+    "limitApp": "default",
+    "regex": false,
+    "grade": 1,
+    "paramIdx": 1,
+    "count": 10.0,
+    "controlBehavior": 0,
+    "maxQueueingTimeMs": 0,
+    "burstCount": 0,
+    "durationInSec": 1,
+    "paramFlowItemList": [
+      {
+        "object": "1",
+        "count": 10,
+        "classType": "int"
+      }
+    ],
+    "clusterMode": false
+  },
+  {
+    "resource": "b",
+    "limitApp": "default",
+    "regex": false,
+    "grade": 1,
+    "paramIdx": 3,
+    "count": 20.0,
+    "controlBehavior": 0,
+    "maxQueueingTimeMs": 0,
+    "burstCount": 0,
+    "durationInSec": 2,
+    "paramFlowItemList": [
+      {
+        "object": "1.5",
+        "count": 20,
+        "classType": "double"
+      }
+    ],
+    "clusterMode": false
+  },
+  {
+    "resource": "c",
+    "limitApp": "default",
+    "regex": false,
+    "grade": 1,
+    "paramIdx": 4,
+    "count": 30.0,
+    "controlBehavior": 0,
+    "maxQueueingTimeMs": 0,
+    "burstCount": 0,
+    "durationInSec": 3,
+    "paramFlowItemList": [
+      {
+        "object": "5",
+        "count": 50,
+        "classType": "long"
+      }
+    ],
+    "clusterMode": true,
+    "clusterConfig": {
+      "flowId": 12,
+      "thresholdType": 0,
+      "fallbackToLocalWhenFail": true,
+      "sampleCount": 10,
+      "windowIntervalMs": 1000
+    }
+  }
+]

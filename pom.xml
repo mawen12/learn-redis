@@ -4,6 +4,7 @@
     <version>1.0</version>
     <modules>
         <module>java-impl</module>
+        <module>lettuce</module>
     </modules>
 
     <groupId>com.mawen</groupId>
